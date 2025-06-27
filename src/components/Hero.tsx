@@ -10,11 +10,12 @@ const Hero = () => {
       
       {/* Navigation */}
       <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12">
-        <div className="flex items-center space-x-2">
-          <div className="h-8 w-8 bg-white rounded-full flex items-center justify-center">
-            <span className="text-blue-900 font-bold text-sm">AI</span>
-          </div>
-          <span className="text-xl font-bold">America Innovates</span>
+        <div className="flex items-center space-x-3">
+          <img 
+            src="/lovable-uploads/841cd47d-53a5-4d25-9e58-3ab51a099cf8.png" 
+            alt="America Innovates Magazine" 
+            className="h-12 w-auto"
+          />
         </div>
         
         <div className="hidden md:flex items-center space-x-8">

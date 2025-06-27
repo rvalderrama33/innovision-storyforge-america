@@ -9,12 +9,12 @@ const Hero = () => {
       <div className="absolute inset-0 bg-black/20"></div>
       
       {/* Navigation */}
-      <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12">
+      <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12 bg-white/10 backdrop-blur-sm">
         <div className="flex items-center space-x-3">
           <img 
             src="/lovable-uploads/841cd47d-53a5-4d25-9e58-3ab51a099cf8.png" 
             alt="America Innovates Magazine" 
-            className="h-12 w-auto"
+            className="h-36 w-auto"
           />
         </div>
         

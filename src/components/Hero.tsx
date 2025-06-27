@@ -9,8 +9,8 @@ const Hero = () => {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?ixlib=rb-4.0.3&auto=format&fit=crop&w=6000&q=80"
-          alt="People collaborating together"
+          src="https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=6000&q=80"
+          alt="Man in professional setting"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-white/[0.325]"></div>

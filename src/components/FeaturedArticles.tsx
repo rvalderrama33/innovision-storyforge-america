@@ -32,66 +32,69 @@ const FeaturedArticles = () => {
   ];
 
   return (
-    <section className="py-16 px-6 lg:px-12 bg-gray-50">
+    <section className="py-16 px-6 lg:px-12 bg-white">
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Featured Product Stories
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6 tracking-tight">
+            Featured Stories
           </h2>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <div className="w-24 h-1 bg-gray-900 mx-auto mb-6"></div>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
             Dive into the latest consumer product innovations and meet the brilliant minds behind tomorrow's must-have items.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mb-12">
           {/* Featured Article */}
-          <Card className="lg:col-span-2 overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer">
-            <div className="md:flex">
-              <div className="md:w-1/2">
+          <div className="lg:col-span-8">
+            <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group cursor-pointer border-0 shadow-lg">
+              <div className="relative">
                 <img 
                   src={articles[0].image} 
                   alt={articles[0].title}
-                  className="w-full h-64 md:h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700"
                 />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+                  <Badge className="bg-white/20 backdrop-blur-sm text-white border-white/30 mb-4">
+                    {articles[0].category}
+                  </Badge>
+                  <h3 className="text-3xl font-bold mb-3 leading-tight">
+                    {articles[0].title}
+                  </h3>
+                  <p className="text-white/90 text-lg leading-relaxed">
+                    {articles[0].excerpt}
+                  </p>
+                </div>
               </div>
-              <CardContent className="md:w-1/2 p-8">
-                <div className="flex items-center gap-3 mb-4">
-                  <Badge className="bg-blue-600 text-white">{articles[0].category}</Badge>
-                  <span className="text-sm text-gray-500">{articles[0].readTime}</span>
-                </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">
-                  {articles[0].title}
-                </h3>
-                <p className="text-gray-600 text-lg leading-relaxed">
-                  {articles[0].excerpt}
-                </p>
-              </CardContent>
-            </div>
-          </Card>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {articles.slice(1).map((article) => (
-            <Card key={article.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer">
-              <img 
-                src={article.image} 
-                alt={article.title}
-                className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-              />
-              <CardContent className="p-6">
-                <div className="flex items-center gap-3 mb-3">
-                  <Badge variant="secondary">{article.category}</Badge>
-                  <span className="text-sm text-gray-500">{article.readTime}</span>
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
-                  {article.title}
-                </h3>
-                <p className="text-gray-600">
-                  {article.excerpt}
-                </p>
-              </CardContent>
             </Card>
-          ))}
+          </div>
+
+          {/* Side Articles */}
+          <div className="lg:col-span-4 space-y-6">
+            {articles.slice(1).map((article) => (
+              <Card key={article.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-200">
+                <div className="flex">
+                  <div className="w-1/3">
+                    <img 
+                      src={article.image} 
+                      alt={article.title}
+                      className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                  </div>
+                  <CardContent className="w-2/3 p-6 flex flex-col justify-center">
+                    <Badge variant="secondary" className="mb-2 w-fit text-xs">
+                      {article.category}
+                    </Badge>
+                    <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors leading-tight">
+                      {article.title}
+                    </h3>
+                    <span className="text-sm text-gray-500">{article.readTime}</span>
+                  </CardContent>
+                </div>
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     </section>

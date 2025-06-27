@@ -9,11 +9,11 @@ const Hero = () => {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&auto=format&fit=crop&w=6000&q=80"
+          src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?ixlib=rb-4.0.3&auto=format&fit=crop&w=6000&q=80"
           alt="People collaborating together"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-white/42.5"></div>
+        <div className="absolute inset-0 bg-white/85"></div>
       </div>
 
       {/* Navigation */}

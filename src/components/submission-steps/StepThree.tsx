@@ -29,28 +29,28 @@ const StepThree = ({ data, onUpdate }: StepThreeProps) => {
   const questions = [
     {
       key: "ideaOrigin",
-      label: "How did the idea come to you?",
-      placeholder: "Describe the moment or experience that sparked your innovation..."
+      label: "How did the product idea come to you?",
+      placeholder: "Describe the moment or experience that sparked your product innovation..."
     },
     {
       key: "biggestChallenge",
-      label: "What was your biggest challenge?",
+      label: "What was your biggest challenge in developing this product?",
       placeholder: "Tell us about the most difficult obstacle you've faced and how you overcame it..."
     },
     {
       key: "proudestMoment",
       label: "What was your proudest moment so far?",
-      placeholder: "Share a moment when you felt most proud of your progress or achievement..."
+      placeholder: "Share a moment when you felt most proud of your progress or consumer response..."
     },
     {
       key: "inspiration",
-      label: "Who helped or inspired you most?",
-      placeholder: "Mention mentors, family, colleagues, or anyone who supported your journey..."
+      label: "Who helped or inspired you most in this journey?",
+      placeholder: "Mention mentors, family, colleagues, or anyone who supported your product development..."
     },
     {
       key: "motivation",
-      label: "What motivates you to keep going?",
-      placeholder: "What drives you to continue working on this innovation despite challenges?"
+      label: "What motivates you to keep improving this product?",
+      placeholder: "What drives you to continue developing and perfecting your consumer product?"
     }
   ];
 
@@ -58,10 +58,10 @@ const StepThree = ({ data, onUpdate }: StepThreeProps) => {
     <div className="space-y-6">
       <div className="text-center mb-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Your Innovation Journey
+          Your Product Development Journey
         </h3>
         <p className="text-gray-600">
-          Share the story behind your innovation - the challenges, victories, and what keeps you going.
+          Share the story behind your consumer product - the challenges, victories, and what keeps you innovating.
         </p>
       </div>
 
@@ -82,8 +82,8 @@ const StepThree = ({ data, onUpdate }: StepThreeProps) => {
 
       <div className="bg-blue-50 p-4 rounded-lg">
         <p className="text-sm text-blue-800">
-          <strong>💡 Tip:</strong> These stories help us craft a compelling narrative that will inspire our readers. 
-          Be authentic and detailed - your journey is what makes your innovation truly special.
+          <strong>💡 Tip:</strong> These stories help us craft a compelling narrative that will resonate with consumers and fellow innovators. 
+          Be authentic and detailed - your product development journey is what makes your innovation truly inspiring.
         </p>
       </div>
     </div>

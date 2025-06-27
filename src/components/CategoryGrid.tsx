@@ -4,46 +4,46 @@ import { Card, CardContent } from "@/components/ui/card";
 const CategoryGrid = () => {
   const categories = [
     {
-      title: "Spotlight Profiles",
-      description: "In-depth features on breakthrough inventors",
-      count: "24 stories",
+      title: "Home & Living",
+      description: "Smart appliances, furniture, and lifestyle products",
+      count: "32 products",
       color: "bg-blue-600",
-      icon: "👤"
+      icon: "🏠"
     },
     {
-      title: "Emerging Innovators",
-      description: "Young minds changing the world",
-      count: "18 profiles",
-      color: "bg-orange-500",
-      icon: "🌟"
-    },
-    {
-      title: "Innovation Labs",
-      description: "Inside the world's leading R&D facilities",
-      count: "12 features",
-      color: "bg-purple-600",
-      icon: "🔬"
-    },
-    {
-      title: "Historical Inventors",
-      description: "Celebrating the pioneers who paved the way",
-      count: "15 tributes",
+      title: "Health & Wellness",
+      description: "Fitness trackers, wellness devices, and health gadgets",
+      count: "28 innovations",
       color: "bg-green-600",
-      icon: "📜"
+      icon: "💪"
     },
     {
-      title: "Tech Breakthroughs",
-      description: "The latest in cutting-edge technology",
-      count: "32 articles",
-      color: "bg-red-500",
-      icon: "⚡"
+      title: "Kitchen & Food",
+      description: "Cooking gadgets, food tech, and culinary innovations",
+      count: "24 products",
+      color: "bg-orange-500",
+      icon: "🍳"
     },
     {
-      title: "Global Impact",
-      description: "Innovations solving worldwide challenges",
-      count: "21 stories",
+      title: "Tech Accessories",
+      description: "Phone cases, chargers, and digital lifestyle products",
+      count: "35 items",
+      color: "bg-purple-600",
+      icon: "📱"
+    },
+    {
+      title: "Outdoor & Travel",
+      description: "Adventure gear, travel accessories, and outdoor innovations",
+      count: "19 products",
       color: "bg-teal-600",
-      icon: "🌍"
+      icon: "🎒"
+    },
+    {
+      title: "Kids & Family",
+      description: "Educational toys, family products, and child safety innovations",
+      count: "22 stories",
+      color: "bg-red-500",
+      icon: "👨‍👩‍👧‍👦"
     }
   ];
 
@@ -52,10 +52,10 @@ const CategoryGrid = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Explore by Category
+            Explore by Product Category
           </h2>
           <p className="text-xl text-gray-600">
-            Discover stories across every field of innovation
+            Discover consumer product innovations across every aspect of daily life
           </p>
         </div>
 

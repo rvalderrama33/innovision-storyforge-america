@@ -7,10 +7,10 @@ const Newsletter = () => {
     <section className="py-16 px-6 lg:px-12 bg-gradient-to-r from-blue-900 to-purple-900 text-white">
       <div className="max-w-4xl mx-auto text-center">
         <h2 className="text-3xl md:text-4xl font-bold mb-4">
-          Stay Inspired Weekly
+          Stay Ahead of Product Trends
         </h2>
         <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-          Get the latest innovation stories, inventor spotlights, and breakthrough discoveries delivered to your inbox.
+          Get the latest consumer product innovations, inventor spotlights, and breakthrough products delivered to your inbox.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
@@ -25,7 +25,7 @@ const Newsletter = () => {
         </div>
         
         <p className="text-sm text-blue-200 mt-4">
-          Join 50,000+ innovators and entrepreneurs. Unsubscribe anytime.
+          Join 50,000+ product enthusiasts and entrepreneurs. Unsubscribe anytime.
         </p>
       </div>
     </section>

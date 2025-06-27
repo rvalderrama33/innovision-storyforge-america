@@ -17,9 +17,9 @@ const SubmissionWizard = () => {
 
   const steps = [
     { number: 1, title: "About You", component: StepOne },
-    { number: 2, title: "Your Innovation", component: StepTwo },
+    { number: 2, title: "Your Product", component: StepTwo },
     { number: 3, title: "Your Journey", component: StepThree },
-    { number: 4, title: "Visual Assets", component: StepFour },
+    { number: 4, title: "Product Photos", component: StepFour },
     { number: 5, title: "Review & Submit", component: StepFive }
   ];
 
@@ -67,7 +67,7 @@ const SubmissionWizard = () => {
         <div className="mb-8">
           <div className="flex justify-between items-center mb-4">
             <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-              Share Your Innovation Story
+              Share Your Product Innovation Story
             </h1>
             <span className="text-sm font-medium text-gray-600">
               {Math.round(progress)}% Complete

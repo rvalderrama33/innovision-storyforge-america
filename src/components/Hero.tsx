@@ -25,7 +25,7 @@ const Hero = () => {
         
         <Link to="/submit">
           <Button className="bg-orange-500 hover:bg-orange-600 text-white border-0">
-            Share Your Story
+            Share Your Product
           </Button>
         </Link>
       </nav>
@@ -35,19 +35,19 @@ const Hero = () => {
         <div className="max-w-4xl">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
             Celebrating the
-            <span className="text-orange-400"> Inventors</span>
+            <span className="text-orange-400"> Product Innovators</span>
             <br />
-            Shaping Tomorrow
+            Changing How We Live
           </h1>
           
           <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-2xl leading-relaxed">
-            Discover breakthrough innovations, meet visionary creators, and explore the ideas that will define our future.
+            Discover breakthrough consumer products, meet visionary creators, and explore the innovations that make everyday life better.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4">
             <Link to="/submit">
               <Button size="lg" className="bg-white text-blue-900 hover:bg-blue-50 text-lg px-8 py-4">
-                Submit Your Innovation
+                Submit Your Product Innovation
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
@@ -57,7 +57,7 @@ const Hero = () => {
               variant="outline" 
               className="border-white text-white hover:bg-white hover:text-blue-900 text-lg px-8 py-4"
             >
-              Read Latest Stories
+              Read Latest Product Stories
             </Button>
           </div>
         </div>

@@ -6,28 +6,28 @@ const FeaturedArticles = () => {
   const articles = [
     {
       id: 1,
-      title: "Revolutionary AI Prosthetic Gives Amputees Natural Control",
-      excerpt: "Meet Sarah Chen, the biomedical engineer whose breakthrough neural interface is transforming lives across America.",
+      title: "The Smart Water Bottle That's Revolutionizing Hydration",
+      excerpt: "Meet Lisa Park, whose AI-powered hydration tracker has sold over 2 million units and is helping people live healthier lives.",
       category: "Spotlight Profile",
       readTime: "8 min read",
-      image: "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?w=600&h=400&fit=crop",
+      image: "https://images.unsplash.com/photo-1523362628745-0c100150b504?w=600&h=400&fit=crop",
       featured: true
     },
     {
       id: 2,
-      title: "The 16-Year-Old Who Solved Ocean Plastic Pollution",
-      excerpt: "High school inventor Marcus Thompson's revolutionary filtration system is being deployed worldwide.",
+      title: "The 19-Year-Old Who Created the Perfect Phone Stand",
+      excerpt: "College student Jake Rodriguez turned a dorm room idea into a $5M business with his ergonomic phone accessory.",
       category: "Emerging Innovators",
       readTime: "6 min read",
-      image: "https://images.unsplash.com/photo-1488590528505-98d2b5aba04b?w=600&h=400&fit=crop"
+      image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop"
     },
     {
       id: 3,
-      title: "Inside Tesla's Secret Battery Breakthrough Lab",
-      excerpt: "Exclusive access to the research facility developing the next generation of energy storage.",
+      title: "Inside Dyson's Secret Home Innovation Lab",
+      excerpt: "Exclusive access to the research facility developing the next generation of home appliances and cleaning technology.",
       category: "Innovation Labs",
       readTime: "12 min read",
-      image: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?w=600&h=400&fit=crop"
+      image: "https://images.unsplash.com/photo-1558618047-3c8c6d68b6c7?w=600&h=400&fit=crop"
     }
   ];
 
@@ -36,10 +36,10 @@ const FeaturedArticles = () => {
       <div className="max-w-7xl mx-auto">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-            Featured Stories
+            Featured Product Stories
           </h2>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-            Dive into the latest innovations and meet the brilliant minds behind tomorrow's breakthroughs.
+            Dive into the latest consumer product innovations and meet the brilliant minds behind tomorrow's must-have items.
           </p>
         </div>
 

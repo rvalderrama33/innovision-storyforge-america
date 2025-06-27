@@ -15,7 +15,8 @@ const StepFour = ({ data, onUpdate }: StepFourProps) => {
     headshot: data.headshot || null,
     productImages: data.productImages || [],
     logo: data.logo || null,
-    otherImages: data.otherImages || []
+    lifestyleImages: data.lifestyleImages || [],
+    packagingImages: data.packagingImages || []
   });
 
   useEffect(() => {
@@ -33,21 +34,21 @@ const StepFour = ({ data, onUpdate }: StepFourProps) => {
     {
       key: "productImages",
       title: "Product Images *",
-      description: "Photos of your product, prototype, or renderings",
+      description: "High-quality photos of your product from multiple angles",
       required: true,
       multiple: true
     },
     {
-      key: "logo",
-      title: "Logo (Optional)",
-      description: "Your company or product logo",
+      key: "lifestyleImages",
+      title: "Lifestyle Photos",
+      description: "Photos showing your product being used in real-life situations",
       required: false,
-      multiple: false
+      multiple: true
     },
     {
-      key: "otherImages",
-      title: "Additional Images (Optional)",
-      description: "Team photos, sketches, behind-the-scenes images",
+      key: "packagingImages",
+      title: "Packaging & Branding",
+      description: "Photos of your product packaging, logos, or branding materials",
       required: false,
       multiple: true
     }
@@ -62,7 +63,7 @@ const StepFour = ({ data, onUpdate }: StepFourProps) => {
     
     setFormData(prev => ({
       ...prev,
-      [key]: key.includes("Images") || key === "otherImages" ? fileArray : fileArray[0]
+      [key]: key.includes("Images") ? fileArray : fileArray[0]
     }));
   };
 
@@ -70,10 +71,10 @@ const StepFour = ({ data, onUpdate }: StepFourProps) => {
     <div className="space-y-6">
       <div className="text-center mb-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Visual Assets
+          Product Visual Assets
         </h3>
         <p className="text-gray-600">
-          Upload images that will help tell your story visually in the magazine feature.
+          Upload high-quality images that showcase your product and tell its story visually.
         </p>
       </div>
 
@@ -124,9 +125,10 @@ const StepFour = ({ data, onUpdate }: StepFourProps) => {
         <p className="text-sm text-yellow-800">
           <strong>📸 Image Guidelines:</strong><br />
           • High resolution (at least 1024px wide)<br />
-          • Professional quality preferred<br />
-          • Clear, well-lit photos work best<br />
-          • Multiple angles of your product are helpful
+          • Professional quality with good lighting<br />
+          • Clean backgrounds work best for product shots<br />
+          • Show your product in use for lifestyle photos<br />
+          • Multiple angles help tell the complete story
         </p>
       </div>
     </div>

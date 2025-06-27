@@ -13,7 +13,7 @@ const Hero = () => {
           alt="Group of people smiling together"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-white/[0.325]"></div>
+        <div className="absolute inset-0 bg-white/50"></div>
       </div>
 
       {/* Navigation */}

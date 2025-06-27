@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -14,9 +13,6 @@ const Hero = () => {
           <h1 className="text-3xl lg:text-4xl font-bold text-white">
             America Innovates
           </h1>
-          <span className="text-sm text-orange-300 font-medium">
-            Spotlighting the Builders of Tomorrow
-          </span>
         </div>
         
         <div className="hidden md:flex items-center space-x-8">
@@ -36,10 +32,8 @@ const Hero = () => {
       <div className="relative z-10 px-6 py-16 lg:px-12 lg:py-24">
         <div className="max-w-4xl">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold leading-tight mb-6">
-            Celebrating the
-            <span className="text-orange-400"> Product Innovators</span>
-            <br />
-            Changing How We Live
+            Spotlighting the
+            <span className="text-orange-400"> Builders of Tomorrow</span>
           </h1>
           
           <p className="text-xl md:text-2xl text-blue-100 mb-8 max-w-2xl leading-relaxed">

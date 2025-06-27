@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -6,8 +5,18 @@ import { Link } from "react-router-dom";
 const Hero = () => {
   return (
     <div className="relative overflow-hidden bg-white">
+      {/* Background Image */}
+      <div className="absolute inset-0 z-0">
+        <img 
+          src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=6000&q=80"
+          alt="Entrepreneurs working together"
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-white/85"></div>
+      </div>
+
       {/* Navigation */}
-      <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12 border-b border-gray-200">
+      <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12 border-b border-gray-200/50 backdrop-blur-sm bg-white/50">
         <div className="flex items-center space-x-3">
           <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">
             America Innovates
@@ -64,9 +73,9 @@ const Hero = () => {
       </div>
 
       {/* Decorative Elements */}
-      <div className="absolute top-1/4 right-1/4 w-2 h-2 bg-gray-300 rounded-full"></div>
-      <div className="absolute bottom-1/3 left-1/6 w-1 h-1 bg-gray-400 rounded-full"></div>
-      <div className="absolute top-1/2 right-1/6 w-3 h-3 bg-gray-200 rounded-full"></div>
+      <div className="absolute top-1/4 right-1/4 w-2 h-2 bg-gray-300 rounded-full z-5"></div>
+      <div className="absolute bottom-1/3 left-1/6 w-1 h-1 bg-gray-400 rounded-full z-5"></div>
+      <div className="absolute top-1/2 right-1/6 w-3 h-3 bg-gray-200 rounded-full z-5"></div>
     </div>
   );
 };

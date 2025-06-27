@@ -27,7 +27,7 @@ const FeaturedArticles = () => {
       excerpt: "Exclusive access to the research facility developing the next generation of home appliances and cleaning technology.",
       category: "Innovation Labs",
       readTime: "12 min read",
-      image: "https://images.unsplash.com/photo-1558618047-3c8c6d68b6c7?w=600&h=400&fit=crop"
+      image: "https://images.unsplash.com/photo-1581092795360-fd1ca04f0952?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=400"
     }
   ];
 

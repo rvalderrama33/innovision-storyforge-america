@@ -19,15 +19,15 @@ const Hero = () => {
       {/* Navigation */}
       <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12 border-b border-gray-200/50 backdrop-blur-sm bg-white/50">
         <div className="flex items-center space-x-3">
-          <h1 className="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">
             America Innovates
           </h1>
         </div>
         
         <div className="hidden md:flex items-center space-x-8">
-          <Link to="/" className="text-white hover:text-gray-200 transition-colors font-medium">Magazine</Link>
-          <Link to="/submit" className="text-white hover:text-gray-200 transition-colors font-medium">Submit Story</Link>
-          <Link to="/about" className="text-white hover:text-gray-200 transition-colors font-medium">About</Link>
+          <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
+          <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
+          <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
         </div>
         
         <div className="flex items-center space-x-4">
@@ -36,7 +36,7 @@ const Hero = () => {
               Submit Story
             </Button>
           </Link>
-          <Menu className="md:hidden h-6 w-6 text-white" />
+          <Menu className="md:hidden h-6 w-6 text-gray-700" />
         </div>
       </nav>
 
@@ -44,12 +44,12 @@ const Hero = () => {
       <div className="relative z-10 px-6 py-12 lg:px-12 lg:py-20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 text-white">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 text-gray-900">
               Spotlighting the
-              <span className="block text-gray-200 italic font-light"> Builders of Tomorrow</span>
+              <span className="block text-gray-600 italic font-light"> Builders of Tomorrow</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-100 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
               Discover breakthrough consumer products, meet visionary creators, and explore the innovations that make everyday life better.
             </p>
             
@@ -64,7 +64,7 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-white text-white hover:bg-white hover:text-gray-900 text-lg px-8 py-4 font-medium"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50 text-lg px-8 py-4 font-medium"
               >
                 Browse Stories
               </Button>

@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -8,8 +9,8 @@ const Hero = () => {
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=6000&q=80"
-          alt="Entrepreneurs working together"
+          src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?ixlib=rb-4.0.3&auto=format&fit=crop&w=6000&q=80"
+          alt="People collaborating together"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-white/85"></div>

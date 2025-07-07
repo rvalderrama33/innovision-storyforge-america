@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -26,9 +25,10 @@ const StepFive = ({ data }: StepFiveProps) => {
     setIsSubmitting(true);
     
     try {
-      console.log("Submitting story:", data);
+      console.log("Starting submission process with data:", data);
 
       // Generate article using Netlify function
+      console.log("Calling Netlify function to generate article...");
       const articleResponse = await fetch('/.netlify/functions/generateArticle', {
         method: 'POST',
         headers: {
@@ -37,14 +37,19 @@ const StepFive = ({ data }: StepFiveProps) => {
         body: JSON.stringify(data),
       });
 
+      console.log("Article response status:", articleResponse.status);
+      
       if (!articleResponse.ok) {
-        throw new Error('Failed to generate article');
+        const errorText = await articleResponse.text();
+        console.error("Article generation failed:", errorText);
+        throw new Error(`Failed to generate article: ${articleResponse.status} - ${errorText}`);
       }
 
-      const { article } = await articleResponse.json();
-      console.log("Generated article:", article);
+      const articleResult = await articleResponse.json();
+      console.log("Article generated successfully");
 
       // Save to Supabase
+      console.log("Saving to Supabase...");
       const { error } = await supabase.from('submissions').insert({
         full_name: data.fullName,
         email: data.email,
@@ -63,24 +68,26 @@ const StepFive = ({ data }: StepFiveProps) => {
         proudest_moment: data.proudestMoment,
         inspiration: data.inspiration,
         motivation: data.motivation,
-        generated_article: article,
+        generated_article: articleResult.article,
         image_urls: [] // TODO: Handle actual image uploads
       });
 
       if (error) {
+        console.error("Supabase insert error:", error);
         throw error;
       }
 
+      console.log("Successfully saved to Supabase");
       setSubmitted(true);
       toast({
         title: "Success!",
         description: "Your story has been submitted successfully.",
       });
     } catch (error) {
-      console.error('Submission error:', error);
+      console.error('Detailed submission error:', error);
       toast({
         title: "Error",
-        description: "Failed to submit your story. Please try again.",
+        description: `Failed to submit your story: ${error.message}`,
         variant: "destructive",
       });
     } finally {

@@ -16,10 +16,12 @@ serve(async (req) => {
   }
 
   try {
-    console.log("Article generation function called");
+    console.log("=== GENERATE ARTICLE FUNCTION START ===");
+    console.log("Request method:", req.method);
+    console.log("Request headers:", Object.fromEntries(req.headers.entries()));
     
     if (!openAIApiKey) {
-      console.error('OpenAI API key not configured');
+      console.error('CRITICAL: OpenAI API key not configured');
       return new Response(JSON.stringify({ 
         error: 'OpenAI API key not configured',
         details: 'Please set the OPENAI_API_KEY environment variable' 
@@ -29,16 +31,33 @@ serve(async (req) => {
       });
     }
 
+    console.log("OpenAI API key is present:", openAIApiKey ? "YES" : "NO");
+
     // Parse request body
     let formData;
     try {
-      formData = await req.json();
-      console.log("Received form data for article generation:", JSON.stringify(formData, null, 2));
+      const requestText = await req.text();
+      console.log("Raw request body:", requestText);
+      
+      if (!requestText) {
+        console.error("Empty request body received");
+        return new Response(JSON.stringify({ 
+          error: 'Empty request body',
+          details: 'Request body cannot be empty' 
+        }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      formData = JSON.parse(requestText);
+      console.log("Parsed form data keys:", Object.keys(formData));
+      console.log("Form data values:", JSON.stringify(formData, null, 2));
     } catch (parseError) {
-      console.error("Failed to parse request body:", parseError);
+      console.error("JSON parse error:", parseError);
       return new Response(JSON.stringify({ 
         error: 'Invalid request body',
-        details: 'Request body must be valid JSON' 
+        details: `Failed to parse JSON: ${parseError.message}` 
       }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -80,7 +99,24 @@ Please write a compelling, professional magazine article (800-1200 words) that t
 
 Write in the style of a feature article for America Innovates Magazine, focusing on the human story behind the innovation while highlighting the product's impact and potential.`;
 
-    console.log("Sending request to OpenAI...");
+    console.log("Generated prompt length:", prompt.length);
+
+    // Prepare OpenAI request
+    const openAIRequest = {
+      model: 'gpt-4o-mini',
+      messages: [
+        { 
+          role: 'system', 
+          content: 'You are a professional magazine writer specializing in innovation and technology stories. Write engaging, well-structured articles that inspire and inform readers about breakthrough products and the entrepreneurs behind them.' 
+        },
+        { role: 'user', content: prompt }
+      ],
+      max_tokens: 2000,
+      temperature: 0.7,
+    };
+
+    console.log("Making OpenAI API request...");
+    console.log("Request payload:", JSON.stringify(openAIRequest, null, 2));
     
     let response;
     try {
@@ -90,43 +126,37 @@ Write in the style of a feature article for America Innovates Magazine, focusing
           'Authorization': `Bearer ${openAIApiKey}`,
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-          model: 'gpt-4o-mini',
-          messages: [
-            { 
-              role: 'system', 
-              content: 'You are a professional magazine writer specializing in innovation and technology stories. Write engaging, well-structured articles that inspire and inform readers about breakthrough products and the entrepreneurs behind them.' 
-            },
-            { role: 'user', content: prompt }
-          ],
-          max_tokens: 2000,
-          temperature: 0.7,
-        }),
+        body: JSON.stringify(openAIRequest),
       });
+
+      console.log("OpenAI API response status:", response.status);
+      console.log("OpenAI API response headers:", Object.fromEntries(response.headers.entries()));
+
     } catch (fetchError) {
       console.error('Network error calling OpenAI:', fetchError);
       return new Response(JSON.stringify({ 
         error: 'Network error',
-        details: 'Failed to connect to OpenAI API' 
+        details: `Failed to connect to OpenAI API: ${fetchError.message}` 
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    console.log("OpenAI response status:", response.status);
-
     if (!response.ok) {
       let errorText;
       try {
         errorText = await response.text();
+        console.error('OpenAI API error response:', errorText);
       } catch (readError) {
         errorText = 'Could not read error response';
+        console.error('Failed to read OpenAI error:', readError);
       }
-      console.error('OpenAI API error:', response.status, errorText);
+      
       return new Response(JSON.stringify({ 
         error: `OpenAI API error: ${response.status}`,
-        details: errorText 
+        details: errorText,
+        status: response.status 
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -135,13 +165,22 @@ Write in the style of a feature article for America Innovates Magazine, focusing
 
     let data;
     try {
-      data = await response.json();
-      console.log("OpenAI response received successfully");
+      const responseText = await response.text();
+      console.log("OpenAI response text length:", responseText.length);
+      console.log("OpenAI response preview:", responseText.substring(0, 200) + "...");
+      
+      data = JSON.parse(responseText);
+      console.log("OpenAI response structure:", {
+        choices: data.choices ? data.choices.length : 'undefined',
+        usage: data.usage || 'undefined',
+        hasChoices: !!data.choices,
+        firstChoiceHasMessage: !!(data.choices && data.choices[0] && data.choices[0].message)
+      });
     } catch (jsonError) {
       console.error('Failed to parse OpenAI response as JSON:', jsonError);
       return new Response(JSON.stringify({ 
         error: 'Invalid OpenAI response',
-        details: 'OpenAI returned non-JSON response' 
+        details: `OpenAI returned non-JSON response: ${jsonError.message}` 
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -149,10 +188,11 @@ Write in the style of a feature article for America Innovates Magazine, focusing
     }
     
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
-      console.error('Invalid OpenAI response structure:', data);
+      console.error('Invalid OpenAI response structure:', JSON.stringify(data, null, 2));
       return new Response(JSON.stringify({ 
         error: 'Invalid response from OpenAI',
-        details: 'Response structure is not as expected' 
+        details: 'Response structure is not as expected',
+        received: data 
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -160,28 +200,36 @@ Write in the style of a feature article for America Innovates Magazine, focusing
     }
 
     const article = data.choices[0].message.content;
-    console.log("Article generated successfully, length:", article?.length);
+    console.log("Generated article length:", article?.length || 0);
+    console.log("Article preview:", article?.substring(0, 100) + "..." || "NO CONTENT");
 
     if (!article) {
       console.error('OpenAI returned empty article content');
       return new Response(JSON.stringify({ 
         error: 'Empty article content',
-        details: 'OpenAI returned no article content' 
+        details: 'OpenAI returned no article content',
+        openAIResponse: data 
       }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
+    console.log("=== SUCCESS: Returning article ===");
     return new Response(JSON.stringify({ article }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Error in generate-article function:', error);
+    console.error('=== CRITICAL ERROR in generate-article function ===');
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    
     return new Response(JSON.stringify({ 
       error: error.message || 'Unknown error occurred',
       details: 'Article generation failed',
+      type: error.constructor.name,
       stack: error.stack 
     }), {
       status: 500,

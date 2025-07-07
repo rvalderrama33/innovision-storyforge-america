@@ -14,7 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      submissions: {
+        Row: {
+          background: string | null
+          biggest_challenge: string | null
+          category: string | null
+          city: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          full_name: string | null
+          generated_article: string | null
+          id: string
+          idea_origin: string | null
+          image_urls: string[] | null
+          inspiration: string | null
+          motivation: string | null
+          problem_solved: string | null
+          product_name: string | null
+          proudest_moment: string | null
+          social_media: string | null
+          stage: string | null
+          state: string | null
+          updated_at: string
+          website: string | null
+        }
+        Insert: {
+          background?: string | null
+          biggest_challenge?: string | null
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          full_name?: string | null
+          generated_article?: string | null
+          id?: string
+          idea_origin?: string | null
+          image_urls?: string[] | null
+          inspiration?: string | null
+          motivation?: string | null
+          problem_solved?: string | null
+          product_name?: string | null
+          proudest_moment?: string | null
+          social_media?: string | null
+          stage?: string | null
+          state?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Update: {
+          background?: string | null
+          biggest_challenge?: string | null
+          category?: string | null
+          city?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          full_name?: string | null
+          generated_article?: string | null
+          id?: string
+          idea_origin?: string | null
+          image_urls?: string[] | null
+          inspiration?: string | null
+          motivation?: string | null
+          problem_solved?: string | null
+          product_name?: string | null
+          proudest_moment?: string | null
+          social_media?: string | null
+          stage?: string | null
+          state?: string | null
+          updated_at?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

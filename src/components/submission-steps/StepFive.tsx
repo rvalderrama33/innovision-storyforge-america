@@ -4,7 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Loader2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 interface StepFiveProps {
   data: any;
@@ -15,13 +17,75 @@ interface StepFiveProps {
 const StepFive = ({ data }: StepFiveProps) => {
   const [consent, setConsent] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { toast } = useToast();
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!consent) return;
     
-    // In a real app, this would submit to your backend
-    console.log("Submitting story:", data);
-    setSubmitted(true);
+    setIsSubmitting(true);
+    
+    try {
+      console.log("Submitting story:", data);
+
+      // Generate article using Netlify function
+      const articleResponse = await fetch('/.netlify/functions/generateArticle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!articleResponse.ok) {
+        throw new Error('Failed to generate article');
+      }
+
+      const { article } = await articleResponse.json();
+      console.log("Generated article:", article);
+
+      // Save to Supabase
+      const { error } = await supabase.from('submissions').insert({
+        full_name: data.fullName,
+        email: data.email,
+        city: data.city,
+        state: data.state,
+        background: data.background,
+        website: data.website,
+        social_media: data.socialMedia,
+        product_name: data.productName,
+        category: data.category,
+        description: data.description,
+        problem_solved: data.problemSolved,
+        stage: data.stage,
+        idea_origin: data.ideaOrigin,
+        biggest_challenge: data.biggestChallenge,
+        proudest_moment: data.proudestMoment,
+        inspiration: data.inspiration,
+        motivation: data.motivation,
+        generated_article: article,
+        image_urls: [] // TODO: Handle actual image uploads
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setSubmitted(true);
+      toast({
+        title: "Success!",
+        description: "Your story has been submitted successfully.",
+      });
+    } catch (error) {
+      console.error('Submission error:', error);
+      toast({
+        title: "Error",
+        description: "Failed to submit your story. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (submitted) {
@@ -111,14 +175,21 @@ const StepFive = ({ data }: StepFiveProps) => {
       <div className="text-center">
         <Button
           onClick={handleSubmit}
-          disabled={!consent}
+          disabled={!consent || isSubmitting}
           size="lg"
           className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 text-lg"
         >
-          Submit My Story
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Generating Article...
+            </>
+          ) : (
+            "Submit My Story"
+          )}
         </Button>
         
-        {!consent && (
+        {!consent && !isSubmitting && (
           <p className="text-sm text-red-600 mt-2">
             Please provide consent to feature your story before submitting.
           </p>

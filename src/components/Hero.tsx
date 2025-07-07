@@ -1,9 +1,12 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Menu } from "lucide-react";
+import { ArrowRight, Menu, LogOut, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Hero = () => {
+  const { user, isAdmin, signOut } = useAuth();
+
   return (
     <div className="relative overflow-hidden bg-white">
       {/* Background Image */}
@@ -19,23 +22,55 @@ const Hero = () => {
       {/* Navigation */}
       <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12 border-b border-gray-200/50 backdrop-blur-sm bg-white/50">
         <div className="flex items-center space-x-3">
-          <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">
-            America Innovates
-          </h1>
+          <Link to="/">
+            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">
+              America Innovates
+            </h1>
+          </Link>
         </div>
         
         <div className="hidden md:flex items-center space-x-8">
           <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
           <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
           <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
+          {isAdmin && (
+            <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">
+              <Settings className="inline h-4 w-4 mr-1" />
+              Admin
+            </Link>
+          )}
         </div>
         
         <div className="flex items-center space-x-4">
-          <Link to="/submit">
-            <Button className="bg-gray-900 hover:bg-gray-800 text-white border-0 px-6 py-2">
-              Submit Story
-            </Button>
-          </Link>
+          {user ? (
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-700">
+                Welcome, {user.email}
+              </span>
+              <Button
+                onClick={signOut}
+                variant="outline"
+                size="sm"
+                className="border-gray-300 text-gray-700 hover:bg-gray-50"
+              >
+                <LogOut className="h-4 w-4 mr-1" />
+                Sign Out
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Link to="/auth">
+                <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
+                  Sign In
+                </Button>
+              </Link>
+              <Link to="/submit">
+                <Button className="bg-gray-900 hover:bg-gray-800 text-white border-0 px-6 py-2">
+                  Submit Story
+                </Button>
+              </Link>
+            </>
+          )}
           <Menu className="md:hidden h-6 w-6 text-gray-700" />
         </div>
       </nav>

@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Submit from "./pages/Submit";
 import About from "./pages/About";
+import TestOpenAI from "./pages/TestOpenAI";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +22,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/submit" element={<Submit />} />
           <Route path="/about" element={<About />} />
+          <Route path="/test-openai" element={<TestOpenAI />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

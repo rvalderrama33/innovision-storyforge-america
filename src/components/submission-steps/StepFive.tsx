@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -38,15 +39,27 @@ const StepFive = ({ data }: StepFiveProps) => {
       });
 
       console.log("Article response status:", articleResponse.status);
+      console.log("Article response headers:", Object.fromEntries(articleResponse.headers.entries()));
+      
+      // Get the response text first to see what we're actually receiving
+      const responseText = await articleResponse.text();
+      console.log("Article response text:", responseText);
       
       if (!articleResponse.ok) {
-        const errorText = await articleResponse.text();
-        console.error("Article generation failed:", errorText);
-        throw new Error(`Failed to generate article: ${articleResponse.status} - ${errorText}`);
+        console.error("Article generation failed:", responseText);
+        throw new Error(`Failed to generate article: ${articleResponse.status} - ${responseText}`);
       }
 
-      const articleResult = await articleResponse.json();
-      console.log("Article generated successfully");
+      // Try to parse as JSON
+      let articleResult;
+      try {
+        articleResult = JSON.parse(responseText);
+        console.log("Article generated successfully");
+      } catch (parseError) {
+        console.error("Failed to parse response as JSON:", parseError);
+        console.error("Response was:", responseText);
+        throw new Error(`Invalid response from article generation service. Expected JSON but got: ${responseText.substring(0, 200)}...`);
+      }
 
       // Save to Supabase
       console.log("Saving to Supabase...");

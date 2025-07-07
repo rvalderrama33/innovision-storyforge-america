@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -28,38 +27,23 @@ const StepFive = ({ data }: StepFiveProps) => {
     try {
       console.log("Starting submission process with data:", data);
 
-      // Generate article using Netlify function
-      console.log("Calling Netlify function to generate article...");
-      const articleResponse = await fetch('/.netlify/functions/generateArticle', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
+      // Generate article using Supabase Edge Function
+      console.log("Calling Supabase Edge Function to generate article...");
+      const { data: articleResult, error: functionError } = await supabase.functions.invoke('generate-article', {
+        body: data
       });
 
-      console.log("Article response status:", articleResponse.status);
-      console.log("Article response headers:", Object.fromEntries(articleResponse.headers.entries()));
-      
-      // Get the response text first to see what we're actually receiving
-      const responseText = await articleResponse.text();
-      console.log("Article response text:", responseText);
-      
-      if (!articleResponse.ok) {
-        console.error("Article generation failed:", responseText);
-        throw new Error(`Failed to generate article: ${articleResponse.status} - ${responseText}`);
+      if (functionError) {
+        console.error("Edge function error:", functionError);
+        throw new Error(`Failed to generate article: ${functionError.message}`);
       }
 
-      // Try to parse as JSON
-      let articleResult;
-      try {
-        articleResult = JSON.parse(responseText);
-        console.log("Article generated successfully");
-      } catch (parseError) {
-        console.error("Failed to parse response as JSON:", parseError);
-        console.error("Response was:", responseText);
-        throw new Error(`Invalid response from article generation service. Expected JSON but got: ${responseText.substring(0, 200)}...`);
+      if (!articleResult || !articleResult.article) {
+        console.error("Invalid response from edge function:", articleResult);
+        throw new Error("Invalid response from article generation service");
       }
+
+      console.log("Article generated successfully");
 
       // Save to Supabase
       console.log("Saving to Supabase...");

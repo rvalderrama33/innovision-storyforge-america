@@ -16,36 +16,45 @@ serve(async (req) => {
   }
 
   try {
-    const formData = await req.json();
-    console.log("Received form data for article generation:", formData);
-
+    console.log("Article generation function called");
+    
     if (!openAIApiKey) {
-      throw new Error('OpenAI API key not configured');
+      console.error('OpenAI API key not configured');
+      return new Response(JSON.stringify({ 
+        error: 'OpenAI API key not configured',
+        details: 'Please set the OPENAI_API_KEY environment variable' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
+
+    const formData = await req.json();
+    console.log("Received form data for article generation:", JSON.stringify(formData, null, 2));
 
     // Create a detailed prompt for article generation
     const prompt = `Write a professional magazine article about an innovative consumer product. Use the following information:
 
 INNOVATOR PROFILE:
-- Name: ${formData.fullName}
-- Location: ${formData.city}, ${formData.state}
-- Background: ${formData.background}
+- Name: ${formData.fullName || 'Not provided'}
+- Location: ${formData.city || 'Not provided'}, ${formData.state || 'Not provided'}
+- Background: ${formData.background || 'Not provided'}
 - Website: ${formData.website || 'Not provided'}
 - Social Media: ${formData.socialMedia || 'Not provided'}
 
 PRODUCT DETAILS:
-- Product Name: ${formData.productName}
-- Category: ${formData.category}
-- Stage: ${formData.stage}
-- Description: ${formData.description}
-- Problem Solved: ${formData.problemSolved}
+- Product Name: ${formData.productName || 'Not provided'}
+- Category: ${formData.category || 'Not provided'}
+- Stage: ${formData.stage || 'Not provided'}
+- Description: ${formData.description || 'Not provided'}
+- Problem Solved: ${formData.problemSolved || 'Not provided'}
 
 THE INNOVATION STORY:
-- How the idea originated: ${formData.ideaOrigin}
-- Biggest challenge faced: ${formData.biggestChallenge}
-- Proudest moment: ${formData.proudestMoment}
-- Key inspiration/support: ${formData.inspiration}
-- What motivates continued development: ${formData.motivation}
+- How the idea originated: ${formData.ideaOrigin || 'Not provided'}
+- Biggest challenge faced: ${formData.biggestChallenge || 'Not provided'}
+- Proudest moment: ${formData.proudestMoment || 'Not provided'}
+- Key inspiration/support: ${formData.inspiration || 'Not provided'}
+- What motivates continued development: ${formData.motivation || 'Not provided'}
 
 Please write a compelling, professional magazine article (800-1200 words) that tells this innovation story. Include:
 1. An engaging headline
@@ -79,16 +88,37 @@ Write in the style of a feature article for America Innovates Magazine, focusing
       }),
     });
 
+    console.log("OpenAI response status:", response.status);
+
     if (!response.ok) {
-      const errorData = await response.json();
-      console.error('OpenAI API error:', errorData);
-      throw new Error(`OpenAI API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+      const errorText = await response.text();
+      console.error('OpenAI API error:', response.status, errorText);
+      return new Response(JSON.stringify({ 
+        error: `OpenAI API error: ${response.status}`,
+        details: errorText 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const data = await response.json();
-    const article = data.choices[0].message.content;
+    console.log("OpenAI response received successfully");
+    
+    if (!data.choices || !data.choices[0] || !data.choices[0].message) {
+      console.error('Invalid OpenAI response structure:', data);
+      return new Response(JSON.stringify({ 
+        error: 'Invalid response from OpenAI',
+        details: 'Response structure is not as expected' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    console.log("Article generated successfully");
+    const article = data.choices[0].message.content;
+    console.log("Article generated successfully, length:", article?.length);
+
     return new Response(JSON.stringify({ article }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -96,8 +126,9 @@ Write in the style of a feature article for America Innovates Magazine, focusing
   } catch (error) {
     console.error('Error in generate-article function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message,
-      details: 'Article generation failed' 
+      error: error.message || 'Unknown error occurred',
+      details: 'Article generation failed',
+      stack: error.stack 
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

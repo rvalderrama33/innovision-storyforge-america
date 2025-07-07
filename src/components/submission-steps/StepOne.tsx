@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -21,9 +21,12 @@ const StepOne = ({ data, onUpdate }: StepOneProps) => {
     socialMedia: data.socialMedia || ""
   });
 
+  // Use useCallback to prevent onUpdate from changing on every render
+  const stableOnUpdate = useCallback(onUpdate, [onUpdate]);
+
   useEffect(() => {
-    onUpdate(formData);
-  }, [formData, onUpdate]);
+    stableOnUpdate(formData);
+  }, [formData, stableOnUpdate]);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));

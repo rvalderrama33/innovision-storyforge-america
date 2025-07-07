@@ -29,8 +29,21 @@ serve(async (req) => {
       });
     }
 
-    const formData = await req.json();
-    console.log("Received form data for article generation:", JSON.stringify(formData, null, 2));
+    // Parse request body
+    let formData;
+    try {
+      formData = await req.json();
+      console.log("Received form data for article generation:", JSON.stringify(formData, null, 2));
+    } catch (parseError) {
+      console.error("Failed to parse request body:", parseError);
+      return new Response(JSON.stringify({ 
+        error: 'Invalid request body',
+        details: 'Request body must be valid JSON' 
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Create a detailed prompt for article generation
     const prompt = `Write a professional magazine article about an innovative consumer product. Use the following information:
@@ -68,30 +81,48 @@ Please write a compelling, professional magazine article (800-1200 words) that t
 Write in the style of a feature article for America Innovates Magazine, focusing on the human story behind the innovation while highlighting the product's impact and potential.`;
 
     console.log("Sending request to OpenAI...");
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { 
-            role: 'system', 
-            content: 'You are a professional magazine writer specializing in innovation and technology stories. Write engaging, well-structured articles that inspire and inform readers about breakthrough products and the entrepreneurs behind them.' 
-          },
-          { role: 'user', content: prompt }
-        ],
-        max_tokens: 2000,
-        temperature: 0.7,
-      }),
-    });
+    
+    let response;
+    try {
+      response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4o-mini',
+          messages: [
+            { 
+              role: 'system', 
+              content: 'You are a professional magazine writer specializing in innovation and technology stories. Write engaging, well-structured articles that inspire and inform readers about breakthrough products and the entrepreneurs behind them.' 
+            },
+            { role: 'user', content: prompt }
+          ],
+          max_tokens: 2000,
+          temperature: 0.7,
+        }),
+      });
+    } catch (fetchError) {
+      console.error('Network error calling OpenAI:', fetchError);
+      return new Response(JSON.stringify({ 
+        error: 'Network error',
+        details: 'Failed to connect to OpenAI API' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     console.log("OpenAI response status:", response.status);
 
     if (!response.ok) {
-      const errorText = await response.text();
+      let errorText;
+      try {
+        errorText = await response.text();
+      } catch (readError) {
+        errorText = 'Could not read error response';
+      }
       console.error('OpenAI API error:', response.status, errorText);
       return new Response(JSON.stringify({ 
         error: `OpenAI API error: ${response.status}`,
@@ -102,8 +133,20 @@ Write in the style of a feature article for America Innovates Magazine, focusing
       });
     }
 
-    const data = await response.json();
-    console.log("OpenAI response received successfully");
+    let data;
+    try {
+      data = await response.json();
+      console.log("OpenAI response received successfully");
+    } catch (jsonError) {
+      console.error('Failed to parse OpenAI response as JSON:', jsonError);
+      return new Response(JSON.stringify({ 
+        error: 'Invalid OpenAI response',
+        details: 'OpenAI returned non-JSON response' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     
     if (!data.choices || !data.choices[0] || !data.choices[0].message) {
       console.error('Invalid OpenAI response structure:', data);
@@ -118,6 +161,17 @@ Write in the style of a feature article for America Innovates Magazine, focusing
 
     const article = data.choices[0].message.content;
     console.log("Article generated successfully, length:", article?.length);
+
+    if (!article) {
+      console.error('OpenAI returned empty article content');
+      return new Response(JSON.stringify({ 
+        error: 'Empty article content',
+        details: 'OpenAI returned no article content' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     return new Response(JSON.stringify({ article }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

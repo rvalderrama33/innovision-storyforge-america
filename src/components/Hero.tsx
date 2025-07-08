@@ -62,7 +62,7 @@ const Hero = () => {
           ) : (
             <>
               <Link to="/auth">
-                <Button variant="outline" className="border-white/30 text-white hover:bg-white/10">
+                <Button variant="outline" className="border-white/30 text-black bg-white/90 hover:bg-white">
                   Sign In
                 </Button>
               </Link>
@@ -101,7 +101,7 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-white/30 text-white hover:bg-white/10 text-lg px-8 py-4 font-medium"
+                className="border-white/30 text-black bg-white/90 hover:bg-white text-lg px-8 py-4 font-medium"
               >
                 Browse Stories
               </Button>

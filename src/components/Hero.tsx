@@ -16,7 +16,7 @@ const Hero = () => {
           alt="Group of people smiling together"
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-white/50"></div>
+        <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
       {/* Navigation */}
@@ -26,7 +26,7 @@ const Hero = () => {
             <img 
               src="/lovable-uploads/b0d4731d-5046-46db-9cee-0a3e6dc60bf5.png" 
               alt="America Innovates" 
-              className="h-8 lg:h-10"
+              className="h-12 lg:h-16"
             />
           </Link>
         </div>

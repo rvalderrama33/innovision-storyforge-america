@@ -7,7 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Eye, Users, FileText } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, Users, FileText, Trash2 } from 'lucide-react';
+import ArticlePreviewDialog from '@/components/ArticlePreviewDialog';
 import {
   Table,
   TableBody,
@@ -25,6 +26,8 @@ const AdminDashboard = () => {
   const [submissions, setSubmissions] = useState([]);
   const [users, setUsers] = useState([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
 
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
@@ -138,6 +141,40 @@ const AdminDashboard = () => {
     }
   };
 
+  const deleteSubmission = async (submissionId: string) => {
+    if (!confirm('Are you sure you want to delete this submission? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('submissions')
+        .delete()
+        .eq('id', submissionId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Article deleted successfully",
+      });
+
+      fetchSubmissions();
+    } catch (error) {
+      console.error('Error deleting submission:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete article",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handlePreview = (submission: any) => {
+    setSelectedSubmission(submission);
+    setPreviewDialogOpen(true);
+  };
+
   if (loading || loadingData) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -241,6 +278,19 @@ const AdminDashboard = () => {
                         </TableCell>
                         <TableCell>
                           <div className="flex space-x-2">
+                            {/* Preview button - available for all submissions with generated articles */}
+                            {submission.generated_article && (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => handlePreview(submission)}
+                              >
+                                <Eye className="h-4 w-4 mr-1" />
+                                Preview
+                              </Button>
+                            )}
+                            
+                            {/* Approval/Rejection buttons for pending submissions */}
                             {submission.status === 'pending' && (
                               <>
                                 <Button
@@ -261,6 +311,8 @@ const AdminDashboard = () => {
                                 </Button>
                               </>
                             )}
+                            
+                            {/* View Article button for approved submissions */}
                             {submission.status === 'approved' && submission.slug && (
                               <Button
                                 size="sm"
@@ -270,6 +322,16 @@ const AdminDashboard = () => {
                                 View Article
                               </Button>
                             )}
+                            
+                            {/* Delete button - available for all submissions */}
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              onClick={() => deleteSubmission(submission.id)}
+                            >
+                              <Trash2 className="h-4 w-4 mr-1" />
+                              Delete
+                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -316,6 +378,15 @@ const AdminDashboard = () => {
             </Card>
           </TabsContent>
         </Tabs>
+
+        {/* Article Preview Dialog */}
+        <ArticlePreviewDialog
+          isOpen={previewDialogOpen}
+          onClose={() => setPreviewDialogOpen(false)}
+          submission={selectedSubmission}
+          onApprove={approveSubmission}
+          onReject={rejectSubmission}
+        />
       </div>
     </div>
   );

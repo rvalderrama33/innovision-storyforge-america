@@ -12,9 +12,9 @@ const Header = () => {
         <div className="flex items-center space-x-3">
           <Link to="/">
             <img 
-              src="/lovable-uploads/6218fd7c-785e-4f2a-bc61-c86ab85dcc0e.png" 
+              src="/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png" 
               alt="America Innovates Magazine" 
-              className="h-12 lg:h-16"
+              className="h-36 lg:h-48"
             />
           </Link>
         </div>

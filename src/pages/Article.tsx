@@ -69,15 +69,9 @@ const Article = () => {
             </Button>
           </Link>
           
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-8">
             {article.product_name}
           </h1>
-          
-          <div className="flex items-center text-gray-600 mb-8">
-            <span>By {article.full_name}</span>
-            <span className="mx-2">•</span>
-            <span>{new Date(article.approved_at).toLocaleDateString()}</span>
-          </div>
         </div>
 
         {article.image_urls && article.image_urls.length > 0 && (

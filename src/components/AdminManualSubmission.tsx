@@ -83,6 +83,7 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
       return;
     }
 
+    console.log('Starting manual submission with data:', formData);
     setIsSubmitting(true);
 
     try {
@@ -90,6 +91,7 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
       const validSourceLinks = formData.sourceLinks.filter(link => link.trim() !== '');
       const validImageUrls = formData.imageUrls.filter(url => url.trim() !== '');
 
+      console.log('Creating submission in database...');
       // Create the submission
       const { data, error } = await supabase
         .from('submissions')
@@ -106,7 +108,12 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Database error:', error);
+        throw error;
+      }
+      
+      console.log('Submission created successfully:', data);
 
       // Generate AI article using Supabase edge function
       const response = await fetch(`https://enckzbxifdrinhfcqagb.supabase.co/functions/v1/generate-article`, {
@@ -124,8 +131,18 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
         }),
       });
 
+      console.log('Calling edge function with payload:', {
+        submissionId: data.id,
+        isManualSubmission: true,
+        personName: formData.personName,
+        description: formData.description,
+        sourceLinks: validSourceLinks
+      });
+
       if (!response.ok) {
-        throw new Error('Failed to generate article');
+        const errorText = await response.text();
+        console.error('Edge function error:', response.status, errorText);
+        throw new Error(`Failed to generate article: ${response.status} ${errorText}`);
       }
 
       toast({
@@ -146,7 +163,7 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
       console.error('Error creating manual submission:', error);
       toast({
         title: "Error",
-        description: "Failed to create manual submission",
+        description: error.message || "Failed to create manual submission",
         variant: "destructive",
       });
     } finally {

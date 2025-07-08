@@ -20,13 +20,13 @@ const Hero = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12 border-b border-gray-200/50 backdrop-blur-sm bg-white/50">
+      <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12 border-b border-gray-200/20 backdrop-blur-sm">
         <div className="flex items-center space-x-3">
           <Link to="/">
             <img 
               src="/lovable-uploads/b0d4731d-5046-46db-9cee-0a3e6dc60bf5.png" 
               alt="America Innovates" 
-              className="h-24 lg:h-32"
+              className="h-48 lg:h-64"
             />
           </Link>
         </div>

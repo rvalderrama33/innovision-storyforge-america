@@ -109,22 +109,18 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
       if (error) throw error;
 
       // Generate AI article
-      const response = await fetch('/netlify/functions/generateArticle', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      const { data: articleData, error: articleError } = await supabase.functions.invoke('generate-article', {
+        body: {
           submissionId: data.id,
           isManualSubmission: true,
           personName: formData.personName,
           description: formData.description,
           sourceLinks: validSourceLinks
-        }),
+        }
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate article');
+      if (articleError) {
+        throw new Error(`Failed to generate article: ${articleError.message}`);
       }
 
       toast({

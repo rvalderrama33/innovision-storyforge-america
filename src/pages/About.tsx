@@ -4,9 +4,12 @@ import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
+import Header from "@/components/Header";
+
 const About = () => {
   return (
     <div className="min-h-screen bg-white">
+      <Header />
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-900 to-purple-900 text-white">
         <div className="max-w-4xl mx-auto px-6 py-12">

@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
+import Header from "@/components/Header";
 
 interface Story {
   id: string;
@@ -50,6 +51,8 @@ const Stories = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <Header />
+      
       {/* Header */}
       <div className="bg-gray-50 py-12">
         <div className="max-w-7xl mx-auto px-6 lg:px-12">

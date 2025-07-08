@@ -23,9 +23,11 @@ const Hero = () => {
       <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12 border-b border-gray-200/50 backdrop-blur-sm bg-white/50">
         <div className="flex items-center space-x-3">
           <Link to="/">
-            <h1 className="text-2xl lg:text-3xl font-bold text-gray-900 tracking-tight">
-              America Innovates
-            </h1>
+            <img 
+              src="/lovable-uploads/b0d4731d-5046-46db-9cee-0a3e6dc60bf5.png" 
+              alt="America Innovates" 
+              className="h-8 lg:h-10"
+            />
           </Link>
         </div>
         

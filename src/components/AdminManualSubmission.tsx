@@ -109,23 +109,18 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
       if (error) throw error;
 
       // Generate AI article using Supabase edge function
-      const response = await fetch(`https://enckzbxifdrinhfcqagb.supabase.co/functions/v1/generate-article`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVuY2t6YnhpZmRyaWhuZmNxYWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMzcxNzcsImV4cCI6MjA2NjYxMzE3N30.hXQ9Q8XYpRGVksTdslNJJt39zfepbhqWjVKd4MiKsvM`
-        },
-        body: JSON.stringify({
+      const { error: functionError } = await supabase.functions.invoke('generate-article', {
+        body: {
           submissionId: data.id,
           isManualSubmission: true,
           personName: formData.personName,
           description: formData.description,
           sourceLinks: validSourceLinks
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to generate article');
+      if (functionError) {
+        throw new Error(`Failed to generate article: ${functionError.message}`);
       }
 
       toast({

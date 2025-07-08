@@ -66,7 +66,7 @@ const StepFive = ({ data }: StepFiveProps) => {
         inspiration: data.inspiration,
         motivation: data.motivation,
         generated_article: articleResult.article,
-        image_urls: [] // TODO: Handle actual image uploads
+        image_urls: data.imageUrls || []
       });
 
       if (error) {

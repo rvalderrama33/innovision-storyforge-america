@@ -20,7 +20,7 @@ const Hero = () => {
       </div>
 
       {/* Navigation */}
-      <nav className="relative z-20 flex items-center justify-between px-6 py-4 lg:px-12 border-b border-gray-200/20 backdrop-blur-sm">
+      <nav className="relative z-20 flex items-center justify-between px-6 py-2 lg:px-12 border-b border-white/20 backdrop-blur-sm">
         <div className="flex items-center space-x-3">
           <Link to="/">
             <img 
@@ -32,11 +32,11 @@ const Hero = () => {
         </div>
         
         <div className="hidden md:flex items-center space-x-8">
-          <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
-          <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
-          <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
+          <Link to="/" className="text-white hover:text-gray-200 transition-colors font-medium">Magazine</Link>
+          <Link to="/submit" className="text-white hover:text-gray-200 transition-colors font-medium">Submit Story</Link>
+          <Link to="/about" className="text-white hover:text-gray-200 transition-colors font-medium">About</Link>
           {isAdmin && (
-            <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">
+            <Link to="/admin" className="text-white hover:text-gray-200 transition-colors font-medium">
               <Settings className="inline h-4 w-4 mr-1" />
               Admin
             </Link>
@@ -46,14 +46,14 @@ const Hero = () => {
         <div className="flex items-center space-x-4">
           {user ? (
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
+              <span className="text-sm text-white">
                 Welcome, {user.email}
               </span>
               <Button
                 onClick={signOut}
                 variant="outline"
                 size="sm"
-                className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                className="border-white/30 text-white hover:bg-white/10"
               >
                 <LogOut className="h-4 w-4 mr-1" />
                 Sign Out
@@ -62,18 +62,18 @@ const Hero = () => {
           ) : (
             <>
               <Link to="/auth">
-                <Button variant="outline" className="border-gray-300 text-gray-700 hover:bg-gray-50">
+                <Button variant="outline" className="border-white/30 text-white hover:bg-white/10">
                   Sign In
                 </Button>
               </Link>
               <Link to="/submit">
-                <Button className="bg-gray-900 hover:bg-gray-800 text-white border-0 px-6 py-2">
+                <Button className="bg-white hover:bg-gray-100 text-gray-900 border-0 px-6 py-2">
                   Submit Story
                 </Button>
               </Link>
             </>
           )}
-          <Menu className="md:hidden h-6 w-6 text-gray-700" />
+          <Menu className="md:hidden h-6 w-6 text-white" />
         </div>
       </nav>
 
@@ -81,18 +81,18 @@ const Hero = () => {
       <div className="relative z-10 px-6 py-12 lg:px-12 lg:py-20">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 text-gray-900">
+            <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 text-white">
               Spotlighting
-              <span className="block text-gray-600 italic font-light"> Entrepreneurs & Creators</span>
+              <span className="block text-gray-200 italic font-light"> Entrepreneurs & Creators</span>
             </h1>
             
-            <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
+            <p className="text-xl md:text-2xl text-gray-200 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
               Discover breakthrough consumer products from visionary entrepreneurs and creators who are building the innovations that make everyday life better.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Link to="/submit">
-                <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white text-lg px-8 py-4 font-medium">
+                <Button size="lg" className="bg-white hover:bg-gray-100 text-gray-900 text-lg px-8 py-4 font-medium">
                   Share Your Innovation
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
@@ -101,7 +101,7 @@ const Hero = () => {
               <Button 
                 size="lg" 
                 variant="outline" 
-                className="border-gray-300 text-gray-700 hover:bg-gray-50 text-lg px-8 py-4 font-medium"
+                className="border-white/30 text-white hover:bg-white/10 text-lg px-8 py-4 font-medium"
               >
                 Browse Stories
               </Button>

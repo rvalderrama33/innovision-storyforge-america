@@ -18,6 +18,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import AdminManualSubmission from '@/components/AdminManualSubmission';
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -259,6 +260,7 @@ const AdminDashboard = () => {
         <Tabs defaultValue="submissions" className="space-y-4">
           <TabsList>
             <TabsTrigger value="submissions">Submissions</TabsTrigger>
+            <TabsTrigger value="manual">Manual Submission</TabsTrigger>
             <TabsTrigger value="users">User Management</TabsTrigger>
           </TabsList>
           
@@ -387,6 +389,10 @@ const AdminDashboard = () => {
                 </Table>
               </CardContent>
             </Card>
+          </TabsContent>
+          
+          <TabsContent value="manual">
+            <AdminManualSubmission onSubmissionCreated={fetchSubmissions} />
           </TabsContent>
           
           <TabsContent value="users">

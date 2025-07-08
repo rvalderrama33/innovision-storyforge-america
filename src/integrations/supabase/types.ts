@@ -56,12 +56,14 @@ export type Database = {
           idea_origin: string | null
           image_urls: string[] | null
           inspiration: string | null
+          is_manual_submission: boolean | null
           motivation: string | null
           problem_solved: string | null
           product_name: string | null
           proudest_moment: string | null
           slug: string | null
           social_media: string | null
+          source_links: string[] | null
           stage: string | null
           state: string | null
           status: string | null
@@ -85,12 +87,14 @@ export type Database = {
           idea_origin?: string | null
           image_urls?: string[] | null
           inspiration?: string | null
+          is_manual_submission?: boolean | null
           motivation?: string | null
           problem_solved?: string | null
           product_name?: string | null
           proudest_moment?: string | null
           slug?: string | null
           social_media?: string | null
+          source_links?: string[] | null
           stage?: string | null
           state?: string | null
           status?: string | null
@@ -114,12 +118,14 @@ export type Database = {
           idea_origin?: string | null
           image_urls?: string[] | null
           inspiration?: string | null
+          is_manual_submission?: boolean | null
           motivation?: string | null
           problem_solved?: string | null
           product_name?: string | null
           proudest_moment?: string | null
           slug?: string | null
           social_media?: string | null
+          source_links?: string[] | null
           stage?: string | null
           state?: string | null
           status?: string | null

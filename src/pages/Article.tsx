@@ -101,9 +101,15 @@ const Article = () => {
         )}
 
         <div className="prose prose-lg max-w-none">
-          <div className="whitespace-pre-wrap text-gray-700 leading-relaxed">
-            {article.generated_article}
-          </div>
+          <div 
+            className="whitespace-pre-wrap text-gray-700 leading-relaxed"
+            dangerouslySetInnerHTML={{
+              __html: article.generated_article?.replace(
+                new RegExp(`\\b${article.full_name}\\b`, 'gi'),
+                `<strong class="text-blue-600 font-semibold">${article.full_name}</strong>`
+              )
+            }}
+          />
         </div>
 
         <SocialShare 
@@ -111,6 +117,30 @@ const Article = () => {
           title={article.product_name}
           description={article.description || `Read about ${article.product_name} by ${article.full_name}`}
         />
+
+        {/* Sources Section */}
+        {article.source_links && article.source_links.length > 0 && (
+          <div className="mt-8 p-6 bg-blue-50 rounded-lg">
+            <h3 className="text-xl font-semibold text-gray-900 mb-4">Sources</h3>
+            <div className="space-y-2">
+              {article.source_links.map((source, index) => (
+                <div key={index}>
+                  <p>
+                    <span className="font-medium">[{index + 1}]</span>{' '}
+                    <a
+                      href={source}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 hover:underline break-all"
+                    >
+                      {source}
+                    </a>
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 p-6 bg-gray-50 rounded-lg">
           <h3 className="text-xl font-semibold text-gray-900 mb-4">About the Creator</h3>

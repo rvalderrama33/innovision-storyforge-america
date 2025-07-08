@@ -91,7 +91,7 @@ const Article = () => {
                   </Button>
                 </Link>
                 <h1 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 leading-tight">
-                  {article.product_name}
+                  {article.full_name}
                 </h1>
                 <div className="flex flex-wrap items-center gap-4 text-white/90">
                   <div className="flex items-center gap-2">
@@ -127,7 +127,7 @@ const Article = () => {
                 </Button>
               </Link>
               <h1 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 leading-tight">
-                {article.product_name}
+                {article.full_name}
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
                 <div className="flex items-center gap-2">

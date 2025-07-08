@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Header from '@/components/Header';
+import SocialShare from '@/components/SocialShare';
 
 const Article = () => {
   const { slug } = useParams();
@@ -105,7 +106,13 @@ const Article = () => {
           </div>
         </div>
 
-        <div className="mt-12 p-6 bg-gray-50 rounded-lg">
+        <SocialShare 
+          url={window.location.href}
+          title={article.product_name}
+          description={article.description || `Read about ${article.product_name} by ${article.full_name}`}
+        />
+
+        <div className="mt-8 p-6 bg-gray-50 rounded-lg">
           <h3 className="text-xl font-semibold text-gray-900 mb-4">About the Creator</h3>
           <div className="space-y-2">
             <p><strong>Name:</strong> {article.full_name}</p>

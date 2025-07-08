@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Eye, Users, FileText, Trash2, Star } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, Users, FileText, Trash2, Star, Edit } from 'lucide-react';
 import ArticlePreviewDialog from '@/components/ArticlePreviewDialog';
 import {
   Table,
@@ -313,7 +313,18 @@ const AdminDashboard = () => {
                           {new Date(submission.created_at).toLocaleDateString()}
                         </TableCell>
                         <TableCell>
-                          <div className="flex space-x-2">
+                          <div className="flex space-x-2 flex-wrap gap-1">
+                            {/* Edit button - available for all submissions */}
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => navigate(`/admin/edit/${submission.id}`)}
+                              className="gap-1"
+                            >
+                              <Edit className="h-4 w-4" />
+                              Edit
+                            </Button>
+                            
                             {/* Preview button - available for all submissions with generated articles */}
                             {submission.generated_article && (
                               <Button

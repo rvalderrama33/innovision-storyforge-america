@@ -11,6 +11,7 @@ import About from "./pages/About";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
 import Article from "./pages/Article";
+import ArticleEditor from "./components/ArticleEditor";
 import Stories from "./pages/Stories";
 import TestOpenAI from "./pages/TestOpenAI";
 import NotFound from "./pages/NotFound";
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/admin" element={<AdminDashboard />} />
             <Route path="/article/:slug" element={<Article />} />
+            <Route path="/admin/edit/:id" element={<ArticleEditor />} />
             <Route path="/stories" element={<Stories />} />
             <Route path="/test-openai" element={<TestOpenAI />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

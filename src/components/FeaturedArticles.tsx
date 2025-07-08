@@ -64,7 +64,7 @@ const FeaturedArticles = () => {
                   <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group cursor-pointer border-0 shadow-lg">
                     <div className="relative">
                       <img 
-                        src={featuredStories[0].image_urls?.find(url => url.includes('headshot')) || "https://images.unsplash.com/photo-1523362628745-0c100150b504?w=600&h=400&fit=crop"} 
+                        src={featuredStories[0].image_urls?.[0] || "https://images.unsplash.com/photo-1523362628745-0c100150b504?w=600&h=400&fit=crop"} 
                         alt={featuredStories[0].full_name}
                         className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700"
                       />
@@ -98,7 +98,7 @@ const FeaturedArticles = () => {
                       <div className="flex">
                         <div className="w-1/3">
                           <img 
-                            src={story.image_urls?.find(url => url.includes('headshot')) || "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop"} 
+                            src={story.image_urls?.[0] || "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop"} 
                             alt={story.full_name}
                             className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
                           />

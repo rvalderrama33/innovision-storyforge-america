@@ -108,19 +108,23 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
 
       if (error) throw error;
 
-      // Generate AI article using Supabase edge function
-      const { error: functionError } = await supabase.functions.invoke('generate-article', {
-        body: {
+      // Generate AI article
+      const response = await fetch('/netlify/functions/generateArticle', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           submissionId: data.id,
           isManualSubmission: true,
           personName: formData.personName,
           description: formData.description,
           sourceLinks: validSourceLinks
-        },
+        }),
       });
 
-      if (functionError) {
-        throw new Error(`Failed to generate article: ${functionError.message}`);
+      if (!response.ok) {
+        throw new Error('Failed to generate article');
       }
 
       toast({

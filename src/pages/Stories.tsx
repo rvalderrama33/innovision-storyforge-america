@@ -75,15 +75,15 @@ const Stories = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {stories.map((story) => {
-                const headshotUrl = story.image_urls?.find(url => url.includes('headshot'));
+                const imageUrl = story.image_urls?.[0];
                 
                 return (
                   <Link key={story.id} to={`/article/${story.slug}`}>
                     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-200 h-full">
                       <div className="aspect-[4/3] relative overflow-hidden">
-                        {headshotUrl ? (
+                        {imageUrl ? (
                           <img 
-                            src={headshotUrl} 
+                            src={imageUrl} 
                             alt={story.full_name || 'Story author'}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />

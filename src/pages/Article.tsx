@@ -4,6 +4,7 @@ import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import Header from '@/components/Header';
 
 const Article = () => {
   const { slug } = useParams();
@@ -60,6 +61,7 @@ const Article = () => {
 
   return (
     <div className="min-h-screen bg-white">
+      <Header />
       <div className="max-w-4xl mx-auto px-6 py-12">
         <div className="mb-8">
           <Link to="/">

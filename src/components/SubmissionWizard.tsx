@@ -49,10 +49,7 @@ const SubmissionWizard = () => {
         <div className="max-w-4xl mx-auto px-6 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center space-x-2 text-blue-900">
-              <div className="h-8 w-8 bg-blue-900 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">AI</span>
-              </div>
-              <span className="text-xl font-bold">America Innovates</span>
+              {/* Removed AI America Innovates branding per request */}
             </Link>
             
             <div className="text-sm text-gray-500">

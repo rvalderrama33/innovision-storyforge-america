@@ -53,7 +53,7 @@ const Hero = () => {
                 onClick={signOut}
                 variant="outline"
                 size="sm"
-                className="border-white/30 text-white hover:bg-white/10"
+                className="border-white/30 text-black bg-white/90 hover:bg-white"
               >
                 <LogOut className="h-4 w-4 mr-1" />
                 Sign Out

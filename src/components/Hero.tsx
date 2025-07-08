@@ -24,7 +24,7 @@ const Hero = () => {
         <div className="flex items-center space-x-3">
           <Link to="/">
             <img 
-              src="/lovable-uploads/6218fd7c-785e-4f2a-bc61-c86ab85dcc0e.png" 
+              src="/lovable-uploads/0b7aab03-b403-4c89-bfbb-d50750598cce.png" 
               alt="America Innovates Magazine" 
               className="h-16 lg:h-20"
             />

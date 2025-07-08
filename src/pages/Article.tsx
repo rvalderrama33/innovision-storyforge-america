@@ -76,11 +76,24 @@ const Article = () => {
 
         {article.image_urls && article.image_urls.length > 0 && (
           <div className="mb-8">
-            <img
-              src={article.image_urls[0]}
-              alt={article.product_name}
-              className="w-full h-96 object-cover rounded-lg"
-            />
+            {article.image_urls.length === 1 ? (
+              <img
+                src={article.image_urls[0]}
+                alt={article.product_name}
+                className="w-full h-96 object-cover rounded-lg"
+              />
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {article.image_urls.map((imageUrl, index) => (
+                  <img
+                    key={index}
+                    src={imageUrl}
+                    alt={`${article.product_name} image ${index + 1}`}
+                    className="w-full h-64 object-cover rounded-lg"
+                  />
+                ))}
+              </div>
+            )}
           </div>
         )}
 

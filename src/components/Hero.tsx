@@ -26,7 +26,7 @@ const Hero = () => {
             <img 
               src="/lovable-uploads/b0d4731d-5046-46db-9cee-0a3e6dc60bf5.png" 
               alt="America Innovates" 
-              className="h-12 lg:h-16"
+              className="h-24 lg:h-32"
             />
           </Link>
         </div>

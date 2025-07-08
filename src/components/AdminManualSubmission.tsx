@@ -108,11 +108,12 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
 
       if (error) throw error;
 
-      // Generate AI article
-      const response = await fetch('/netlify/functions/generateArticle', {
+      // Generate AI article using Supabase edge function
+      const response = await fetch(`https://enckzbxifdrinhfcqagb.supabase.co/functions/v1/generate-article`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVuY2t6YnhpZmRyaWhuZmNxYWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMzcxNzcsImV4cCI6MjA2NjYxMzE3N30.hXQ9Q8XYpRGVksTdslNJJt39zfepbhqWjVKd4MiKsvM`
         },
         body: JSON.stringify({
           submissionId: data.id,

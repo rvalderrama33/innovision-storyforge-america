@@ -79,7 +79,7 @@ const Article = () => {
             <img
               src={article.image_urls[0]}
               alt={article.product_name}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-contain bg-black/20"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-12">
@@ -164,7 +164,7 @@ const Article = () => {
                   <img
                     src={imageUrl}
                     alt={`${article.product_name} image ${index + 2}`}
-                    className="w-full h-64 object-cover group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-64 object-contain bg-muted/30 group-hover:scale-105 transition-transform duration-300"
                   />
                 </div>
               ))}
@@ -180,7 +180,7 @@ const Article = () => {
               __html: article.generated_article?.replace(
                 new RegExp(`\\b${article.full_name}\\b`, 'gi'),
                 `<span class="font-semibold text-primary">${article.full_name}</span>`
-              )
+              ).replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>')
             }}
           />
         </article>

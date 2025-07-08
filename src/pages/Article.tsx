@@ -142,29 +142,6 @@ const Article = () => {
           </div>
         )}
 
-        <div className="mt-8 p-6 bg-gray-50 rounded-lg">
-          <h3 className="text-xl font-semibold text-gray-900 mb-4">About the Creator</h3>
-          <div className="space-y-2">
-            <p><strong>Name:</strong> {article.full_name}</p>
-            <p><strong>Location:</strong> {article.city}, {article.state}</p>
-            {article.website && (
-              <p>
-                <strong>Website:</strong>{' '}
-                <a
-                  href={article.website}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 hover:underline"
-                >
-                  {article.website}
-                </a>
-              </p>
-            )}
-            {article.background && (
-              <p><strong>Background:</strong> {article.background}</p>
-            )}
-          </div>
-        </div>
       </div>
     </div>
   );

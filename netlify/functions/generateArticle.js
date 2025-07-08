@@ -49,20 +49,32 @@ exports.handler = async (event, context) => {
     if (body.isManualSubmission) {
       prompt = `
 You are a motivational journalist writing for America Innovates Magazine.
-Write a feature article about: ${body.personName}
+Write a comprehensive, in-depth feature article about: ${body.personName}
 
-Description/Story: ${body.description}
+Background Information: ${body.description}
 
 ${body.sourceLinks && body.sourceLinks.length > 0 ? `
-Source Links for reference:
+IMPORTANT: Use these source links to research and gather detailed information about ${body.personName}:
 ${body.sourceLinks.map((link, index) => `[${index + 1}] ${link}`).join('\n')}
+
+Based on the information available from these sources, write a thorough, well-researched article that covers:
+- Their background and early life/career
+- Their major achievements and contributions
+- Their impact on their industry or community
+- Any innovations or breakthrough work they've done
+- Their vision for the future
+- Personal insights and quotes if available from the sources
 ` : ''}
 
-Write in an enthusiastic and inspirational tone, like a feature article that celebrates this person's achievements and contributions. 
-Focus on the human story and their impact.
-Make it engaging and motivational for readers.
-Include a compelling headline and structure it as a complete magazine article.
-Make sure to prominently feature the person's name (${body.personName}) throughout the article.
+Write a long-form, comprehensive article (1200-1800 words) in an enthusiastic and inspirational tone that celebrates this person's achievements and contributions. 
+Structure it as a complete magazine feature article with:
+- A compelling headline
+- An engaging opening that hooks the reader
+- Multiple detailed sections covering different aspects of their work and impact
+- Rich details and specific examples from the source material
+- A strong conclusion that inspires readers
+
+Make sure to prominently feature the person's name (${body.personName}) throughout the article and write as if you have thoroughly researched them using the provided sources.
       `;
     } else {
       prompt = `

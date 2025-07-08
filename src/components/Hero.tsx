@@ -80,12 +80,12 @@ const Hero = () => {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-12">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 text-gray-900">
-              Spotlighting the
-              <span className="block text-gray-600 italic font-light"> Builders of Tomorrow</span>
+              Spotlighting
+              <span className="block text-gray-600 italic font-light"> Entrepreneurs & Creators</span>
             </h1>
             
             <p className="text-xl md:text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed font-light">
-              Discover breakthrough consumer products, meet visionary creators, and explore the innovations that make everyday life better.
+              Discover breakthrough consumer products from visionary entrepreneurs and creators who are building the innovations that make everyday life better.
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center">

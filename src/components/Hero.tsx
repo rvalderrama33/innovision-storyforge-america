@@ -98,13 +98,15 @@ const Hero = () => {
                 </Button>
               </Link>
               
-              <Button 
-                size="lg" 
-                variant="outline" 
-                className="border-white/30 text-black bg-white/90 hover:bg-white text-lg px-8 py-4 font-medium"
-              >
-                Browse Stories
-              </Button>
+              <Link to="/stories">
+                <Button 
+                  size="lg" 
+                  variant="outline" 
+                  className="border-white/30 text-black bg-white/90 hover:bg-white text-lg px-8 py-4 font-medium"
+                >
+                  Browse Stories
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

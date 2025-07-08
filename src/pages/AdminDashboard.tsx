@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Eye, Users, FileText, Trash2 } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, Users, FileText, Trash2, Star } from 'lucide-react';
 import ArticlePreviewDialog from '@/components/ArticlePreviewDialog';
 import {
   Table,
@@ -170,6 +170,31 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleToggleFeatured = async (submissionId: string, currentFeatured: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('submissions')
+        .update({ featured: !currentFeatured })
+        .eq('id', submissionId);
+
+      if (error) throw error;
+
+      toast({
+        title: currentFeatured ? "Removed from featured" : "Added to featured",
+        description: `The story has been ${currentFeatured ? 'removed from' : 'added to'} featured stories.`,
+      });
+
+      fetchSubmissions();
+    } catch (error) {
+      console.error('Error updating featured status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update featured status.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handlePreview = (submission: any) => {
     setSelectedSubmission(submission);
     setPreviewDialogOpen(true);
@@ -249,6 +274,7 @@ const AdminDashboard = () => {
                       <TableHead>Product Name</TableHead>
                       <TableHead>Submitter</TableHead>
                       <TableHead>Status</TableHead>
+                      <TableHead>Featured</TableHead>
                       <TableHead>Submitted</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -272,6 +298,14 @@ const AdminDashboard = () => {
                           >
                             {submission.status}
                           </Badge>
+                        </TableCell>
+                        <TableCell>
+                          {submission.featured && (
+                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
+                              <Star className="h-3 w-3 mr-1" />
+                              Featured
+                            </Badge>
+                          )}
                         </TableCell>
                         <TableCell>
                           {new Date(submission.created_at).toLocaleDateString()}
@@ -312,15 +346,28 @@ const AdminDashboard = () => {
                               </>
                             )}
                             
-                            {/* View Article button for approved submissions */}
-                            {submission.status === 'approved' && submission.slug && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => navigate(`/article/${submission.slug}`)}
-                              >
-                                View Article
-                              </Button>
+                            {/* View Article and Featured buttons for approved submissions */}
+                            {submission.status === 'approved' && (
+                              <>
+                                {submission.slug && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => navigate(`/article/${submission.slug}`)}
+                                  >
+                                    View Article
+                                  </Button>
+                                )}
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleToggleFeatured(submission.id, submission.featured)}
+                                  variant={submission.featured ? "default" : "outline"}
+                                  className={submission.featured ? "bg-yellow-600 hover:bg-yellow-700 text-white" : ""}
+                                >
+                                  <Star className="h-4 w-4 mr-1" />
+                                  {submission.featured ? 'Unfeature' : 'Feature'}
+                                </Button>
+                              </>
                             )}
                             
                             {/* Delete button - available for all submissions */}

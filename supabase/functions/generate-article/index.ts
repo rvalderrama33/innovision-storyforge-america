@@ -1,8 +1,11 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -64,8 +67,41 @@ serve(async (req) => {
       });
     }
 
-    // Create a detailed prompt for article generation
-    const prompt = `Write a professional magazine article about an innovative consumer product. Use the following information:
+    // Check if this is a manual submission and create appropriate prompt
+    let prompt;
+    
+    if (formData.isManualSubmission) {
+      prompt = `
+You are a motivational journalist writing for America Innovates Magazine.
+Write a comprehensive, in-depth feature article about: ${formData.personName}
+
+Background Information: ${formData.description}
+
+${formData.sourceLinks && formData.sourceLinks.length > 0 ? `
+IMPORTANT: Use these source links to research and gather detailed information about ${formData.personName}:
+${formData.sourceLinks.map((link, index) => `[${index + 1}] ${link}`).join('\n')}
+
+Based on the information available from these sources, write a thorough, well-researched article that covers:
+- Their background and early life/career
+- Their major achievements and contributions
+- Their impact on their industry or community
+- Any innovations or breakthrough work they've done
+- Their vision for the future
+- Personal insights and quotes if available from the sources
+` : ''}
+
+Write a long-form, comprehensive article (1200-1800 words) in an enthusiastic and inspirational tone that celebrates this person's achievements and contributions. 
+Structure it as a complete magazine feature article with:
+- A compelling headline
+- An engaging opening that hooks the reader
+- Multiple detailed sections covering different aspects of their work and impact
+- Rich details and specific examples from the source material
+- A strong conclusion that inspires readers
+
+Make sure to prominently feature the person's name (${formData.personName}) throughout the article and write as if you have thoroughly researched them using the provided sources.
+      `;
+    } else {
+      prompt = `Write a professional magazine article about an innovative consumer product. Use the following information:
 
 INNOVATOR PROFILE:
 - Name: ${formData.fullName || 'Not provided'}
@@ -98,6 +134,7 @@ Please write a compelling, professional magazine article (800-1200 words) that t
 7. A conclusion that inspires other innovators
 
 Write in the style of a feature article for America Innovates Magazine, focusing on the human story behind the innovation while highlighting the product's impact and potential.`;
+    }
 
     console.log("Generated prompt length:", prompt.length);
 
@@ -107,7 +144,9 @@ Write in the style of a feature article for America Innovates Magazine, focusing
       messages: [
         { 
           role: 'system', 
-          content: 'You are a professional magazine writer specializing in innovation and technology stories. Write engaging, well-structured articles that inspire and inform readers about breakthrough products and the entrepreneurs behind them.' 
+          content: formData.isManualSubmission 
+            ? 'You are a motivational journalist writing inspiring feature articles for America Innovates Magazine.'
+            : 'You are a professional magazine writer specializing in innovation and technology stories. Write engaging, well-structured articles that inspire and inform readers about breakthrough products and the entrepreneurs behind them.' 
         },
         { role: 'user', content: prompt }
       ],
@@ -215,8 +254,33 @@ Write in the style of a feature article for America Innovates Magazine, focusing
       });
     }
 
-    console.log("=== SUCCESS: Returning article ===");
-    return new Response(JSON.stringify({ article }), {
+    console.log("=== SUCCESS: Saving article to database ===");
+    
+    // Save the generated article to the database
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    const { error: updateError } = await supabase
+      .from('submissions')
+      .update({ generated_article: article })
+      .eq('id', formData.submissionId);
+    
+    if (updateError) {
+      console.error('Failed to save article to database:', updateError);
+      return new Response(JSON.stringify({ 
+        error: 'Failed to save article',
+        details: updateError.message 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+    
+    console.log("Article successfully saved to database");
+    
+    return new Response(JSON.stringify({ 
+      article,
+      message: 'Article generated and saved successfully' 
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 

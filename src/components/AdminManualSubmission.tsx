@@ -120,8 +120,11 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
       });
 
       if (articleError) {
+        console.error('Article generation error:', articleError);
         throw new Error(`Failed to generate article: ${articleError.message}`);
       }
+
+      console.log('Article generated successfully:', articleData);
 
       toast({
         title: "Success",

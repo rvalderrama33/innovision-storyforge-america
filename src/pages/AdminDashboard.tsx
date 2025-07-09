@@ -10,7 +10,12 @@ import EmailNotificationForm from "@/components/EmailNotificationForm";
 import EmailTemplateCustomizer from "@/components/EmailTemplateCustomizer";
 import AdminManualSubmission from "@/components/AdminManualSubmission";
 import { sendArticleApprovalEmail, sendFeaturedStoryEmail } from "@/lib/emailService";
-import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus, Edit } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus, Edit, Trash2, Shield, ShieldOff } from "lucide-react";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -18,6 +23,8 @@ const AdminDashboard = () => {
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [editUserData, setEditUserData] = useState({ full_name: '', email: '' });
 
   useEffect(() => {
     if (user && isAdmin) {
@@ -214,6 +221,126 @@ const AdminDashboard = () => {
       toast({
         title: "Error",
         description: "Failed to update pinned status",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleEditUser = (user: any) => {
+    setEditingUser(user);
+    setEditUserData({
+      full_name: user.full_name || '',
+      email: user.email || ''
+    });
+  };
+
+  const updateUser = async () => {
+    if (!editingUser) return;
+
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: editUserData.full_name,
+          email: editUserData.email,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', editingUser.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "User updated",
+        description: "User profile has been updated successfully",
+      });
+
+      setEditingUser(null);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error updating user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteUser = async (userId: string) => {
+    try {
+      // First delete user roles
+      const { error: rolesError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId);
+
+      if (rolesError) throw rolesError;
+
+      // Then delete user profile
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (profileError) throw profileError;
+
+      toast({
+        title: "User deleted",
+        description: "User has been removed from the system",
+      });
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete user",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const toggleUserRole = async (userId: string, currentRoles: any[]) => {
+    try {
+      const isAdmin = currentRoles.some(role => role.role === 'admin');
+      
+      if (isAdmin) {
+        // Remove admin role
+        const { error } = await supabase
+          .from('user_roles')
+          .delete()
+          .eq('user_id', userId)
+          .eq('role', 'admin');
+
+        if (error) throw error;
+
+        toast({
+          title: "Admin removed",
+          description: "User admin privileges have been revoked",
+        });
+      } else {
+        // Add admin role
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({
+            user_id: userId,
+            role: 'admin'
+          });
+
+        if (error) throw error;
+
+        toast({
+          title: "Admin granted",
+          description: "User has been granted admin privileges",
+        });
+      }
+
+      fetchUsers();
+    } catch (error) {
+      console.error('Error updating user role:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update user role",
         variant: "destructive",
       });
     }
@@ -440,29 +567,132 @@ const AdminDashboard = () => {
                 {users.length === 0 ? (
                   <p className="text-muted-foreground text-center py-8">No users found.</p>
                 ) : (
-                  <div className="space-y-4">
-                    {users.map((user) => (
-                      <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex-1">
-                          <div className="font-medium">{user.full_name || 'Unknown User'}</div>
-                          <div className="text-sm text-muted-foreground">{user.email}</div>
-                          <div className="text-xs text-muted-foreground">
-                            Joined: {new Date(user.created_at).toLocaleDateString()}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {user.user_roles?.map((role: any) => (
-                            <Badge key={role.role} variant={role.role === 'admin' ? 'default' : 'secondary'}>
-                              {role.role}
-                            </Badge>
-                          ))}
-                          {(!user.user_roles || user.user_roles.length === 0) && (
-                            <Badge variant="outline">subscriber</Badge>
-                          )}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User</TableHead>
+                        <TableHead>Role</TableHead>
+                        <TableHead>Joined</TableHead>
+                        <TableHead className="text-right">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {users.map((user) => {
+                        const isAdmin = user.user_roles?.some((role: any) => role.role === 'admin');
+                        return (
+                          <TableRow key={user.id}>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{user.full_name || 'Unknown User'}</div>
+                                <div className="text-sm text-muted-foreground">{user.email}</div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex gap-1">
+                                {user.user_roles?.map((role: any) => (
+                                  <Badge key={role.role} variant={role.role === 'admin' ? 'default' : 'secondary'}>
+                                    {role.role}
+                                  </Badge>
+                                ))}
+                                {(!user.user_roles || user.user_roles.length === 0) && (
+                                  <Badge variant="outline">subscriber</Badge>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="text-sm">
+                                {new Date(user.created_at).toLocaleDateString()}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex gap-2 justify-end">
+                                <Dialog open={editingUser?.id === user.id} onOpenChange={(open) => !open && setEditingUser(null)}>
+                                  <DialogTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={() => handleEditUser(user)}
+                                    >
+                                      <Edit className="w-4 h-4" />
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent>
+                                    <DialogHeader>
+                                      <DialogTitle>Edit User</DialogTitle>
+                                      <DialogDescription>
+                                        Update user profile information
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4">
+                                      <div>
+                                        <Label htmlFor="full_name">Full Name</Label>
+                                        <Input
+                                          id="full_name"
+                                          value={editUserData.full_name}
+                                          onChange={(e) => setEditUserData(prev => ({ ...prev, full_name: e.target.value }))}
+                                        />
+                                      </div>
+                                      <div>
+                                        <Label htmlFor="email">Email</Label>
+                                        <Input
+                                          id="email"
+                                          type="email"
+                                          value={editUserData.email}
+                                          onChange={(e) => setEditUserData(prev => ({ ...prev, email: e.target.value }))}
+                                        />
+                                      </div>
+                                    </div>
+                                    <DialogFooter>
+                                      <Button variant="outline" onClick={() => setEditingUser(null)}>
+                                        Cancel
+                                      </Button>
+                                      <Button onClick={updateUser}>
+                                        Update User
+                                      </Button>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+
+                                <Button
+                                  variant={isAdmin ? "secondary" : "outline"}
+                                  size="sm"
+                                  onClick={() => toggleUserRole(user.id, user.user_roles)}
+                                >
+                                  {isAdmin ? <ShieldOff className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
+                                </Button>
+
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button variant="destructive" size="sm">
+                                      <Trash2 className="w-4 h-4" />
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        Are you sure you want to delete {user.full_name || user.email}? 
+                                        This action cannot be undone and will remove all user data.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => deleteUser(user.id)}
+                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                                      >
+                                        Delete User
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
                 )}
               </CardContent>
             </Card>

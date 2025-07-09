@@ -16,6 +16,7 @@ interface Story {
   image_urls: string[];
   created_at: string;
   featured: boolean;
+  generated_article: string;
 }
 
 const Stories = () => {
@@ -105,7 +106,7 @@ const Stories = () => {
                           </Badge>
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors">
-                          {story.product_name || 'Untitled Product'}
+                          {story.generated_article ? story.generated_article.split('\n')[0].replace(/^#+\s*/, '').trim() : (story.product_name || 'Untitled Product')}
                         </h3>
                         <p className="text-gray-600 mb-3 line-clamp-2">
                           {story.description}

@@ -259,6 +259,15 @@ Write in the style of a feature article for America Innovates Magazine, focusing
     // Save the generated article to the database
     const supabase = createClient(supabaseUrl, supabaseKey);
     
+    // Extract title from first line of article and create slug
+    const firstLine = article.split('\n')[0].replace(/^#+\s*/, '').trim(); // Remove markdown headers
+    const slug = firstLine
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
+      .replace(/\s+/g, '-') // Replace spaces with hyphens
+      .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
+      .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+    
     // Add default sources to all articles
     const defaultSources = [
       'https://www.wikipedia.org/',
@@ -274,7 +283,8 @@ Write in the style of a feature article for America Innovates Magazine, focusing
       .from('submissions')
       .update({ 
         generated_article: article,
-        source_links: allSources
+        source_links: allSources,
+        slug: slug
       })
       .eq('id', formData.submissionId);
     

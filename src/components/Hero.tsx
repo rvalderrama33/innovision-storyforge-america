@@ -45,6 +45,7 @@ const Hero = () => {
         
         <div className="hidden md:flex items-center space-x-8">
           <Link to="/" className="text-white hover:text-gray-200 transition-colors font-medium">Magazine</Link>
+          <Link to="/stories" className="text-white hover:text-gray-200 transition-colors font-medium">Browse Stories</Link>
           <Link to="/submit" className="text-white hover:text-gray-200 transition-colors font-medium">Submit Story</Link>
           <Link to="/about" className="text-white hover:text-gray-200 transition-colors font-medium">About</Link>
           {isAdmin && (

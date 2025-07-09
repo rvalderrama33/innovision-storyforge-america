@@ -14,8 +14,9 @@ import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -371,9 +372,17 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
-          <p className="text-muted-foreground text-lg">Manage submissions and communications</p>
+        <div className="mb-8 flex items-center justify-between">
+          <div>
+            <h1 className="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
+            <p className="text-muted-foreground text-lg">Manage submissions and communications</p>
+          </div>
+          <Link 
+            to="/" 
+            className="inline-flex items-center px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+          >
+            ← Back to Home
+          </Link>
         </div>
 
         <Tabs defaultValue="submissions" className="space-y-6">

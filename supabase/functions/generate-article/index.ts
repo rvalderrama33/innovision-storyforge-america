@@ -270,12 +270,32 @@ IMPORTANT: Do NOT use markdown headers (# symbols) in your response. Write the a
     
     // Extract title from first line of article and create slug
     const firstLine = article.split('\n')[0].replace(/^#+\s*/, '').trim(); // Remove markdown headers
-    const slug = firstLine
+    let slug = firstLine
       .toLowerCase()
       .replace(/[^a-z0-9\s-]/g, '') // Remove special characters except spaces and hyphens
       .replace(/\s+/g, '-') // Replace spaces with hyphens
       .replace(/-+/g, '-') // Replace multiple hyphens with single hyphen
       .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+    
+    // Fallback slug generation if the first line doesn't produce a good slug
+    if (!slug || slug.length < 5) {
+      const personName = formData.personName || formData.fullName || formData.productName;
+      if (personName) {
+        slug = personName
+          .toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .replace(/\s+/g, '-')
+          .replace(/-+/g, '-')
+          .replace(/^-|-$/g, '') + '-entrepreneur-story';
+      } else {
+        slug = 'entrepreneur-story-' + Date.now();
+      }
+    }
+    
+    // Ensure slug is not too long (max 100 characters)
+    if (slug.length > 100) {
+      slug = slug.substring(0, 100).replace(/-[^-]*$/, '');
+    }
     
     // Add default sources to all articles
     const defaultSources = [

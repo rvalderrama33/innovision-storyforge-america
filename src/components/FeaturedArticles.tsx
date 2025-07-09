@@ -19,6 +19,15 @@ const FeaturedArticles = () => {
   const [featuredStories, setFeaturedStories] = useState<FeaturedStory[]>([]);
 
   useEffect(() => {
+    const shuffleArray = (array: FeaturedStory[]) => {
+      const shuffled = [...array];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      return shuffled;
+    };
+
     const fetchFeaturedStories = async () => {
       const { data, error } = await supabase
         .from('submissions')
@@ -32,7 +41,8 @@ const FeaturedArticles = () => {
       if (error) {
         console.error('Error fetching featured stories:', error);
       } else {
-        setFeaturedStories(data || []);
+        const shuffledStories = shuffleArray(data || []);
+        setFeaturedStories(shuffledStories);
       }
     };
 

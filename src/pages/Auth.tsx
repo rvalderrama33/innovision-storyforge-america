@@ -97,12 +97,12 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
       <div className="max-w-md w-full">
-        <div className="text-center mb-8">
+        <div className="text-center mb-4">
           <Link to="/" className="block">
             <img 
               src="/lovable-uploads/1f7bd9f1-6251-4e7e-87ea-a2a66117e1d1.png" 
               alt="America Innovates Magazine" 
-              className="h-64 mx-auto mb-4"
+              className="h-64 mx-auto mb-2"
             />
           </Link>
           <p className="text-gray-600 mt-2">Sign in to your account or create a new one</p>

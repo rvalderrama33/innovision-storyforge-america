@@ -10,7 +10,7 @@ import EmailNotificationForm from "@/components/EmailNotificationForm";
 import EmailTemplateCustomizer from "@/components/EmailTemplateCustomizer";
 import AdminManualSubmission from "@/components/AdminManualSubmission";
 import { sendArticleApprovalEmail, sendFeaturedStoryEmail } from "@/lib/emailService";
-import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus, Edit } from "lucide-react";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -352,6 +352,15 @@ const AdminDashboard = () => {
                         >
                           <Pin className="w-4 h-4 mr-2" />
                           {submission.pinned ? 'Unpin' : 'Pin'}
+                        </Button>
+                        
+                        <Button
+                          onClick={() => window.open(`/submit?edit=${submission.id}`, '_blank')}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit Article
                         </Button>
                       </div>
                     </CardContent>

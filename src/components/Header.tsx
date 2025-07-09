@@ -1,7 +1,43 @@
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, LogOut, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+
+const LogoComponent = ({ isMobile = false }: { isMobile?: boolean }) => {
+  const [imageError, setImageError] = useState(false);
+  
+  const handleImageError = () => {
+    setImageError(true);
+  };
+
+  if (imageError) {
+    // Fallback to text logo if image fails to load
+    return (
+      <div className={`text-center ${isMobile ? 'py-4' : ''}`}>
+        <h1 className={`font-bold text-blue-600 ${isMobile ? 'text-xl' : 'text-lg lg:text-2xl'}`}>
+          America Innovates
+        </h1>
+        <p className={`text-gray-600 ${isMobile ? 'text-sm' : 'text-xs lg:text-sm'}`}>
+          Magazine
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <img 
+      src="/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png" 
+      alt="America Innovates Magazine" 
+      className={isMobile 
+        ? "h-16 w-auto max-w-[280px] object-contain" 
+        : "h-12 md:h-14 lg:h-16 max-w-full object-contain"
+      }
+      onError={handleImageError}
+      style={{ display: 'block', width: 'auto', height: isMobile ? '64px' : 'auto' }}
+    />
+  );
+};
 
 const Header = () => {
   const { user, isAdmin, signOut } = useAuth();
@@ -13,12 +49,7 @@ const Header = () => {
         {/* Mobile Layout: Logo centered at top */}
         <div className="flex justify-center mb-3">
           <Link to="/" className="block">
-            <img 
-              src="/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png" 
-              alt="America Innovates Magazine" 
-              className="h-16 w-auto max-w-[280px] object-contain"
-              style={{ display: 'block', width: 'auto', height: '64px' }}
-            />
+            <LogoComponent isMobile={true} />
           </Link>
         </div>
         
@@ -54,11 +85,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Link to="/">
-              <img 
-                src="/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png" 
-                alt="America Innovates Magazine" 
-                className="h-12 md:h-14 lg:h-16 max-w-full object-contain"
-              />
+              <LogoComponent isMobile={false} />
             </Link>
           </div>
           

@@ -286,9 +286,9 @@ IMPORTANT: Do NOT use markdown headers (# symbols) in your response. Write the a
           .replace(/[^a-z0-9\s-]/g, '')
           .replace(/\s+/g, '-')
           .replace(/-+/g, '-')
-          .replace(/^-|-$/g, '') + '-entrepreneur-story';
+          .replace(/^-|-$/g, '');
       } else {
-        slug = 'entrepreneur-story-' + Date.now();
+        slug = 'untitled-' + Date.now();
       }
     }
     

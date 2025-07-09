@@ -21,12 +21,26 @@ const Article = () => {
 
   const fetchArticle = async () => {
     try {
-      const { data, error } = await supabase
+      // First try to find by slug
+      let { data, error } = await supabase
         .from('submissions')
         .select('*')
         .eq('slug', slug)
         .eq('status', 'approved')
         .single();
+
+      // If not found by slug, try by ID (for articles without slugs)
+      if (error && error.code === 'PGRST116') {
+        const { data: dataById, error: errorById } = await supabase
+          .from('submissions')
+          .select('*')
+          .eq('id', slug)
+          .eq('status', 'approved')
+          .single();
+        
+        data = dataById;
+        error = errorById;
+      }
 
       if (error) throw error;
       setArticle(data);

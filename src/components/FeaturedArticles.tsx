@@ -72,7 +72,7 @@ const FeaturedArticles = () => {
               {/* Featured Article */}
               {featuredStories[0] && (
                 <div className="lg:col-span-8">
-                  <Link to={`/article/${featuredStories[0].slug}`}>
+                  <Link to={`/article/${featuredStories[0].slug || featuredStories[0].id}`}>
                     <Card className="overflow-hidden hover:shadow-2xl transition-all duration-500 group cursor-pointer border-0 shadow-lg">
                       <div className="relative">
                         <img 
@@ -105,7 +105,7 @@ const FeaturedArticles = () => {
               {featuredStories.length > 1 && (
                 <div className="lg:col-span-4 space-y-6">
                   {featuredStories.slice(1, 4).map((story) => (
-                    <Link key={story.id} to={`/article/${story.slug}`}>
+                    <Link key={story.id} to={`/article/${story.slug || story.id}`}>
                       <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-200">
                         <div className="flex">
                           <div className="w-1/3">
@@ -136,7 +136,7 @@ const FeaturedArticles = () => {
             {featuredStories.length > 4 && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {featuredStories.slice(4).map((story) => (
-                  <Link key={story.id} to={`/article/${story.slug}`}>
+                  <Link key={story.id} to={`/article/${story.slug || story.id}`}>
                     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-200 h-full">
                       <div className="aspect-[4/3] relative overflow-hidden">
                         <img 

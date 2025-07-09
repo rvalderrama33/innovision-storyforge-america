@@ -79,7 +79,7 @@ const Stories = () => {
                 const imageUrl = story.image_urls?.[0];
                 
                 return (
-                  <Link key={story.id} to={`/article/${story.slug}`}>
+                  <Link key={story.id} to={`/article/${story.slug || story.id}`}>
                     <Card className="overflow-hidden hover:shadow-xl transition-all duration-300 group cursor-pointer border border-gray-200 h-full">
                       <div className="aspect-[4/3] relative overflow-hidden">
                         {imageUrl ? (

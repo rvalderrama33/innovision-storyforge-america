@@ -30,7 +30,7 @@ const LogoComponent = ({ isMobile = false }: { isMobile?: boolean }) => {
       src="/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png" 
       alt="America Innovates Magazine" 
       className={isMobile 
-        ? "h-8 w-auto max-w-[140px] object-contain" 
+        ? "h-16 w-auto max-w-[280px] object-contain" 
         : "h-4 md:h-5 lg:h-6 max-w-full object-contain"
       }
       onError={handleImageError}

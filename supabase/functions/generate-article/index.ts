@@ -82,58 +82,63 @@ IMPORTANT: Use these source links to research and gather detailed information ab
 ${formData.sourceLinks.map((link, index) => `[${index + 1}] ${link}`).join('\n')}
 
 Based on the information available from these sources, write a thorough, well-researched article that covers:
-- Their background and early life/career
-- Their major achievements and contributions
-- Their impact on their industry or community
-- Any innovations or breakthrough work they've done
-- Their vision for the future
-- Personal insights and quotes if available from the sources
+- Their entrepreneurial journey and business ventures
+- How their background (sports, entertainment, etc.) shaped their entrepreneurial mindset
+- Key business achievements and innovations they've created
+- Leadership lessons and entrepreneurial insights from their journey
+- How they've built and scaled businesses or organizations
+- Their vision for future business endeavors and impact
+- Personal insights and quotes about entrepreneurship if available from the sources
 ` : ''}
 
-Write a long-form, comprehensive article (1200-1800 words) in an enthusiastic and inspirational tone that celebrates this person's achievements and contributions. 
-Structure it as a complete magazine feature article with:
-- A compelling headline
-- An engaging opening that hooks the reader
-- Multiple detailed sections covering different aspects of their work and impact
-- Rich details and specific examples from the source material
-- A strong conclusion that inspires readers
+CRITICAL FOCUS: This article must be centered on their ENTREPRENEURIAL JOURNEY and business accomplishments. If they have a background in sports, entertainment, or other fields, frame it as how those experiences made them a better entrepreneur, leader, and business innovator. The story should be motivational and inspirational for other entrepreneurs and business leaders.
 
-Make sure to prominently feature the person's name (${formData.personName}) throughout the article and write as if you have thoroughly researched them using the provided sources.
+Write a long-form, comprehensive article (1200-1800 words) in an enthusiastic and inspirational tone that celebrates their entrepreneurial achievements and business impact. 
+Structure it as a complete magazine feature article with:
+- A compelling headline focused on their business success
+- An engaging opening that hooks entrepreneurs and business readers
+- Multiple detailed sections covering their entrepreneurial journey and business impact
+- Rich details about their business ventures, leadership style, and entrepreneurial lessons
+- A strong conclusion that inspires other entrepreneurs
+
+Make sure to prominently feature the person's name (${formData.personName}) throughout the article and write as if you have thoroughly researched their business journey using the provided sources.
       `;
     } else {
-      prompt = `Write a professional magazine article about an innovative consumer product. Use the following information:
+      prompt = `Write a professional magazine article about an innovative entrepreneur and their business journey. Use the following information:
 
-INNOVATOR PROFILE:
+ENTREPRENEUR PROFILE:
 - Name: ${formData.fullName || 'Not provided'}
 - Location: ${formData.city || 'Not provided'}, ${formData.state || 'Not provided'}
 - Background: ${formData.background || 'Not provided'}
 - Website: ${formData.website || 'Not provided'}
 - Social Media: ${formData.socialMedia || 'Not provided'}
 
-PRODUCT DETAILS:
-- Product Name: ${formData.productName || 'Not provided'}
-- Category: ${formData.category || 'Not provided'}
-- Stage: ${formData.stage || 'Not provided'}
-- Description: ${formData.description || 'Not provided'}
-- Problem Solved: ${formData.problemSolved || 'Not provided'}
+BUSINESS VENTURE DETAILS:
+- Product/Business Name: ${formData.productName || 'Not provided'}
+- Industry/Category: ${formData.category || 'Not provided'}
+- Business Stage: ${formData.stage || 'Not provided'}
+- Business Description: ${formData.description || 'Not provided'}
+- Market Problem Solved: ${formData.problemSolved || 'Not provided'}
 
-THE INNOVATION STORY:
-- How the idea originated: ${formData.ideaOrigin || 'Not provided'}
-- Biggest challenge faced: ${formData.biggestChallenge || 'Not provided'}
-- Proudest moment: ${formData.proudestMoment || 'Not provided'}
-- Key inspiration/support: ${formData.inspiration || 'Not provided'}
-- What motivates continued development: ${formData.motivation || 'Not provided'}
+THE ENTREPRENEURIAL JOURNEY:
+- How the business idea originated: ${formData.ideaOrigin || 'Not provided'}
+- Biggest entrepreneurial challenge faced: ${formData.biggestChallenge || 'Not provided'}
+- Proudest business moment: ${formData.proudestMoment || 'Not provided'}
+- Key inspiration/mentorship: ${formData.inspiration || 'Not provided'}
+- What motivates continued business growth: ${formData.motivation || 'Not provided'}
 
-Please write a compelling, professional magazine article (800-1200 words) that tells this innovation story. Include:
-1. An engaging headline
-2. A strong opening that hooks the reader
-3. The innovator's background and what led to the product idea
-4. The problem the product solves and its market potential
-5. Key challenges overcome during development
-6. The innovator's proudest moments and future vision
-7. A conclusion that inspires other innovators
+CRITICAL FOCUS: Write this as an ENTREPRENEURIAL SUCCESS STORY. If the person has a background in sports, entertainment, or other fields, frame it as how those experiences developed their business acumen, leadership skills, and entrepreneurial mindset. Focus on business building, innovation, leadership, and entrepreneurial lessons.
 
-Write in the style of a feature article for America Innovates Magazine, focusing on the human story behind the innovation while highlighting the product's impact and potential.`;
+Please write a compelling, motivational magazine article (800-1200 words) that tells this entrepreneurial journey. Include:
+1. An engaging headline focused on their business success
+2. A strong opening that hooks entrepreneurs and business readers
+3. The entrepreneur's background and how it shaped their business mindset
+4. The market opportunity they identified and how they built their business
+5. Key entrepreneurial challenges overcome and business lessons learned
+6. Their proudest business achievements and future entrepreneurial vision
+7. A conclusion that inspires other entrepreneurs and business leaders
+
+Write in the style of a feature article for America Innovates Magazine, focusing on the entrepreneurial journey and business impact while highlighting leadership lessons and business innovation.`;
     }
 
     console.log("Generated prompt length:", prompt.length);

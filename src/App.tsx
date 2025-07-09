@@ -16,6 +16,7 @@ import Stories from "./pages/Stories";
 import TestOpenAI from "./pages/TestOpenAI";
 import NotFound from "./pages/NotFound";
 import SitemapRoute from "./components/SitemapRoute";
+import SecurityAudit from "./components/SecurityAudit";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => (
             <Route path="/admin/edit/:id" element={<ArticleEditor />} />
             <Route path="/stories" element={<Stories />} />
             <Route path="/sitemap.xml" element={<SitemapRoute />} />
+            <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />
             <Route path="/test-openai" element={<TestOpenAI />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

@@ -49,3 +49,6 @@ verify_jwt = false
 
 [functions.sitemap]
 verify_jwt = false
+
+[functions.security-audit]
+verify_jwt = false

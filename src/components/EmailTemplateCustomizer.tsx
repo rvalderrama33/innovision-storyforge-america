@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Palette, Code, Eye, Save, Mail, Sparkles } from 'lucide-react';
+import DOMPurify from 'dompurify';
 
 const EmailTemplateCustomizer = () => {
   const [selectedTemplate, setSelectedTemplate] = useState('welcome');
@@ -274,7 +275,7 @@ const EmailTemplateCustomizer = () => {
               </div>
               <div 
                 className="border bg-white rounded-lg p-4 max-h-96 overflow-y-auto"
-                dangerouslySetInnerHTML={{ __html: generatePreviewHtml() }}
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(generatePreviewHtml()) }}
               />
             </div>
           </TabsContent>

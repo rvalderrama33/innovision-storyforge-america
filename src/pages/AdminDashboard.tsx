@@ -8,20 +8,47 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import EmailNotificationForm from "@/components/EmailNotificationForm";
 import EmailTemplateCustomizer from "@/components/EmailTemplateCustomizer";
+import AdminManualSubmission from "@/components/AdminManualSubmission";
 import { sendArticleApprovalEmail, sendFeaturedStoryEmail } from "@/lib/emailService";
-import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus } from "lucide-react";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
   const { toast } = useToast();
   const [submissions, setSubmissions] = useState<any[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
 
   useEffect(() => {
     if (user && isAdmin) {
       fetchSubmissions();
+      fetchUsers();
     }
   }, [user, isAdmin]);
+
+  const fetchUsers = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select(`
+          *,
+          user_roles (
+            role
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      setUsers(data || []);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast({
+        title: "Error",
+        description: "Failed to fetch users",
+        variant: "destructive",
+      });
+    }
+  };
 
   const fetchSubmissions = async () => {
     try {
@@ -235,6 +262,8 @@ const AdminDashboard = () => {
           </TabsList>
 
           <TabsContent value="submissions" className="space-y-6">
+            <AdminManualSubmission onSubmissionCreated={fetchSubmissions} />
+            
             {submissions.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
@@ -382,15 +411,42 @@ const AdminDashboard = () => {
           <TabsContent value="users" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>User Management</CardTitle>
+                <CardTitle className="flex items-center justify-between">
+                  <span>User Management</span>
+                  <Badge variant="secondary">{users.length} Users</Badge>
+                </CardTitle>
                 <CardDescription>
-                  User management features coming soon
+                  Manage user accounts and roles
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-muted-foreground">
-                  This section will include user profiles, role management, and user activity tracking.
-                </p>
+                {users.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">No users found.</p>
+                ) : (
+                  <div className="space-y-4">
+                    {users.map((user) => (
+                      <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg">
+                        <div className="flex-1">
+                          <div className="font-medium">{user.full_name || 'Unknown User'}</div>
+                          <div className="text-sm text-muted-foreground">{user.email}</div>
+                          <div className="text-xs text-muted-foreground">
+                            Joined: {new Date(user.created_at).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {user.user_roles?.map((role: any) => (
+                            <Badge key={role.role} variant={role.role === 'admin' ? 'default' : 'secondary'}>
+                              {role.role}
+                            </Badge>
+                          ))}
+                          {(!user.user_roles || user.user_roles.length === 0) && (
+                            <Badge variant="outline">subscriber</Badge>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>

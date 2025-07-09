@@ -43,7 +43,7 @@ const Header = () => {
   const { user, isAdmin, signOut } = useAuth();
 
   return (
-    <nav className="bg-white border-b border-gray-200 px-4 py-3 lg:px-12">
+    <nav className="bg-white border-b border-gray-200 px-4 py-1.5 lg:px-12">
       {/* Mobile-first header with logo prominently displayed */}
       <div className="block md:hidden">
         {/* Mobile Layout: Logo centered at top */}

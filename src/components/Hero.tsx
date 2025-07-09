@@ -19,9 +19,21 @@ const Hero = () => {
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
 
+      {/* Mobile Logo at Top */}
+      <div className="relative z-20 md:hidden flex justify-center pt-4 pb-2">
+        <Link to="/">
+          <img 
+            src="/lovable-uploads/0b7aab03-b403-4c89-bfbb-d50750598cce.png" 
+            alt="America Innovates Magazine" 
+            className="h-24 w-auto max-w-[280px] object-contain"
+          />
+        </Link>
+      </div>
+
       {/* Navigation */}
       <nav className="relative z-20 flex items-center justify-between px-6 py-2 lg:px-12 backdrop-blur-sm">
-        <div className="flex items-center space-x-3">
+        {/* Desktop Logo */}
+        <div className="hidden md:flex items-center space-x-3">
           <Link to="/">
             <img 
               src="/lovable-uploads/0b7aab03-b403-4c89-bfbb-d50750598cce.png" 
@@ -46,7 +58,7 @@ const Hero = () => {
         <div className="flex items-center space-x-4">
           {user ? (
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-white">
+              <span className="text-sm text-white hidden sm:block">
                 Welcome, {user.user_metadata?.full_name || user.email}
               </span>
               <Button

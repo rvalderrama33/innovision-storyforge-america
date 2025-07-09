@@ -32,62 +32,65 @@ const StepTwo = ({ data, onUpdate }: StepTwoProps) => {
     <div className="space-y-6">
       <div className="text-center mb-6">
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
-          Your Consumer Product Innovation
+          Your Innovation or Business
         </h3>
         <p className="text-gray-600">
-          Help us understand your product and how it improves people's daily lives.
+          Tell us about your product, service, or entrepreneurial venture that's making an impact.
         </p>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="productName">Name of Your Product *</Label>
+        <Label htmlFor="productName">Name of Your Innovation/Business *</Label>
         <Input
           id="productName"
           value={formData.productName}
           onChange={(e) => handleChange("productName", e.target.value)}
-          placeholder="What do you call your product?"
+          placeholder="What do you call your product, service, or business?"
           className="text-lg py-3"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="category">Product Category *</Label>
+        <Label htmlFor="category">Industry/Category *</Label>
         <Select value={formData.category} onValueChange={(value) => handleChange("category", value)}>
           <SelectTrigger className="text-lg py-3">
-            <SelectValue placeholder="Select the category that best fits your product" />
+            <SelectValue placeholder="Select the category that best fits your innovation" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="home-living">Home & Living</SelectItem>
-            <SelectItem value="health-wellness">Health & Wellness</SelectItem>
-            <SelectItem value="kitchen-food">Kitchen & Food</SelectItem>
-            <SelectItem value="tech-accessories">Tech Accessories</SelectItem>
-            <SelectItem value="outdoor-travel">Outdoor & Travel</SelectItem>
-            <SelectItem value="kids-family">Kids & Family</SelectItem>
-            <SelectItem value="beauty-personal">Beauty & Personal Care</SelectItem>
-            <SelectItem value="automotive">Automotive</SelectItem>
+            <SelectItem value="technology">Technology & Software</SelectItem>
+            <SelectItem value="healthcare">Healthcare & Medical</SelectItem>
+            <SelectItem value="sustainability">Sustainability & Environment</SelectItem>
+            <SelectItem value="fintech">Financial Technology</SelectItem>
+            <SelectItem value="education">Education & Learning</SelectItem>
+            <SelectItem value="consumer-goods">Consumer Products</SelectItem>
+            <SelectItem value="food-beverage">Food & Beverage</SelectItem>
+            <SelectItem value="manufacturing">Manufacturing & Industrial</SelectItem>
+            <SelectItem value="services">Professional Services</SelectItem>
+            <SelectItem value="social-impact">Social Impact</SelectItem>
+            <SelectItem value="retail">Retail & E-commerce</SelectItem>
             <SelectItem value="other">Other</SelectItem>
           </SelectContent>
         </Select>
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Product Description and Purpose *</Label>
+        <Label htmlFor="description">Description and Purpose *</Label>
         <Textarea
           id="description"
           value={formData.description}
           onChange={(e) => handleChange("description", e.target.value)}
-          placeholder="Describe your product - what is it, how does it work, and what makes it special for consumers?"
+          placeholder="Describe your innovation - what is it, how does it work, and what makes it unique or impactful?"
           className="min-h-32 text-lg"
         />
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="problemSolved">What Consumer Problem Does It Solve? *</Label>
+        <Label htmlFor="problemSolved">What Problem Does It Solve? *</Label>
         <Textarea
           id="problemSolved"
           value={formData.problemSolved}
           onChange={(e) => handleChange("problemSolved", e.target.value)}
-          placeholder="Explain the everyday problem or frustration your product addresses for consumers..."
+          placeholder="Explain the problem, challenge, or need your innovation addresses in the market or society..."
           className="min-h-32 text-lg"
         />
       </div>
@@ -96,15 +99,15 @@ const StepTwo = ({ data, onUpdate }: StepTwoProps) => {
         <Label htmlFor="stage">Current Stage *</Label>
         <Select value={formData.stage} onValueChange={(value) => handleChange("stage", value)}>
           <SelectTrigger className="text-lg py-3">
-            <SelectValue placeholder="Select the current stage of your product" />
+            <SelectValue placeholder="Select the current stage of your innovation/business" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="concept">Concept/Idea Stage</SelectItem>
-            <SelectItem value="prototype">Prototype Development</SelectItem>
-            <SelectItem value="testing">Consumer Testing</SelectItem>
-            <SelectItem value="production">In Production</SelectItem>
-            <SelectItem value="market">Available for Purchase</SelectItem>
-            <SelectItem value="scaling">Scaling & Expanding</SelectItem>
+            <SelectItem value="prototype">Prototype/MVP Development</SelectItem>
+            <SelectItem value="testing">Testing/Validation</SelectItem>
+            <SelectItem value="launch">Recently Launched</SelectItem>
+            <SelectItem value="growth">Growing/Expanding</SelectItem>
+            <SelectItem value="established">Established Business</SelectItem>
           </SelectContent>
         </Select>
       </div>

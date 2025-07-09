@@ -77,6 +77,8 @@ Structure it as a complete magazine feature article with:
 - Rich details about their business ventures, leadership style, and entrepreneurial lessons
 - A strong conclusion that inspires other entrepreneurs
 
+IMPORTANT: Do NOT use markdown headers (# symbols) in your response. Write the article in plain text with clear section breaks but no # symbols.
+
 Make sure to prominently feature the person's name (${body.personName}) throughout the article and write as if you have thoroughly researched their business journey using the provided sources.
       `;
     } else {
@@ -105,6 +107,8 @@ Write in an enthusiastic and inspirational tone, like a feature article that cel
 Focus on the human story behind the business venture and how they identified and solved market problems.
 Make it engaging and motivational for other entrepreneurs and business leaders to read.
 Include a compelling headline focused on their business success and structure it as a complete magazine article.
+
+IMPORTANT: Do NOT use markdown headers (# symbols) in your response. Write the article in plain text with clear section breaks but no # symbols.
       `;
     }
 

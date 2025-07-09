@@ -101,6 +101,8 @@ Structure it as a complete magazine feature article with:
 - Rich details about their business ventures, leadership style, and entrepreneurial lessons
 - A strong conclusion that inspires other entrepreneurs
 
+IMPORTANT: Do NOT use markdown headers (# symbols) in your response. Write the article in plain text with clear section breaks but no # symbols.
+
 Make sure to prominently feature the person's name (${formData.personName}) throughout the article and write as if you have thoroughly researched their business journey using the provided sources.
       `;
     } else {
@@ -138,7 +140,9 @@ Please write a compelling, motivational magazine article (800-1200 words) that t
 6. Their proudest business achievements and future entrepreneurial vision
 7. A conclusion that inspires other entrepreneurs and business leaders
 
-Write in the style of a feature article for America Innovates Magazine, focusing on the entrepreneurial journey and business impact while highlighting leadership lessons and business innovation.`;
+Write in the style of a feature article for America Innovates Magazine, focusing on the entrepreneurial journey and business impact while highlighting leadership lessons and business innovation.
+
+IMPORTANT: Do NOT use markdown headers (# symbols) in your response. Write the article in plain text with clear section breaks but no # symbols.`;
     }
 
     console.log("Generated prompt length:", prompt.length);

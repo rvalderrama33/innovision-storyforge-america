@@ -10,6 +10,7 @@ import StepTwo from "@/components/submission-steps/StepTwo";
 import StepThree from "@/components/submission-steps/StepThree";
 import StepFour from "@/components/submission-steps/StepFour";
 import StepFive from "@/components/submission-steps/StepFive";
+import StepSix from "@/components/submission-steps/StepSix";
 
 const SubmissionWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
@@ -21,7 +22,8 @@ const SubmissionWizard = () => {
     { number: 2, title: "Your Innovation", component: StepTwo },
     { number: 3, title: "Your Journey", component: StepThree },
     { number: 4, title: "Supporting Images", component: StepFour },
-    { number: 5, title: "Review & Submit", component: StepFive }
+    { number: 5, title: "Recommendations", component: StepFive },
+    { number: 6, title: "Review & Submit", component: StepSix }
   ];
 
   const progress = (currentStep / steps.length) * 100;

@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { sendWelcomeEmail } from '@/lib/emailService';
 
 interface AuthContextType {
   user: User | null;
@@ -36,6 +37,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       async (event, session) => {
         setSession(session);
         setUser(session?.user ?? null);
+        
+        // Send welcome email when user signs up
+        if (event === 'SIGNED_IN' && session?.user && !user) {
+          setTimeout(async () => {
+            try {
+              await sendWelcomeEmail(
+                session.user.email!, 
+                session.user.user_metadata?.full_name || session.user.email
+              );
+              console.log('Welcome email sent successfully');
+            } catch (error) {
+              console.error('Failed to send welcome email:', error);
+            }
+          }, 0);
+        }
         
         if (session?.user) {
           // Check if user is admin

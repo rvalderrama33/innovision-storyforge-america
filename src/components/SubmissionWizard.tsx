@@ -14,6 +14,7 @@ import StepFive from "@/components/submission-steps/StepFive";
 const SubmissionWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState({});
+  const [stepValidations, setStepValidations] = useState<Record<number, boolean>>({});
 
   const steps = [
     { number: 1, title: "About You", component: StepOne },
@@ -27,6 +28,12 @@ const SubmissionWizard = () => {
   const CurrentStepComponent = steps[currentStep - 1].component;
 
   const handleNext = () => {
+    const isCurrentStepValid = stepValidations[currentStep];
+    if (!isCurrentStepValid) {
+      // Show validation error - you could add a toast or visual feedback here
+      return;
+    }
+    
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
     }
@@ -40,6 +47,10 @@ const SubmissionWizard = () => {
 
   const updateFormData = (stepData: any) => {
     setFormData(prev => ({ ...prev, ...stepData }));
+  };
+
+  const handleValidationChange = (stepNumber: number, isValid: boolean) => {
+    setStepValidations(prev => ({ ...prev, [stepNumber]: isValid }));
   };
 
   return (
@@ -107,6 +118,7 @@ const SubmissionWizard = () => {
               data={formData} 
               onUpdate={updateFormData}
               onNext={handleNext}
+              onValidationChange={(isValid: boolean) => handleValidationChange(currentStep, isValid)}
             />
           </CardContent>
         </Card>
@@ -125,7 +137,7 @@ const SubmissionWizard = () => {
 
           <Button
             onClick={handleNext}
-            disabled={currentStep === steps.length}
+            disabled={currentStep === steps.length || !stepValidations[currentStep]}
             className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
           >
             <span>Next</span>

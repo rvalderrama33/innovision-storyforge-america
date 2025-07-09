@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,13 +11,18 @@ interface StepFiveProps {
   data: any;
   onUpdate: (data: any) => void;
   onNext: () => void;
+  onValidationChange: (isValid: boolean) => void;
 }
 
-const StepFive = ({ data }: StepFiveProps) => {
+const StepFive = ({ data, onValidationChange }: StepFiveProps) => {
   const [consent, setConsent] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    onValidationChange(consent);
+  }, [consent, onValidationChange]);
 
   const handleSubmit = async () => {
     if (!consent) return;

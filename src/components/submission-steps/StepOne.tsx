@@ -8,9 +8,10 @@ interface StepOneProps {
   data: any;
   onUpdate: (data: any) => void;
   onNext: () => void;
+  onValidationChange: (isValid: boolean) => void;
 }
 
-const StepOne = ({ data, onUpdate }: StepOneProps) => {
+const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
   const [formData, setFormData] = useState({
     fullName: data.fullName || "",
     city: data.city || "",
@@ -24,9 +25,19 @@ const StepOne = ({ data, onUpdate }: StepOneProps) => {
   // Use useCallback to prevent onUpdate from changing on every render
   const stableOnUpdate = useCallback(onUpdate, [onUpdate]);
 
+  const validateForm = useCallback(() => {
+    const requiredFields = ['fullName', 'email', 'city', 'state', 'background'];
+    const isValid = requiredFields.every(field => 
+      formData[field as keyof typeof formData]?.trim() !== ""
+    );
+    onValidationChange(isValid);
+    return isValid;
+  }, [formData, onValidationChange]);
+
   useEffect(() => {
     stableOnUpdate(formData);
-  }, [formData, stableOnUpdate]);
+    validateForm();
+  }, [formData, stableOnUpdate, validateForm]);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));

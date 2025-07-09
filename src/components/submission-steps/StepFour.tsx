@@ -10,9 +10,10 @@ interface StepFourProps {
   data: any;
   onUpdate: (data: any) => void;
   onNext: () => void;
+  onValidationChange: (isValid: boolean) => void;
 }
 
-const StepFour = ({ data, onUpdate }: StepFourProps) => {
+const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
   const { toast } = useToast();
   const [uploadingFiles, setUploadingFiles] = useState<Record<string, boolean>>({});
   const [formData, setFormData] = useState({
@@ -24,8 +25,18 @@ const StepFour = ({ data, onUpdate }: StepFourProps) => {
     imageUrls: data.imageUrls || []
   });
 
+  const validateForm = () => {
+    // Required: headshot and productImages
+    const hasHeadshot = formData.headshot !== null;
+    const hasProductImages = Array.isArray(formData.productImages) && formData.productImages.length > 0;
+    const isValid = hasHeadshot && hasProductImages;
+    onValidationChange(isValid);
+    return isValid;
+  };
+
   useEffect(() => {
     onUpdate(formData);
+    validateForm();
   }, [formData, onUpdate]);
 
   const uploadAreas = [

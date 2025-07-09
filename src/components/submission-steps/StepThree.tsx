@@ -7,9 +7,10 @@ interface StepThreeProps {
   data: any;
   onUpdate: (data: any) => void;
   onNext: () => void;
+  onValidationChange: (isValid: boolean) => void;
 }
 
-const StepThree = ({ data, onUpdate }: StepThreeProps) => {
+const StepThree = ({ data, onUpdate, onValidationChange }: StepThreeProps) => {
   const [formData, setFormData] = useState({
     ideaOrigin: data.ideaOrigin || "",
     biggestChallenge: data.biggestChallenge || "",
@@ -18,8 +19,18 @@ const StepThree = ({ data, onUpdate }: StepThreeProps) => {
     motivation: data.motivation || ""
   });
 
+  const validateForm = () => {
+    const requiredFields = ['ideaOrigin', 'biggestChallenge', 'proudestMoment', 'inspiration', 'motivation'];
+    const isValid = requiredFields.every(field => 
+      formData[field as keyof typeof formData]?.trim() !== ""
+    );
+    onValidationChange(isValid);
+    return isValid;
+  };
+
   useEffect(() => {
     onUpdate(formData);
+    validateForm();
   }, [formData, onUpdate]);
 
   const handleChange = (field: string, value: string) => {

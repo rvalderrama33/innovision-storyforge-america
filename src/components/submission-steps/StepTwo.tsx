@@ -9,9 +9,10 @@ interface StepTwoProps {
   data: any;
   onUpdate: (data: any) => void;
   onNext: () => void;
+  onValidationChange: (isValid: boolean) => void;
 }
 
-const StepTwo = ({ data, onUpdate }: StepTwoProps) => {
+const StepTwo = ({ data, onUpdate, onValidationChange }: StepTwoProps) => {
   const [formData, setFormData] = useState({
     productName: data.productName || "",
     description: data.description || "",
@@ -20,8 +21,18 @@ const StepTwo = ({ data, onUpdate }: StepTwoProps) => {
     category: data.category || ""
   });
 
+  const validateForm = () => {
+    const requiredFields = ['productName', 'category', 'description', 'problemSolved', 'stage'];
+    const isValid = requiredFields.every(field => 
+      formData[field as keyof typeof formData]?.trim() !== ""
+    );
+    onValidationChange(isValid);
+    return isValid;
+  };
+
   useEffect(() => {
     onUpdate(formData);
+    validateForm();
   }, [formData, onUpdate]);
 
   const handleChange = (field: string, value: string) => {

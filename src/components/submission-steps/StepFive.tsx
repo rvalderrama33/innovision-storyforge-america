@@ -63,14 +63,22 @@ const StepFive = ({ data }: StepFiveProps) => {
         body: { ...data, submissionId: submission.id }
       });
 
+      console.log("Edge function response:", { articleResult, functionError });
+
       if (functionError) {
         console.error("Edge function error:", functionError);
-        throw new Error(`Failed to generate article: ${functionError.message}`);
+        
+        // Check if it's an OpenAI API key issue
+        if (functionError.message?.includes('OpenAI API key') || functionError.message?.includes('not configured')) {
+          throw new Error("OpenAI API key is not configured. Please contact the administrator to set up the OpenAI API key in Supabase Edge Function secrets.");
+        }
+        
+        throw new Error(`Failed to generate article: ${functionError.message || 'Unknown error'}`);
       }
 
       if (!articleResult || !articleResult.article) {
         console.error("Invalid response from edge function:", articleResult);
-        throw new Error("Invalid response from article generation service");
+        throw new Error("Invalid response from article generation service. Please try again or contact support.");
       }
 
       console.log("Article generated successfully");

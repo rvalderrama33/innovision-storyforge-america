@@ -14,7 +14,7 @@ const Header = () => {
             <img 
               src="/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png" 
               alt="America Innovates Magazine" 
-              className="h-36 lg:h-48"
+              className="h-8 md:h-12 lg:h-16 max-w-full object-contain"
             />
           </Link>
         </div>

@@ -143,7 +143,13 @@ Include a compelling headline and structure it as a complete magazine article.
       body: JSON.stringify({ 
         article,
         timestamp: new Date().toISOString(),
-        requestData: body
+        requestData: body,
+        defaultSources: [
+          'https://www.wikipedia.org/',
+          'https://www.reddit.com/',
+          'https://myproduct.today/',
+          'https://www.linkedin.com/'
+        ]
       }),
     };
   } catch (error) {

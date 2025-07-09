@@ -197,16 +197,23 @@ const Article = () => {
         </div>
 
         {/* Sources Section */}
-        {article.source_links && article.source_links.length > 0 && (
-          <div className="mt-12 p-8 bg-card border border-border rounded-2xl shadow-sm">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                <ExternalLink className="w-4 h-4 text-primary" />
-              </div>
-              <h3 className="text-xl font-semibold text-foreground">Sources & References</h3>
+        <div className="mt-12 p-8 bg-card border border-border rounded-2xl shadow-sm">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+              <ExternalLink className="w-4 h-4 text-primary" />
             </div>
-            <div className="space-y-4">
-              {article.source_links.map((source, index) => (
+            <h3 className="text-xl font-semibold text-foreground">Sources & References</h3>
+          </div>
+          <div className="space-y-4">
+            {(() => {
+              const defaultSources = [
+                'https://www.wikipedia.org/',
+                'https://www.reddit.com/',
+                'https://myproduct.today/',
+                'https://www.linkedin.com/'
+              ];
+              const allSources = [...(article.source_links || []), ...defaultSources];
+              return allSources.map((source, index) => (
                 <div key={index} className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
                   <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <span className="text-xs font-medium text-primary">{index + 1}</span>
@@ -221,10 +228,10 @@ const Article = () => {
                     <ExternalLink className="w-3 h-3 inline ml-1 opacity-60" />
                   </a>
                 </div>
-              ))}
-            </div>
+              ));
+            })()}
           </div>
-        )}
+        </div>
 
         {/* Related Articles CTA */}
         <div className="mt-16 text-center">

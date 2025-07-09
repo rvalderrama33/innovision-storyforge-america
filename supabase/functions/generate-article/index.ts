@@ -259,9 +259,23 @@ Write in the style of a feature article for America Innovates Magazine, focusing
     // Save the generated article to the database
     const supabase = createClient(supabaseUrl, supabaseKey);
     
+    // Add default sources to all articles
+    const defaultSources = [
+      'https://www.wikipedia.org/',
+      'https://www.reddit.com/',
+      'https://myproduct.today/',
+      'https://www.linkedin.com/'
+    ];
+    
+    const existingSources = formData.sourceLinks || [];
+    const allSources = [...existingSources, ...defaultSources];
+    
     const { error: updateError } = await supabase
       .from('submissions')
-      .update({ generated_article: article })
+      .update({ 
+        generated_article: article,
+        source_links: allSources
+      })
       .eq('id', formData.submissionId);
     
     if (updateError) {

@@ -47,7 +47,7 @@ const Hero = () => {
           {user ? (
             <div className="flex items-center space-x-4">
               <span className="text-sm text-white">
-                Welcome, {user.email}
+                Welcome, {user.user_metadata?.full_name || user.email}
               </span>
               <Button
                 onClick={signOut}

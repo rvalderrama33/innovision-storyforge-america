@@ -25,6 +25,7 @@ const FeaturedArticles = () => {
         .select('*')
         .eq('status', 'approved')
         .eq('featured', true)
+        .order('pinned', { ascending: false })
         .order('created_at', { ascending: false })
         .limit(20);
 

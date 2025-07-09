@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Eye, Users, FileText, Trash2, Star, Edit } from 'lucide-react';
+import { CheckCircle, XCircle, Eye, Users, FileText, Trash2, Star, Edit, Pin } from 'lucide-react';
 import ArticlePreviewDialog from '@/components/ArticlePreviewDialog';
 import {
   Table,
@@ -196,6 +196,31 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleTogglePinned = async (submissionId: string, currentPinned: boolean) => {
+    try {
+      const { error } = await supabase
+        .from('submissions')
+        .update({ pinned: !currentPinned })
+        .eq('id', submissionId);
+
+      if (error) throw error;
+
+      toast({
+        title: currentPinned ? "Unpinned from top" : "Pinned to top",
+        description: `The story has been ${currentPinned ? 'unpinned from' : 'pinned to'} the top of featured stories.`,
+      });
+
+      fetchSubmissions();
+    } catch (error) {
+      console.error('Error updating pinned status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update pinned status.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handlePreview = (submission: any) => {
     setSelectedSubmission(submission);
     setPreviewDialogOpen(true);
@@ -277,6 +302,7 @@ const AdminDashboard = () => {
                       <TableHead>Submitter</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Featured</TableHead>
+                      <TableHead>Pinned</TableHead>
                       <TableHead>Submitted</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -306,6 +332,14 @@ const AdminDashboard = () => {
                             <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
                               <Star className="h-3 w-3 mr-1" />
                               Featured
+                            </Badge>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {submission.pinned && (
+                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                              <Pin className="h-3 w-3 mr-1" />
+                              Pinned
                             </Badge>
                           )}
                         </TableCell>
@@ -379,6 +413,15 @@ const AdminDashboard = () => {
                                 >
                                   <Star className="h-4 w-4 mr-1" />
                                   {submission.featured ? 'Unfeature' : 'Feature'}
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleTogglePinned(submission.id, submission.pinned)}
+                                  variant={submission.pinned ? "default" : "outline"}
+                                  className={submission.pinned ? "bg-blue-600 hover:bg-blue-700 text-white" : ""}
+                                >
+                                  <Pin className="h-4 w-4 mr-1" />
+                                  {submission.pinned ? 'Unpin' : 'Pin to Top'}
                                 </Button>
                               </>
                             )}

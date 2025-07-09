@@ -58,6 +58,7 @@ export type Database = {
           inspiration: string | null
           is_manual_submission: boolean | null
           motivation: string | null
+          pinned: boolean | null
           problem_solved: string | null
           product_name: string | null
           proudest_moment: string | null
@@ -89,6 +90,7 @@ export type Database = {
           inspiration?: string | null
           is_manual_submission?: boolean | null
           motivation?: string | null
+          pinned?: boolean | null
           problem_solved?: string | null
           product_name?: string | null
           proudest_moment?: string | null
@@ -120,6 +122,7 @@ export type Database = {
           inspiration?: string | null
           is_manual_submission?: boolean | null
           motivation?: string | null
+          pinned?: boolean | null
           problem_solved?: string | null
           product_name?: string | null
           proudest_moment?: string | null

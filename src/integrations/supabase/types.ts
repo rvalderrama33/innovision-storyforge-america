@@ -62,6 +62,7 @@ export type Database = {
           problem_solved: string | null
           product_name: string | null
           proudest_moment: string | null
+          recommendations: Json | null
           slug: string | null
           social_media: string | null
           source_links: string[] | null
@@ -94,6 +95,7 @@ export type Database = {
           problem_solved?: string | null
           product_name?: string | null
           proudest_moment?: string | null
+          recommendations?: Json | null
           slug?: string | null
           social_media?: string | null
           source_links?: string[] | null
@@ -126,6 +128,7 @@ export type Database = {
           problem_solved?: string | null
           product_name?: string | null
           proudest_moment?: string | null
+          recommendations?: Json | null
           slug?: string | null
           social_media?: string | null
           source_links?: string[] | null

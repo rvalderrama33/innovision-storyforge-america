@@ -27,27 +27,9 @@ const StepFive = ({ data }: StepFiveProps) => {
     try {
       console.log("Starting submission process with data:", data);
 
-      // Generate article using Supabase Edge Function
-      console.log("Calling Supabase Edge Function to generate article...");
-      const { data: articleResult, error: functionError } = await supabase.functions.invoke('generate-article', {
-        body: data
-      });
-
-      if (functionError) {
-        console.error("Edge function error:", functionError);
-        throw new Error(`Failed to generate article: ${functionError.message}`);
-      }
-
-      if (!articleResult || !articleResult.article) {
-        console.error("Invalid response from edge function:", articleResult);
-        throw new Error("Invalid response from article generation service");
-      }
-
-      console.log("Article generated successfully");
-
-      // Save to Supabase
+      // Save to Supabase first
       console.log("Saving to Supabase...");
-      const { error } = await supabase.from('submissions').insert({
+      const { data: submission, error } = await supabase.from('submissions').insert({
         full_name: data.fullName,
         email: data.email,
         city: data.city,
@@ -65,16 +47,34 @@ const StepFive = ({ data }: StepFiveProps) => {
         proudest_moment: data.proudestMoment,
         inspiration: data.inspiration,
         motivation: data.motivation,
-        generated_article: articleResult.article,
         image_urls: data.imageUrls || []
-      });
+      }).select().single();
 
       if (error) {
         console.error("Supabase insert error:", error);
         throw error;
       }
 
-      console.log("Successfully saved to Supabase");
+      console.log("Successfully saved to Supabase, now generating article...");
+
+      // Generate article using Supabase Edge Function
+      console.log("Calling Supabase Edge Function to generate article...");
+      const { data: articleResult, error: functionError } = await supabase.functions.invoke('generate-article', {
+        body: { ...data, submissionId: submission.id }
+      });
+
+      if (functionError) {
+        console.error("Edge function error:", functionError);
+        throw new Error(`Failed to generate article: ${functionError.message}`);
+      }
+
+      if (!articleResult || !articleResult.article) {
+        console.error("Invalid response from edge function:", articleResult);
+        throw new Error("Invalid response from article generation service");
+      }
+
+      console.log("Article generated successfully");
+
       setSubmitted(true);
       toast({
         title: "Success!",

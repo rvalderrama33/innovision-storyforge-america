@@ -81,7 +81,7 @@ const FeaturedArticles = () => {
                             {featuredStories[0].description}
                           </p>
                           <p className="text-white/75 text-sm mt-2">
-                            by {featuredStories[0].full_name}
+                            by America Innovates Magazine
                           </p>
                         </div>
                       </div>
@@ -111,7 +111,7 @@ const FeaturedArticles = () => {
                             <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors leading-tight">
                               {story.product_name}
                             </h3>
-                            <span className="text-sm text-gray-500">by {story.full_name}</span>
+                            <span className="text-sm text-gray-500">by America Innovates Magazine</span>
                           </CardContent>
                         </div>
                       </Card>
@@ -145,7 +145,7 @@ const FeaturedArticles = () => {
                           {story.description}
                         </p>
                         <p className="text-sm text-gray-500">
-                          by {story.full_name}
+                          by America Innovates Magazine
                         </p>
                       </CardContent>
                     </Card>

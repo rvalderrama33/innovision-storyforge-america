@@ -111,7 +111,7 @@ const Stories = () => {
                           {story.description}
                         </p>
                         <p className="text-sm text-gray-500">
-                          by {story.full_name}
+                          by America Innovates Magazine
                         </p>
                       </CardContent>
                     </Card>

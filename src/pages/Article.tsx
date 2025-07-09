@@ -106,11 +106,9 @@ const Article = () => {
                     <Clock className="w-4 h-4" />
                     <span className="text-sm">5 min read</span>
                   </div>
-                  {article.full_name && (
-                    <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-                      By {article.full_name}
-                    </Badge>
-                  )}
+                  <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
+                    By America Innovates Magazine
+                  </Badge>
                 </div>
               </div>
             </div>
@@ -142,11 +140,9 @@ const Article = () => {
                   <Clock className="w-4 h-4" />
                   <span className="text-sm">5 min read</span>
                 </div>
-                {article.full_name && (
-                  <Badge variant="secondary">
-                    By {article.full_name}
-                  </Badge>
-                )}
+                <Badge variant="secondary">
+                  By America Innovates Magazine
+                </Badge>
               </div>
             </div>
           </div>

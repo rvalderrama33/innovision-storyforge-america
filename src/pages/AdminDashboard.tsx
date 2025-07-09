@@ -377,10 +377,14 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="submissions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="submissions" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Submissions
+            </TabsTrigger>
+            <TabsTrigger value="create" className="flex items-center gap-2">
+              <Plus className="w-4 h-4" />
+              Create Article
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4" />
@@ -396,9 +400,11 @@ const AdminDashboard = () => {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="submissions" className="space-y-6">
+          <TabsContent value="create" className="space-y-6">
             <AdminManualSubmission onSubmissionCreated={fetchSubmissions} />
-            
+          </TabsContent>
+
+          <TabsContent value="submissions" className="space-y-6">
             {submissions.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">

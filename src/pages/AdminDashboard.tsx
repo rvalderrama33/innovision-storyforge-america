@@ -1,45 +1,25 @@
-
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { CheckCircle, XCircle, Eye, Users, FileText, Trash2, Star, Edit, Pin } from 'lucide-react';
-import ArticlePreviewDialog from '@/components/ArticlePreviewDialog';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import AdminManualSubmission from '@/components/AdminManualSubmission';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useToast } from "@/hooks/use-toast";
+import EmailNotificationForm from "@/components/EmailNotificationForm";
+import EmailTemplateCustomizer from "@/components/EmailTemplateCustomizer";
+import { sendArticleApprovalEmail, sendFeaturedStoryEmail } from "@/lib/emailService";
+import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp } from "lucide-react";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
-  const navigate = useNavigate();
   const { toast } = useToast();
-  const [submissions, setSubmissions] = useState([]);
-  const [users, setUsers] = useState([]);
+  const [submissions, setSubmissions] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
-  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
-  const [selectedSubmission, setSelectedSubmission] = useState(null);
-
-  useEffect(() => {
-    if (!loading && (!user || !isAdmin)) {
-      navigate('/auth');
-    }
-  }, [user, isAdmin, loading, navigate]);
 
   useEffect(() => {
     if (user && isAdmin) {
       fetchSubmissions();
-      fetchUsers();
     }
   }, [user, isAdmin]);
 
@@ -64,150 +44,133 @@ const AdminDashboard = () => {
     }
   };
 
-  const fetchUsers = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select(`
-          *,
-          user_roles (role)
-        `)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      setUsers(data || []);
-    } catch (error) {
-      console.error('Error fetching users:', error);
+  const getStatusVariant = (status: string) => {
+    switch (status) {
+      case 'approved': return 'default';
+      case 'rejected': return 'destructive';
+      case 'pending': return 'secondary';
+      default: return 'outline';
     }
   };
 
-  const approveSubmission = async (submissionId: string) => {
+  const updateSubmissionStatus = async (id: string, status: string) => {
     try {
-      const slug = `article-${Date.now()}`;
-      
       const { error } = await supabase
         .from('submissions')
-        .update({
-          status: 'approved',
-          approved_by: user?.id,
-          approved_at: new Date().toISOString(),
-          slug: slug
+        .update({ 
+          status,
+          approved_at: status === 'approved' ? new Date().toISOString() : null,
+          approved_by: status === 'approved' ? user?.id : null
         })
-        .eq('id', submissionId);
+        .eq('id', id);
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Article approved successfully!",
-      });
+      // Send approval email if status is approved
+      if (status === 'approved') {
+        const submission = submissions.find(s => s.id === id);
+        if (submission?.email && submission?.full_name) {
+          try {
+            await sendArticleApprovalEmail(
+              submission.email, 
+              submission.full_name, 
+              submission.product_name || 'Your Innovation Story',
+              submission.slug || submission.id
+            );
+            toast({
+              title: "Article approved and email sent!",
+              description: `Approval email sent to ${submission.email}`,
+            });
+          } catch (emailError) {
+            console.error('Failed to send approval email:', emailError);
+            toast({
+              title: "Article approved",
+              description: "Article approved but email notification failed to send.",
+              variant: "destructive",
+            });
+          }
+        }
+      } else {
+        toast({
+          title: "Status updated",
+          description: `Submission ${status}`,
+        });
+      }
 
       fetchSubmissions();
     } catch (error) {
-      console.error('Error approving submission:', error);
+      console.error('Error updating submission:', error);
       toast({
         title: "Error",
-        description: "Failed to approve article",
+        description: "Failed to update submission status",
         variant: "destructive",
       });
     }
   };
 
-  const rejectSubmission = async (submissionId: string) => {
+  const toggleFeatured = async (id: string, featured: boolean) => {
     try {
       const { error } = await supabase
         .from('submissions')
-        .update({
-          status: 'rejected',
-          approved_by: user?.id,
-          approved_at: new Date().toISOString()
-        })
-        .eq('id', submissionId);
+        .update({ featured })
+        .eq('id', id);
 
       if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: "Article rejected",
-      });
-
-      fetchSubmissions();
-    } catch (error) {
-      console.error('Error rejecting submission:', error);
-      toast({
-        title: "Error",
-        description: "Failed to reject article",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const deleteSubmission = async (submissionId: string) => {
-    if (!confirm('Are you sure you want to delete this submission? This action cannot be undone.')) {
-      return;
-    }
-
-    try {
-      const { error } = await supabase
-        .from('submissions')
-        .delete()
-        .eq('id', submissionId);
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Article deleted successfully",
-      });
-
-      fetchSubmissions();
-    } catch (error) {
-      console.error('Error deleting submission:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete article",
-        variant: "destructive",
-      });
-    }
-  };
-
-  const handleToggleFeatured = async (submissionId: string, currentFeatured: boolean) => {
-    try {
-      const { error } = await supabase
-        .from('submissions')
-        .update({ featured: !currentFeatured })
-        .eq('id', submissionId);
-
-      if (error) throw error;
-
-      toast({
-        title: currentFeatured ? "Removed from featured" : "Added to featured",
-        description: `The story has been ${currentFeatured ? 'removed from' : 'added to'} featured stories.`,
-      });
+      // Send featured story email if being featured
+      if (featured) {
+        const submission = submissions.find(s => s.id === id);
+        if (submission?.email && submission?.full_name) {
+          try {
+            await sendFeaturedStoryEmail(
+              submission.email,
+              submission.full_name,
+              submission.product_name || 'Your Innovation Story',
+              submission.slug || submission.id
+            );
+            toast({
+              title: "Story featured and email sent!",
+              description: `Featured story email sent to ${submission.email}`,
+            });
+          } catch (emailError) {
+            console.error('Failed to send featured email:', emailError);
+            toast({
+              title: "Story featured",
+              description: "Story featured but email notification failed to send.",
+              variant: "destructive",
+            });
+          }
+        }
+      } else {
+        toast({
+          title: "Status updated",
+          description: featured ? "Story featured" : "Story unfeatured",
+        });
+      }
 
       fetchSubmissions();
     } catch (error) {
       console.error('Error updating featured status:', error);
       toast({
         title: "Error",
-        description: "Failed to update featured status.",
+        description: "Failed to update featured status",
         variant: "destructive",
       });
     }
   };
 
-  const handleTogglePinned = async (submissionId: string, currentPinned: boolean) => {
+  const togglePinned = async (id: string, pinned: boolean) => {
     try {
       const { error } = await supabase
         .from('submissions')
-        .update({ pinned: !currentPinned })
-        .eq('id', submissionId);
+        .update({ pinned })
+        .eq('id', id);
 
       if (error) throw error;
 
       toast({
-        title: currentPinned ? "Unpinned from top" : "Pinned to top",
-        description: `The story has been ${currentPinned ? 'unpinned from' : 'pinned to'} the top of featured stories.`,
+        title: "Status updated",
+        description: pinned ? "Story pinned" : "Story unpinned",
       });
 
       fetchSubmissions();
@@ -215,285 +178,265 @@ const AdminDashboard = () => {
       console.error('Error updating pinned status:', error);
       toast({
         title: "Error",
-        description: "Failed to update pinned status.",
+        description: "Failed to update pinned status",
         variant: "destructive",
       });
     }
   };
 
-  const handlePreview = (submission: any) => {
-    setSelectedSubmission(submission);
-    setPreviewDialogOpen(true);
-  };
-
   if (loading || loadingData) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div>Loading...</div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground text-lg">Loading...</p>
+        </div>
       </div>
     );
   }
 
   if (!user || !isAdmin) {
-    return null;
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-foreground mb-4">Access Denied</h1>
+          <p className="text-muted-foreground">You need admin privileges to access this page.</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-          <Button onClick={() => navigate('/')} variant="outline">
-            Back to Site
-          </Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20 p-6">
+      <div className="max-w-7xl mx-auto">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
+          <p className="text-muted-foreground text-lg">Manage submissions and communications</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Submissions</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{submissions.length}</div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pending Approval</CardTitle>
-              <Eye className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {submissions.filter(s => s.status === 'pending').length}
-              </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Users</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{users.length}</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        <Tabs defaultValue="submissions" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="submissions">Submissions</TabsTrigger>
-            <TabsTrigger value="manual">Manual Submission</TabsTrigger>
-            <TabsTrigger value="users">User Management</TabsTrigger>
+        <Tabs defaultValue="submissions" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="submissions" className="flex items-center gap-2">
+              <FileText className="w-4 h-4" />
+              Submissions
+            </TabsTrigger>
+            <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <TrendingUp className="w-4 h-4" />
+              Analytics
+            </TabsTrigger>
+            <TabsTrigger value="users" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Users
+            </TabsTrigger>
+            <TabsTrigger value="emails" className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              Email Center
+            </TabsTrigger>
           </TabsList>
-          
-          <TabsContent value="submissions">
-            <Card>
-              <CardHeader>
-                <CardTitle>Article Submissions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Product Name</TableHead>
-                      <TableHead>Submitter</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Featured</TableHead>
-                      <TableHead>Pinned</TableHead>
-                      <TableHead>Submitted</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {submissions.map((submission) => (
-                      <TableRow key={submission.id}>
-                        <TableCell className="font-medium">
-                          {submission.product_name || 'Unnamed Product'}
-                        </TableCell>
-                        <TableCell>{submission.full_name}</TableCell>
-                        <TableCell>
-                          <Badge
-                            variant={
-                              submission.status === 'approved'
-                                ? 'default'
-                                : submission.status === 'rejected'
-                                ? 'destructive'
-                                : 'secondary'
-                            }
-                          >
+
+          <TabsContent value="submissions" className="space-y-6">
+            {submissions.length === 0 ? (
+              <Card>
+                <CardContent className="p-8 text-center">
+                  <p className="text-muted-foreground">No submissions yet.</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="grid gap-6">
+                {submissions.map((submission) => (
+                  <Card key={submission.id} className="hover:shadow-lg transition-shadow">
+                    <CardHeader>
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <CardTitle className="text-xl mb-2">{submission.product_name}</CardTitle>
+                          <CardDescription className="text-base">
+                            by {submission.full_name} • {submission.email}
+                          </CardDescription>
+                          <p className="text-sm text-muted-foreground mt-2">
+                            {submission.description}
+                          </p>
+                        </div>
+                        <div className="flex gap-2 flex-wrap">
+                          <Badge variant={getStatusVariant(submission.status)}>
                             {submission.status}
                           </Badge>
-                        </TableCell>
-                        <TableCell>
                           {submission.featured && (
-                            <Badge variant="secondary" className="bg-yellow-100 text-yellow-800">
-                              <Star className="h-3 w-3 mr-1" />
+                            <Badge variant="secondary">
+                              <Star className="w-3 h-3 mr-1" />
                               Featured
                             </Badge>
                           )}
-                        </TableCell>
-                        <TableCell>
                           {submission.pinned && (
-                            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-                              <Pin className="h-3 w-3 mr-1" />
+                            <Badge variant="outline">
+                              <Pin className="w-3 h-3 mr-1" />
                               Pinned
                             </Badge>
                           )}
-                        </TableCell>
-                        <TableCell>
-                          {new Date(submission.created_at).toLocaleDateString()}
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex space-x-2 flex-wrap gap-1">
-                            {/* Edit button - available for all submissions */}
+                        </div>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex gap-2 flex-wrap">
+                        <Button
+                          onClick={() => window.open(`/article/${submission.slug || submission.id}`, '_blank')}
+                          size="sm"
+                          variant="outline"
+                        >
+                          <Eye className="w-4 h-4 mr-2" />
+                          Preview
+                        </Button>
+                        
+                        {submission.status === 'pending' && (
+                          <>
                             <Button
+                              onClick={() => updateSubmissionStatus(submission.id, 'approved')}
                               size="sm"
-                              variant="outline"
-                              onClick={() => navigate(`/admin/edit/${submission.id}`)}
-                              className="gap-1"
+                              variant="default"
                             >
-                              <Edit className="h-4 w-4" />
-                              Edit
+                              <CheckCircle className="w-4 h-4 mr-2" />
+                              Approve
                             </Button>
-                            
-                            {/* Preview button - available for all submissions with generated articles */}
-                            {submission.generated_article && (
-                              <Button
-                                size="sm"
-                                variant="outline"
-                                onClick={() => handlePreview(submission)}
-                              >
-                                <Eye className="h-4 w-4 mr-1" />
-                                Preview
-                              </Button>
-                            )}
-                            
-                            {/* Approval/Rejection buttons for pending submissions */}
-                            {submission.status === 'pending' && (
-                              <>
-                                <Button
-                                  size="sm"
-                                  onClick={() => approveSubmission(submission.id)}
-                                  className="bg-green-600 hover:bg-green-700"
-                                >
-                                  <CheckCircle className="h-4 w-4 mr-1" />
-                                  Approve
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  variant="destructive"
-                                  onClick={() => rejectSubmission(submission.id)}
-                                >
-                                  <XCircle className="h-4 w-4 mr-1" />
-                                  Reject
-                                </Button>
-                              </>
-                            )}
-                            
-                            {/* View Article and Featured buttons for approved submissions */}
-                            {submission.status === 'approved' && (
-                              <>
-                                {submission.slug && (
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => navigate(`/article/${submission.slug}`)}
-                                  >
-                                    View Article
-                                  </Button>
-                                )}
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleToggleFeatured(submission.id, submission.featured)}
-                                  variant={submission.featured ? "default" : "outline"}
-                                  className={submission.featured ? "bg-yellow-600 hover:bg-yellow-700 text-white" : ""}
-                                >
-                                  <Star className="h-4 w-4 mr-1" />
-                                  {submission.featured ? 'Unfeature' : 'Feature'}
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleTogglePinned(submission.id, submission.pinned)}
-                                  variant={submission.pinned ? "default" : "outline"}
-                                  className={submission.pinned ? "bg-blue-600 hover:bg-blue-700 text-white" : ""}
-                                >
-                                  <Pin className="h-4 w-4 mr-1" />
-                                  {submission.pinned ? 'Unpin' : 'Pin to Top'}
-                                </Button>
-                              </>
-                            )}
-                            
-                            {/* Delete button - available for all submissions */}
                             <Button
+                              onClick={() => updateSubmissionStatus(submission.id, 'rejected')}
                               size="sm"
                               variant="destructive"
-                              onClick={() => deleteSubmission(submission.id)}
                             >
-                              <Trash2 className="h-4 w-4 mr-1" />
-                              Delete
+                              <XCircle className="w-4 h-4 mr-2" />
+                              Reject
                             </Button>
-                          </div>
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
+                          </>
+                        )}
+                        
+                        <Button
+                          onClick={() => toggleFeatured(submission.id, !submission.featured)}
+                          size="sm"
+                          variant={submission.featured ? "secondary" : "outline"}
+                        >
+                          <Star className="w-4 h-4 mr-2" />
+                          {submission.featured ? 'Unfeature' : 'Feature'}
+                        </Button>
+                        
+                        <Button
+                          onClick={() => togglePinned(submission.id, !submission.pinned)}
+                          size="sm"
+                          variant={submission.pinned ? "secondary" : "outline"}
+                        >
+                          <Pin className="w-4 h-4 mr-2" />
+                          {submission.pinned ? 'Unpin' : 'Pin'}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
           </TabsContent>
-          
-          <TabsContent value="manual">
-            <AdminManualSubmission onSubmissionCreated={fetchSubmissions} />
+
+          <TabsContent value="analytics" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Total Submissions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{submissions.length}</div>
+                  <p className="text-muted-foreground">All time</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    Approved Articles
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">
+                    {submissions.filter(s => s.status === 'approved').length}
+                  </div>
+                  <p className="text-muted-foreground">Published stories</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="w-5 h-5" />
+                    Featured Stories
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">
+                    {submissions.filter(s => s.featured).length}
+                  </div>
+                  <p className="text-muted-foreground">Highlighted articles</p>
+                </CardContent>
+              </Card>
+            </div>
           </TabsContent>
-          
-          <TabsContent value="users">
+
+          <TabsContent value="users" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>User Management</CardTitle>
+                <CardDescription>
+                  User management features coming soon
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Joined</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell className="font-medium">{user.full_name}</TableCell>
-                        <TableCell>{user.email}</TableCell>
-                        <TableCell>
-                          <Badge>
-                            {user.user_roles?.[0]?.role || 'subscriber'}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(user.created_at).toLocaleDateString()}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <p className="text-muted-foreground">
+                  This section will include user profiles, role management, and user activity tracking.
+                </p>
               </CardContent>
             </Card>
           </TabsContent>
-        </Tabs>
 
-        {/* Article Preview Dialog */}
-        <ArticlePreviewDialog
-          isOpen={previewDialogOpen}
-          onClose={() => setPreviewDialogOpen(false)}
-          submission={selectedSubmission}
-          onApprove={approveSubmission}
-          onReject={rejectSubmission}
-        />
+          <TabsContent value="emails" className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <EmailNotificationForm />
+                
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Mail className="w-5 h-5" />
+                      Email Automation
+                    </CardTitle>
+                    <CardDescription>
+                      Automated emails are sent for key events
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <h4 className="font-medium">Automated Triggers:</h4>
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        <div>✅ Welcome Email - New user signups</div>
+                        <div>✅ Article Approval - When articles are approved</div>
+                        <div>✅ Featured Story - When stories are featured</div>
+                        <div>📧 Manual Notifications - Custom sending</div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-medium">Email Settings:</h4>
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        <div>• From: America Innovates &lt;noreply@resend.dev&gt;</div>
+                        <div>• Provider: Resend</div>
+                        <div>• Status: ✅ Active</div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+              
+              <EmailTemplateCustomizer />
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

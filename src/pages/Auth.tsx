@@ -102,7 +102,7 @@ const Auth = () => {
             <img 
               src="/lovable-uploads/1f7bd9f1-6251-4e7e-87ea-a2a66117e1d1.png" 
               alt="America Innovates Magazine" 
-              className="h-16 mx-auto mb-4"
+              className="h-64 mx-auto mb-4"
             />
           </Link>
           <p className="text-gray-600 mt-2">Sign in to your account or create a new one</p>

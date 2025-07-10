@@ -19,7 +19,7 @@ const About = () => {
           </Link>
           
           <h1 className="text-4xl md:text-5xl font-bold mb-4">
-            About America Innovates
+            About America Innovates Magazine
           </h1>
           <p className="text-xl text-blue-100 max-w-2xl">
             Spotlighting the entrepreneurs and creators behind breakthrough consumer products.

@@ -58,7 +58,7 @@ const SubmissionWizard = () => {
 
   const sendRecommendationEmails = async () => {
     const { recommendations } = formData;
-    const recommenderName = formData.full_name || 'Someone';
+    const recommenderName = formData.fullName || 'Someone';
     
     if (recommendations && Array.isArray(recommendations)) {
       for (const rec of recommendations) {

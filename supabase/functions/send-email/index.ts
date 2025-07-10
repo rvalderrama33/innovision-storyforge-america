@@ -229,7 +229,7 @@ const createFeaturedEmail = (customizations: EmailCustomizations, name: string, 
 
 // Recommendation email template
 const createRecommendationEmail = (customizations: EmailCustomizations, name: string, recommenderName: string) => {
-  const submitUrl = `${Deno.env.get('SUPABASE_URL')?.replace('enckzbxifdrihnfcqagb.supabase.co/rest/v1', 'americainnovates.us') || 'https://americainnovates.com'}/submit`;
+  const submitUrl = 'https://americainnovates.us/submit';
   
   return {
     subject: 'America Innovates Magazine Interview Recommendation',

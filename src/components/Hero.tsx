@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 const Hero = () => {
 
   return (
-    <div className="relative overflow-hidden bg-white">
+    <div className="relative overflow-hidden bg-white -mt-0">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
         <img 

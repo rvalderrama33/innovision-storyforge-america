@@ -31,7 +31,7 @@ serve(async (req) => {
       throw error
     }
 
-    const baseUrl = 'https://c87a1b82-b6a6-4aa2-ad6a-ba5512d06ce3.lovableproject.com'
+    const baseUrl = 'https://americainnovates.us'
     
     // Static pages
     const staticPages = [

@@ -29,10 +29,10 @@ const SitemapRoute = () => {
 
   useEffect(() => {
     if (sitemap) {
-      // Set the content type to XML and serve the sitemap
-      const blob = new Blob([sitemap], { type: 'application/xml' });
-      const url = URL.createObjectURL(blob);
-      window.location.replace(url);
+      // Replace the entire page content with the raw XML
+      document.open();
+      document.write(sitemap);
+      document.close();
     }
   }, [sitemap]);
 

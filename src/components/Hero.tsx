@@ -8,7 +8,7 @@ const Hero = () => {
   return (
     <div className="relative overflow-hidden bg-white -mt-0">
       {/* Background Image */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 -mt-8">
         <img 
           src="/lovable-uploads/d1dddef4-c9db-4d79-9bf4-980acdc6ef3f.png"
           alt="Team members standing together in front of colorful wall art"

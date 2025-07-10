@@ -1,8 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+// Initialize Resend with better error handling
+const getResendClient = () => {
+  const apiKey = Deno.env.get("RESEND_API_KEY");
+  if (!apiKey) {
+    throw new Error("RESEND_API_KEY environment variable is not set");
+  }
+  return new Resend(apiKey);
+};
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,7 +28,10 @@ interface EmailRequest {
 const handler = async (req: Request): Promise<Response> => {
   // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { 
+      status: 200,
+      headers: corsHeaders 
+    });
   }
 
   if (req.method !== "POST") {
@@ -33,6 +42,9 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    // Initialize Resend client
+    const resend = getResendClient();
+    
     const { type, to, name, subject, message, productName, slug }: EmailRequest = await req.json();
 
     console.log(`Sending ${type} email to:`, to);

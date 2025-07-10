@@ -94,7 +94,7 @@ const EmailTemplateCustomizer = () => {
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
         <div style="text-align: center; margin-bottom: 30px;">
           ${customization.logoUrl ? 
-            `<img src="${customization.logoUrl}" alt="${customization.companyName}" style="max-height: 60px; margin-bottom: 5px; display: block; margin-left: auto; margin-right: auto;" />` : 
+            `<img src="${customization.logoUrl}" alt="${customization.companyName}" style="max-height: 240px; margin-bottom: 5px; display: block; margin-left: auto; margin-right: auto;" />` :
             ''
           }
           <h1 style="color: #1a202c; margin-bottom: 10px; margin-top: 0;">${customization.companyName}</h1>

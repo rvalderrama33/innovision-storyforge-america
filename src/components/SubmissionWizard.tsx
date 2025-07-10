@@ -12,9 +12,19 @@ import StepFour from "@/components/submission-steps/StepFour";
 import StepFive from "@/components/submission-steps/StepFive";
 import StepSix from "@/components/submission-steps/StepSix";
 
+interface FormData {
+  full_name?: string;
+  recommendations?: Array<{
+    name: string;
+    email: string;
+    reason: string;
+  }>;
+  [key: string]: any;
+}
+
 const SubmissionWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState<FormData>({});
   const [stepValidations, setStepValidations] = useState<Record<number, boolean>>({});
 
   const steps = [
@@ -29,15 +39,45 @@ const SubmissionWizard = () => {
   const progress = (currentStep / steps.length) * 100;
   const CurrentStepComponent = steps[currentStep - 1].component;
 
-  const handleNext = () => {
+  const handleNext = async () => {
     const isCurrentStepValid = stepValidations[currentStep];
     if (!isCurrentStepValid) {
       // Show validation error - you could add a toast or visual feedback here
       return;
     }
     
+    // Send recommendation emails when moving from step 5 to step 6
+    if (currentStep === 5 && formData.recommendations) {
+      await sendRecommendationEmails();
+    }
+    
     if (currentStep < steps.length) {
       setCurrentStep(currentStep + 1);
+    }
+  };
+
+  const sendRecommendationEmails = async () => {
+    const { recommendations } = formData;
+    const recommenderName = formData.full_name || 'Someone';
+    
+    if (recommendations && Array.isArray(recommendations)) {
+      for (const rec of recommendations) {
+        if (rec.name && rec.email) {
+          try {
+            const { supabase } = await import("@/integrations/supabase/client");
+            await supabase.functions.invoke('send-email', {
+              body: {
+                type: 'recommendation',
+                to: rec.email,
+                name: rec.name,
+                recommenderName: recommenderName
+              }
+            });
+          } catch (error) {
+            console.error('Error sending recommendation email:', error);
+          }
+        }
+      }
     }
   };
 

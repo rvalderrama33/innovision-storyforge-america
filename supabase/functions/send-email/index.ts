@@ -17,13 +17,14 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: 'welcome' | 'notification' | 'approval' | 'featured';
+  type: 'welcome' | 'notification' | 'approval' | 'featured' | 'recommendation';
   to: string;
   name?: string;
   subject?: string;
   message?: string;
   productName?: string;
   slug?: string;
+  recommenderName?: string;
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -52,7 +53,7 @@ const handler = async (req: Request): Promise<Response> => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
     
-    const { type, to, name, subject, message, productName, slug }: EmailRequest = await req.json();
+    const { type, to, name, subject, message, productName, slug, recommenderName }: EmailRequest = await req.json();
 
     console.log(`Sending ${type} email to:`, to);
 
@@ -232,6 +233,43 @@ const handler = async (req: Request): Promise<Response> => {
           
           <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; color: #718096; font-size: 14px;">
             <p>${emailCustomizations.footerText}</p>
+          </div>
+        </div>
+      `;
+    } else if (type === 'recommendation') {
+      emailSubject = 'America Innovates Magazine Interview Recommendation';
+      const submitUrl = `${Deno.env.get('SUPABASE_URL')?.replace('enckzbxifdrihnfcqagb.supabase.co/rest/v1', 'americainnovates.us') || 'https://americainnovates.com'}/submit`;
+      emailContent = `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <div style="text-align: center; margin-bottom: 30px;">
+            ${emailCustomizations.logoUrl ? 
+              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 180px; margin-bottom: 15px;" />` : 
+              ''
+            }
+            <h1 style="color: #1a202c; margin-bottom: 10px;">${emailCustomizations.companyName}</h1>
+            <p style="color: #4a5568; font-size: 18px;">Interview Recommendation</p>
+          </div>
+          
+          <div style="background: linear-gradient(135deg, ${emailCustomizations.primaryColor} 0%, ${emailCustomizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+            <h2 style="margin: 0 0 15px 0; font-size: 24px;">Hello ${name}!</h2>
+            <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6;">
+              ${recommenderName} thought you would be a great fit for our magazine. We're excited to learn more about you and share your story with our readers. There is no cost involved, but we'll of course need some of your time for the interview.
+            </p>
+            <p style="margin: 0; font-size: 16px; line-height: 1.6;">
+              I'm sure our readers would love hearing your story and many would benefit from learning from your experiences.
+            </p>
+          </div>
+          
+          <div style="text-align: center; margin-bottom: 30px;">
+            <a href="${submitUrl}" 
+               style="background: ${emailCustomizations.primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+              Click here to begin the interview process
+            </a>
+          </div>
+          
+          <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; color: #718096; font-size: 14px;">
+            <p>Thank you,<br/>America Innovates Staff</p>
+            <p style="margin-top: 15px;">${emailCustomizations.footerText}</p>
           </div>
         </div>
       `;

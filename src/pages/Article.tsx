@@ -98,7 +98,6 @@ const Article = () => {
               src={article.image_urls[0]}
               alt={article.product_name}
               className="w-full h-full object-cover object-top"
-              style={{ transform: 'translateY(-40px)' }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-12">

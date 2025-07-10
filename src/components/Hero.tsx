@@ -6,12 +6,12 @@ import { Link } from "react-router-dom";
 const Hero = () => {
 
   return (
-    <div className="relative overflow-hidden bg-white -mt-0">
+    <div className="relative overflow-hidden bg-white">
       {/* Background Image */}
-      <div className="absolute inset-0 z-0 -mt-8">
+      <div className="absolute inset-0 z-0">
         <img 
-          src="/lovable-uploads/d1dddef4-c9db-4d79-9bf4-980acdc6ef3f.png"
-          alt="Team members standing together in front of colorful wall art"
+          src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=6000&q=80"
+          alt="Group of people smiling together"
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/30"></div>

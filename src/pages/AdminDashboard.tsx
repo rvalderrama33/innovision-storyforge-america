@@ -11,6 +11,7 @@ import EmailTemplateCustomizer from "@/components/EmailTemplateCustomizer";
 import AdminManualSubmission from "@/components/AdminManualSubmission";
 import { sendArticleApprovalEmail, sendFeaturedStoryEmail } from "@/lib/emailService";
 import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus, Edit, Trash2, Shield, ShieldOff } from "lucide-react";
+import ArticlePreviewDialog from "@/components/ArticlePreviewDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -26,6 +27,8 @@ const AdminDashboard = () => {
   const [loadingData, setLoadingData] = useState(true);
   const [editingUser, setEditingUser] = useState<any>(null);
   const [editUserData, setEditUserData] = useState({ full_name: '', email: '' });
+  const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
+  const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
 
   useEffect(() => {
     if (user && isAdmin) {
@@ -457,7 +460,10 @@ const AdminDashboard = () => {
                     <CardContent>
                       <div className="flex gap-2 flex-wrap">
                         <Button
-                          onClick={() => window.open(`/article/${submission.slug || submission.id}`, '_blank')}
+                          onClick={() => {
+                            setSelectedSubmission(submission);
+                            setPreviewDialogOpen(true);
+                          }}
                           size="sm"
                           variant="outline"
                         >
@@ -505,7 +511,7 @@ const AdminDashboard = () => {
                         </Button>
                         
                         <Button
-                          onClick={() => window.open(`/submit?edit=${submission.id}`, '_blank')}
+                          onClick={() => window.open(`/admin/edit/${submission.id}`, '_blank')}
                           size="sm"
                           variant="outline"
                         >
@@ -755,6 +761,14 @@ const AdminDashboard = () => {
             </div>
           </TabsContent>
         </Tabs>
+        
+        <ArticlePreviewDialog
+          isOpen={previewDialogOpen}
+          onClose={() => setPreviewDialogOpen(false)}
+          submission={selectedSubmission}
+          onApprove={(submissionId) => updateSubmissionStatus(submissionId, 'approved')}
+          onReject={(submissionId) => updateSubmissionStatus(submissionId, 'rejected')}
+        />
       </div>
     </div>
   );

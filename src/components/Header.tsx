@@ -70,8 +70,8 @@ const Header = () => {
                 <Link to="/auth">
                   <Button variant="outline" size="sm">Sign In</Button>
                 </Link>
-                <Link to="/submit">
-                  <Button size="sm">Submit Story</Button>
+                <Link to="/auth">
+                  <Button size="sm">Subscribe</Button>
                 </Link>
               </div>
             )}
@@ -118,8 +118,8 @@ const Header = () => {
                 <Link to="/auth">
                   <Button variant="outline">Sign In</Button>
                 </Link>
-                <Link to="/submit">
-                  <Button>Submit Story</Button>
+                <Link to="/auth">
+                  <Button>Subscribe</Button>
                 </Link>
               </>
             )}

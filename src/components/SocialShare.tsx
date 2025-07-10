@@ -15,50 +15,58 @@ const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '',
 
   // Update meta tags for social media sharing when component mounts
   useEffect(() => {
-    // Update or create Open Graph meta tags
-    const updateMetaTag = (property: string, content: string) => {
-      let metaTag = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement;
-      if (!metaTag) {
-        metaTag = document.createElement('meta');
-        metaTag.setAttribute('property', property);
-        document.head.appendChild(metaTag);
-      }
-      metaTag.setAttribute('content', content);
+    // Function to remove existing meta tags
+    const removeExistingMetaTags = () => {
+      // Remove existing Open Graph tags
+      const ogTags = document.querySelectorAll('meta[property^="og:"]');
+      ogTags.forEach(tag => tag.remove());
+      
+      // Remove existing Twitter tags
+      const twitterTags = document.querySelectorAll('meta[name^="twitter:"]');
+      twitterTags.forEach(tag => tag.remove());
     };
 
-    // Update or create Twitter Card meta tags
-    const updateTwitterMetaTag = (name: string, content: string) => {
-      let metaTag = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement;
-      if (!metaTag) {
-        metaTag = document.createElement('meta');
-        metaTag.setAttribute('name', name);
-        document.head.appendChild(metaTag);
-      }
+    // Function to create new meta tags
+    const createMetaTag = (type: 'property' | 'name', name: string, content: string) => {
+      const metaTag = document.createElement('meta');
+      metaTag.setAttribute(type, name);
       metaTag.setAttribute('content', content);
+      document.head.appendChild(metaTag);
     };
 
-    // Set Open Graph tags
-    updateMetaTag('og:title', title);
-    updateMetaTag('og:description', description);
-    updateMetaTag('og:url', url);
-    updateMetaTag('og:type', 'article');
+    // Remove all existing social media meta tags first
+    removeExistingMetaTags();
+
+    // Create new Open Graph tags
+    createMetaTag('property', 'og:title', title);
+    createMetaTag('property', 'og:description', description);
+    createMetaTag('property', 'og:url', url);
+    createMetaTag('property', 'og:type', 'article');
+    
     if (image) {
-      updateMetaTag('og:image', image);
-      updateMetaTag('og:image:width', '1200');
-      updateMetaTag('og:image:height', '630');
+      createMetaTag('property', 'og:image', image);
+      createMetaTag('property', 'og:image:width', '1200');
+      createMetaTag('property', 'og:image:height', '630');
+      createMetaTag('property', 'og:image:alt', title);
     }
 
-    // Set Twitter Card tags
-    updateTwitterMetaTag('twitter:card', 'summary_large_image');
-    updateTwitterMetaTag('twitter:title', title);
-    updateTwitterMetaTag('twitter:description', description);
+    // Create new Twitter Card tags
+    createMetaTag('name', 'twitter:card', 'summary_large_image');
+    createMetaTag('name', 'twitter:title', title);
+    createMetaTag('name', 'twitter:description', description);
+    
     if (image) {
-      updateTwitterMetaTag('twitter:image', image);
+      createMetaTag('name', 'twitter:image', image);
+      createMetaTag('name', 'twitter:image:alt', title);
     }
 
-    // Clean up function to remove meta tags when component unmounts
+    // Also update the document title for better sharing
+    const originalTitle = document.title;
+    document.title = title;
+
+    // Clean up function
     return () => {
-      // Note: We don't remove meta tags on unmount as they should persist for the page
+      document.title = originalTitle;
     };
   }, [url, title, description, image]);
 
@@ -84,6 +92,24 @@ const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '',
     if (link) {
       window.open(link, '_blank', 'width=600,height=400');
     }
+  };
+
+  const debugSocialSharing = () => {
+    console.log('Social sharing debug info:', {
+      title,
+      description,
+      url,
+      image,
+      currentMetaTags: {
+        ogImage: document.querySelector('meta[property="og:image"]')?.getAttribute('content'),
+        twitterImage: document.querySelector('meta[name="twitter:image"]')?.getAttribute('content'),
+      }
+    });
+    
+    toast({
+      title: "Debug info logged",
+      description: "Check browser console for social sharing debug information.",
+    });
   };
 
   return (
@@ -144,6 +170,39 @@ const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '',
           Copy Link
         </Button>
       </div>
+      
+      {/* Debug section - only show in development */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="mt-4 pt-4 border-t border-gray-200">
+          <p className="text-xs text-gray-500 mb-2">Debug Tools:</p>
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={debugSocialSharing}
+              className="text-xs"
+            >
+              Debug Meta Tags
+            </Button>
+            <a
+              href={`https://developers.facebook.com/tools/debug/?q=${encodeURIComponent(url)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-blue-600 hover:text-blue-800"
+            >
+              Facebook Debugger
+            </a>
+            <a
+              href={`https://cards-dev.twitter.com/validator`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-blue-600 hover:text-blue-800"
+            >
+              Twitter Validator
+            </a>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

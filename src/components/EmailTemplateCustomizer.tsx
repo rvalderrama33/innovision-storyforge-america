@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Palette, Code, Eye, Save, Mail, Sparkles } from 'lucide-react';
 import DOMPurify from 'dompurify';
+import { supabase } from '@/integrations/supabase/client';
 
 const EmailTemplateCustomizer = () => {
   const [selectedTemplate, setSelectedTemplate] = useState('welcome');
@@ -25,6 +26,38 @@ const EmailTemplateCustomizer = () => {
     customMessage: 'We have an exciting update about your recent submission!'
   });
   const { toast } = useToast();
+
+  // Load customizations from database on component mount
+  useEffect(() => {
+    const loadCustomizations = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('email_customizations')
+          .select('*')
+          .limit(1)
+          .single();
+
+        if (error && error.code !== 'PGRST116') {
+          console.error('Error loading customizations:', error);
+          return;
+        }
+
+        if (data) {
+          setCustomization({
+            primaryColor: data.primary_color,
+            accentColor: data.accent_color,
+            companyName: data.company_name,
+            logoUrl: data.logo_url || '',
+            footerText: data.footer_text
+          });
+        }
+      } catch (error) {
+        console.error('Error loading customizations:', error);
+      }
+    };
+
+    loadCustomizations();
+  }, []);
 
   const templates = {
     welcome: {
@@ -99,12 +132,53 @@ const EmailTemplateCustomizer = () => {
     `;
   };
 
-  const handleSaveCustomization = () => {
-    // In a real app, this would save to your backend
-    toast({
-      title: "Customization saved!",
-      description: "Your email template customization has been saved.",
-    });
+  const handleSaveCustomization = async () => {
+    try {
+      // Check if customizations already exist
+      const { data: existing } = await supabase
+        .from('email_customizations')
+        .select('id')
+        .limit(1)
+        .single();
+
+      const customizationData = {
+        primary_color: customization.primaryColor,
+        accent_color: customization.accentColor,
+        company_name: customization.companyName,
+        logo_url: customization.logoUrl || null,
+        footer_text: customization.footerText,
+        updated_at: new Date().toISOString()
+      };
+
+      if (existing) {
+        // Update existing record
+        const { error } = await supabase
+          .from('email_customizations')
+          .update(customizationData)
+          .eq('id', existing.id);
+
+        if (error) throw error;
+      } else {
+        // Insert new record
+        const { error } = await supabase
+          .from('email_customizations')
+          .insert(customizationData);
+
+        if (error) throw error;
+      }
+
+      toast({
+        title: "Customization saved!",
+        description: "Your email template customization has been saved.",
+      });
+    } catch (error) {
+      console.error('Error saving customizations:', error);
+      toast({
+        title: "Error saving customization",
+        description: "There was an error saving your customization. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (

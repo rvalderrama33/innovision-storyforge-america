@@ -14,6 +14,39 @@ export type Database = {
   }
   public: {
     Tables: {
+      email_customizations: {
+        Row: {
+          accent_color: string
+          company_name: string
+          created_at: string
+          footer_text: string
+          id: string
+          logo_url: string | null
+          primary_color: string
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string
+          company_name?: string
+          created_at?: string
+          footer_text?: string
+          id?: string
+          logo_url?: string | null
+          primary_color?: string
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string
+          company_name?: string
+          created_at?: string
+          footer_text?: string
+          id?: string
+          logo_url?: string | null
+          primary_color?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string

@@ -78,6 +78,12 @@ const EmailTemplateCustomizer = () => {
       subject: 'Your story is now featured!',
       previewText: 'Amazing news! Your story has been selected as a featured article.'
     },
+    recommendation: {
+      name: 'Interview Recommendation',
+      description: 'Sent to recommended individuals',
+      subject: 'America Innovates Magazine Interview Recommendation',
+      previewText: 'You have been recommended for a feature interview with America Innovates.'
+    },
     notification: {
       name: 'Custom Notification',
       description: 'Manual notifications',
@@ -110,6 +116,8 @@ const EmailTemplateCustomizer = () => {
               'Congratulations! Your innovation story has been approved and is now live on America Innovates. Thank you for sharing your entrepreneurial journey with our community.' :
               selectedTemplate === 'featured' ? 
               'Amazing news! Your story has been selected as a featured article on America Innovates. This means it will be prominently displayed and reach even more readers.' :
+              selectedTemplate === 'recommendation' ?
+              'John Smith thought you would be a great fit for our magazine. We\'re excited to learn more about you and share your story with our readers. There is no cost involved, but we\'ll of course need some of your time for the interview. I\'m sure our readers would love hearing your story and many would benefit from learning from your experiences.' :
               previewData.customMessage
             }
           </p>
@@ -120,6 +128,7 @@ const EmailTemplateCustomizer = () => {
             ${selectedTemplate === 'welcome' ? 'Explore Stories' : 
               selectedTemplate === 'approval' ? 'View Your Story' :
               selectedTemplate === 'featured' ? 'See Featured Story' :
+              selectedTemplate === 'recommendation' ? 'Begin Interview Process' :
               'Visit America Innovates'
             }
           </a>

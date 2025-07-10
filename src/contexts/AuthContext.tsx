@@ -8,6 +8,7 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   isAdmin: boolean;
+  isSubscriber: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
@@ -29,6 +30,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isSubscriber, setIsSubscriber] = useState(false);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -54,21 +56,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         if (session?.user) {
-          // Check if user is admin
+          // Check if user is admin and subscriber
           setTimeout(async () => {
             try {
-              const { data } = await supabase.rpc('has_role', {
-                _user_id: session.user.id,
-                _role: 'admin'
-              });
-              setIsAdmin(data || false);
+              const [adminData, subscriberData] = await Promise.all([
+                supabase.rpc('has_role', {
+                  _user_id: session.user.id,
+                  _role: 'admin'
+                }),
+                supabase.rpc('has_role', {
+                  _user_id: session.user.id,
+                  _role: 'subscriber'
+                })
+              ]);
+              setIsAdmin(adminData.data || false);
+              setIsSubscriber(subscriberData.data || false);
             } catch (error) {
-              console.error('Error checking admin role:', error);
+              console.error('Error checking user roles:', error);
               setIsAdmin(false);
+              setIsSubscriber(false);
             }
           }, 0);
         } else {
           setIsAdmin(false);
+          setIsSubscriber(false);
         }
       }
     );
@@ -126,6 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     user,
     session,
     isAdmin,
+    isSubscriber,
     loading,
     signIn,
     signUp,

@@ -7,10 +7,13 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
 import SocialShare from '@/components/SocialShare';
+import SubscriptionGate from '@/components/SubscriptionGate';
+import { useAuth } from '@/contexts/AuthContext';
 import DOMPurify from 'dompurify';
 
 const Article = () => {
   const { slug } = useParams();
+  const { isSubscriber, user } = useAuth();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
 
@@ -184,70 +187,95 @@ const Article = () => {
         )}
 
         <article className="prose prose-lg prose-slate max-w-none">
-          <div 
-            className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8"
-            dangerouslySetInnerHTML={{
-              __html: DOMPurify.sanitize(
-                article.generated_article?.replace(
-                  new RegExp(`\\b${article.full_name}\\b`, 'gi'),
-                  `<span class="font-semibold text-primary">${article.full_name}</span>`
-                ).replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>') || ''
-              )
-            }}
-          />
+          {(() => {
+            const isSubscribed = user && isSubscriber;
+            const fullContent = article.generated_article || '';
+            
+            // Get content for display - either full or teaser
+            let contentToShow = fullContent;
+            if (!isSubscribed) {
+              // Show approximately first 20% of content for teaser
+              const words = fullContent.split(' ');
+              const teaserLength = Math.min(words.length, Math.floor(words.length * 0.2));
+              contentToShow = words.slice(0, teaserLength).join(' ');
+            }
+            
+            return (
+              <>
+                <div 
+                  className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8"
+                  dangerouslySetInnerHTML={{
+                    __html: DOMPurify.sanitize(
+                      contentToShow?.replace(
+                        new RegExp(`\\b${article.full_name}\\b`, 'gi'),
+                        `<span class="font-semibold text-primary">${article.full_name}</span>`
+                      ).replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>') || ''
+                    )
+                  }}
+                />
+                {!isSubscribed && (
+                  <SubscriptionGate articleTitle={article.product_name} />
+                )}
+              </>
+            );
+          })()}
         </article>
 
-        {/* Social Share Section */}
-        <div className="mt-16 pt-8 border-t border-border">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-            <div>
-              <h3 className="text-lg font-semibold text-foreground mb-2">Share this story</h3>
-              <p className="text-muted-foreground text-sm">Help others discover this inspiring innovation</p>
+        {/* Social Share Section - Only for subscribers */}
+        {user && isSubscriber && (
+          <div className="mt-16 pt-8 border-t border-border">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+              <div>
+                <h3 className="text-lg font-semibold text-foreground mb-2">Share this story</h3>
+                <p className="text-muted-foreground text-sm">Help others discover this inspiring innovation</p>
+              </div>
+              <SocialShare 
+                url={window.location.href}
+                title={article.product_name}
+                description={article.description || `Read about ${article.product_name} by ${article.full_name}`}
+              />
             </div>
-            <SocialShare 
-              url={window.location.href}
-              title={article.product_name}
-              description={article.description || `Read about ${article.product_name} by ${article.full_name}`}
-            />
           </div>
-        </div>
+        )}
 
-        {/* Sources Section */}
-        <div className="mt-12 p-8 bg-card border border-border rounded-2xl shadow-sm">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-              <ExternalLink className="w-4 h-4 text-primary" />
+        {/* Sources Section - Only for subscribers */}
+        {user && isSubscriber && (
+          <div className="mt-12 p-8 bg-card border border-border rounded-2xl shadow-sm">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                <ExternalLink className="w-4 h-4 text-primary" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground">Sources & References</h3>
             </div>
-            <h3 className="text-xl font-semibold text-foreground">Sources & References</h3>
-          </div>
-          <div className="space-y-4">
-            {(() => {
-              const defaultSources = [
-                'https://www.wikipedia.org/',
-                'https://www.reddit.com/',
-                'https://myproduct.today/',
-                'https://www.linkedin.com/'
-              ];
-              const allSources = [...(article.source_links || []), ...defaultSources];
-              return allSources.map((source, index) => (
-                <div key={index} className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
-                  <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <span className="text-xs font-medium text-primary">{index + 1}</span>
+            <div className="space-y-4">
+              {(() => {
+                const defaultSources = [
+                  'https://www.wikipedia.org/',
+                  'https://www.reddit.com/',
+                  'https://myproduct.today/',
+                  'https://www.linkedin.com/'
+                ];
+                const allSources = [...(article.source_links || []), ...defaultSources];
+                return allSources.map((source, index) => (
+                  <div key={index} className="flex items-start gap-3 p-4 bg-muted/30 rounded-lg hover:bg-muted/50 transition-colors">
+                    <div className="w-6 h-6 bg-primary/20 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-medium text-primary">{index + 1}</span>
+                    </div>
+                    <a
+                      href={source}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:text-primary/80 transition-colors text-sm leading-relaxed break-all group"
+                    >
+                      <span className="group-hover:underline">{source}</span>
+                      <ExternalLink className="w-3 h-3 inline ml-1 opacity-60" />
+                    </a>
                   </div>
-                  <a
-                    href={source}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-primary hover:text-primary/80 transition-colors text-sm leading-relaxed break-all group"
-                  >
-                    <span className="group-hover:underline">{source}</span>
-                    <ExternalLink className="w-3 h-3 inline ml-1 opacity-60" />
-                  </a>
-                </div>
-              ));
-            })()}
+                ));
+              })()}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Related Articles CTA */}
         <div className="mt-16 text-center">

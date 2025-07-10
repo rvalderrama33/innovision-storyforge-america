@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Share2, Facebook, Twitter, Linkedin, Mail, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -7,10 +7,60 @@ interface SocialShareProps {
   url: string;
   title: string;
   description?: string;
+  image?: string;
 }
 
-const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '' }) => {
+const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '', image }) => {
   const { toast } = useToast();
+
+  // Update meta tags for social media sharing when component mounts
+  useEffect(() => {
+    // Update or create Open Graph meta tags
+    const updateMetaTag = (property: string, content: string) => {
+      let metaTag = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement;
+      if (!metaTag) {
+        metaTag = document.createElement('meta');
+        metaTag.setAttribute('property', property);
+        document.head.appendChild(metaTag);
+      }
+      metaTag.setAttribute('content', content);
+    };
+
+    // Update or create Twitter Card meta tags
+    const updateTwitterMetaTag = (name: string, content: string) => {
+      let metaTag = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement;
+      if (!metaTag) {
+        metaTag = document.createElement('meta');
+        metaTag.setAttribute('name', name);
+        document.head.appendChild(metaTag);
+      }
+      metaTag.setAttribute('content', content);
+    };
+
+    // Set Open Graph tags
+    updateMetaTag('og:title', title);
+    updateMetaTag('og:description', description);
+    updateMetaTag('og:url', url);
+    updateMetaTag('og:type', 'article');
+    if (image) {
+      updateMetaTag('og:image', image);
+      updateMetaTag('og:image:width', '1200');
+      updateMetaTag('og:image:height', '630');
+    }
+
+    // Set Twitter Card tags
+    updateTwitterMetaTag('twitter:card', 'summary_large_image');
+    updateTwitterMetaTag('twitter:title', title);
+    updateTwitterMetaTag('twitter:description', description);
+    if (image) {
+      updateTwitterMetaTag('twitter:image', image);
+    }
+
+    // Clean up function to remove meta tags when component unmounts
+    return () => {
+      // Note: We don't remove meta tags on unmount as they should persist for the page
+    };
+  }, [url, title, description, image]);
 
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,

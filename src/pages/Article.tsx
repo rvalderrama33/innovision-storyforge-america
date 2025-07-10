@@ -233,6 +233,7 @@ const Article = () => {
                 url={window.location.href}
                 title={article.product_name}
                 description={article.description || `Read about ${article.product_name} by ${article.full_name}`}
+                image={article.image_urls?.[0]}
               />
             </div>
           </div>

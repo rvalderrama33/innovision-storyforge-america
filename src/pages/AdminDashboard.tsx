@@ -510,14 +510,15 @@ const AdminDashboard = () => {
                           {submission.pinned ? 'Unpin' : 'Pin'}
                         </Button>
                         
-                        <Button
-                          onClick={() => window.open(`/admin/edit/${submission.id}`, '_blank')}
-                          size="sm"
-                          variant="outline"
-                        >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit Article
-                        </Button>
+                        <Link to={`/admin/edit/${submission.id}`}>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                          >
+                            <Edit className="w-4 h-4 mr-2" />
+                            Edit Article
+                          </Button>
+                        </Link>
                       </div>
                     </CardContent>
                   </Card>

@@ -1,6 +1,5 @@
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 const Newsletter = () => {
   return (
@@ -14,19 +13,17 @@ const Newsletter = () => {
           Get the latest consumer product innovations, inventor spotlights, and breakthrough products delivered to your inbox.
         </p>
         
-        <div className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto mb-8">
-          <Input 
-            type="email" 
-            placeholder="Enter your email address" 
-            className="bg-white text-gray-900 border-0 text-lg py-4 px-6 rounded-sm"
-          />
-          <Button className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 text-lg font-medium rounded-sm">
-            Subscribe
+        <div className="flex justify-center mb-8">
+          <Button 
+            className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 text-lg font-medium rounded-sm"
+            onClick={() => window.location.href = '/auth'}
+          >
+            Subscribe Free
           </Button>
         </div>
         
         <p className="text-sm text-gray-400 font-light">
-          Join 50,000+ product enthusiasts and entrepreneurs. Unsubscribe anytime.
+          Join 50,000+ product enthusiasts and entrepreneurs. Free subscription - Unsubscribe anytime.
         </p>
       </div>
     </section>

@@ -1,5 +1,6 @@
 
 import { Button } from "@/components/ui/button";
+import { Facebook, Linkedin } from "lucide-react";
 
 const Newsletter = () => {
   return (
@@ -22,9 +23,30 @@ const Newsletter = () => {
           </Button>
         </div>
         
-        <p className="text-sm text-gray-400 font-light">
+        <p className="text-sm text-gray-400 font-light mb-8">
           Join 50,000+ product enthusiasts and entrepreneurs. Free subscription - Unsubscribe anytime.
         </p>
+        
+        <div className="flex justify-center gap-6">
+          <a
+            href="https://www.facebook.com/AmericaInnovatesMagazine"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-white transition-colors duration-200"
+            aria-label="Follow us on Facebook"
+          >
+            <Facebook className="w-6 h-6" />
+          </a>
+          <a
+            href="https://www.linkedin.com/company/america-innovates-magazine"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-gray-400 hover:text-white transition-colors duration-200"
+            aria-label="Follow us on LinkedIn"
+          >
+            <Linkedin className="w-6 h-6" />
+          </a>
+        </div>
       </div>
     </section>
   );

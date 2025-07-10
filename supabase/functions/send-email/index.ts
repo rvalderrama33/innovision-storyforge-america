@@ -198,6 +198,13 @@ const handler = async (req: Request): Promise<Response> => {
       `;
     }
 
+    console.log("About to send email with Resend...");
+    console.log("Email details:", {
+      from: "America Innovates Magazine <noreply@resend.dev>",
+      to: [to],
+      subject: emailSubject
+    });
+
     const emailResponse = await resend.emails.send({
       from: "America Innovates Magazine <noreply@resend.dev>",
       to: [to],
@@ -205,7 +212,12 @@ const handler = async (req: Request): Promise<Response> => {
       html: emailContent,
     });
 
-    console.log("Email sent successfully:", emailResponse);
+    console.log("Resend API response:", emailResponse);
+    
+    if (emailResponse.error) {
+      console.error("Resend API error:", emailResponse.error);
+      throw new Error(`Resend API error: ${emailResponse.error.message || emailResponse.error}`);
+    }
 
     return new Response(JSON.stringify({ 
       success: true, 

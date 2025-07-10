@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.2";
 
 // Initialize Resend with better error handling
 const getResendClient = () => {
@@ -45,23 +46,49 @@ const handler = async (req: Request): Promise<Response> => {
     // Initialize Resend client
     const resend = getResendClient();
     
+    // Initialize Supabase client
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+    
     const { type, to, name, subject, message, productName, slug }: EmailRequest = await req.json();
 
     console.log(`Sending ${type} email to:`, to);
+
+    // Load email customizations from database
+    const { data: customizations } = await supabase
+      .from('email_customizations')
+      .select('*')
+      .limit(1)
+      .single();
+
+    // Default customizations
+    const emailCustomizations = {
+      primaryColor: customizations?.primary_color || '#667eea',
+      accentColor: customizations?.accent_color || '#764ba2',
+      companyName: customizations?.company_name || 'America Innovates Magazine',
+      logoUrl: customizations?.logo_url || '',
+      footerText: customizations?.footer_text || 'America Innovates Magazine - Celebrating Innovation and Entrepreneurship'
+    };
 
     let emailContent = '';
     let emailSubject = '';
 
     if (type === 'welcome') {
-      emailSubject = "Welcome to America Innovates!";
+      emailSubject = `Welcome to ${emailCustomizations.companyName}!`;
       emailContent = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #1a202c; margin-bottom: 10px;">Welcome to America Innovates!</h1>
+            ${emailCustomizations.logoUrl ? 
+              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 60px; margin-bottom: 15px;" />` : 
+              ''
+            }
+            <h1 style="color: #1a202c; margin-bottom: 10px;">${emailCustomizations.companyName}</h1>
             <p style="color: #4a5568; font-size: 18px;">Discover the latest breakthrough consumer products from visionary entrepreneurs</p>
           </div>
           
-          <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+          <div style="background: linear-gradient(135deg, ${emailCustomizations.primaryColor} 0%, ${emailCustomizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
             <h2 style="margin: 0 0 15px 0; font-size: 24px;">Hello ${name || 'Innovator'}! 👋</h2>
             <p style="margin: 0; font-size: 16px; line-height: 1.6;">
               Thank you for joining our community of entrepreneurs and innovators. You're now part of a network that celebrates creativity, innovation, and the entrepreneurial spirit.
@@ -80,40 +107,44 @@ const handler = async (req: Request): Promise<Response> => {
           
           <div style="text-align: center; margin-bottom: 30px;">
             <a href="${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '') || 'https://americainnovates.com'}" 
-               style="background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+               style="background: ${emailCustomizations.primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
               Explore Stories
             </a>
           </div>
           
           <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; color: #718096; font-size: 14px;">
-            <p>America Innovates Magazine - Celebrating Innovation and Entrepreneurship</p>
+            <p>${emailCustomizations.footerText}</p>
           </div>
         </div>
       `;
     } else if (type === 'notification') {
-      emailSubject = subject || "New Update from America Innovates";
+      emailSubject = subject || `New Update from ${emailCustomizations.companyName}`;
       emailContent = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
-            <h1 style="color: #1a202c;">America Innovates</h1>
+            ${emailCustomizations.logoUrl ? 
+              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 60px; margin-bottom: 15px;" />` : 
+              ''
+            }
+            <h1 style="color: #1a202c;">${emailCustomizations.companyName}</h1>
           </div>
           
-          <div style="background: #f7fafc; border-left: 4px solid #667eea; padding: 20px; margin-bottom: 30px;">
-            <h2 style="color: #1a202c; margin: 0 0 15px 0;">Hello ${name || 'Innovator'}!</h2>
-            <div style="color: #4a5568; line-height: 1.6;">
+          <div style="background: linear-gradient(135deg, ${emailCustomizations.primaryColor} 0%, ${emailCustomizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+            <h2 style="color: white; margin: 0 0 15px 0;">Hello ${name || 'Innovator'}!</h2>
+            <div style="color: white; line-height: 1.6;">
               ${message || 'We have an exciting update to share with you!'}
             </div>
           </div>
           
           <div style="text-align: center; margin-bottom: 30px;">
             <a href="${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '') || 'https://americainnovates.com'}" 
-               style="background: #667eea; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
-              Visit America Innovates
+               style="background: ${emailCustomizations.primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+              Visit ${emailCustomizations.companyName}
             </a>
           </div>
           
           <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; color: #718096; font-size: 14px;">
-            <p>America Innovates Magazine</p>
+            <p>${emailCustomizations.footerText}</p>
           </div>
         </div>
       `;
@@ -123,14 +154,18 @@ const handler = async (req: Request): Promise<Response> => {
       emailContent = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
+            ${emailCustomizations.logoUrl ? 
+              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 60px; margin-bottom: 15px;" />` : 
+              ''
+            }
             <h1 style="color: #1a202c; margin-bottom: 10px;">🎉 Congratulations!</h1>
             <p style="color: #4a5568; font-size: 18px;">Your innovation story has been approved and published!</p>
           </div>
           
-          <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+          <div style="background: linear-gradient(135deg, ${emailCustomizations.primaryColor} 0%, ${emailCustomizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
             <h2 style="margin: 0 0 15px 0; font-size: 24px;">Great news, ${name}!</h2>
             <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6;">
-              Your innovation story about <strong>"${productName}"</strong> has been reviewed and approved by our editorial team. It's now live on America Innovates!
+              Your innovation story about <strong>"${productName}"</strong> has been reviewed and approved by our editorial team. It's now live on ${emailCustomizations.companyName}!
             </p>
           </div>
           
@@ -146,13 +181,13 @@ const handler = async (req: Request): Promise<Response> => {
           
           <div style="text-align: center; margin-bottom: 30px;">
             <a href="${articleUrl}" 
-               style="background: #10b981; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
+               style="background: ${emailCustomizations.primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
               View Your Article
             </a>
           </div>
           
           <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; color: #718096; font-size: 14px;">
-            <p>Celebrate your entrepreneurial journey with America Innovates</p>
+            <p>${emailCustomizations.footerText}</p>
           </div>
         </div>
       `;
@@ -162,14 +197,18 @@ const handler = async (req: Request): Promise<Response> => {
       emailContent = `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
+            ${emailCustomizations.logoUrl ? 
+              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 60px; margin-bottom: 15px;" />` : 
+              ''
+            }
             <h1 style="color: #1a202c; margin-bottom: 10px;">⭐ You're Featured!</h1>
             <p style="color: #4a5568; font-size: 18px;">Your innovation story has been selected as a featured article!</p>
           </div>
           
-          <div style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+          <div style="background: linear-gradient(135deg, ${emailCustomizations.primaryColor} 0%, ${emailCustomizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
             <h2 style="margin: 0 0 15px 0; font-size: 24px;">Amazing news, ${name}! ⭐</h2>
             <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6;">
-              Your innovation story about <strong>"${productName}"</strong> has been selected as a featured article on America Innovates! This means it will receive premium placement and increased visibility.
+              Your innovation story about <strong>"${productName}"</strong> has been selected as a featured article on ${emailCustomizations.companyName}! This means it will receive premium placement and increased visibility.
             </p>
           </div>
           
@@ -186,13 +225,13 @@ const handler = async (req: Request): Promise<Response> => {
           
           <div style="text-align: center; margin-bottom: 30px;">
             <a href="${articleUrl}" 
-               style="background: #f59e0b; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
+               style="background: ${emailCustomizations.primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
               View Featured Article
             </a>
           </div>
           
           <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; color: #718096; font-size: 14px;">
-            <p>Thank you for sharing your entrepreneurial journey with America Innovates</p>
+            <p>${emailCustomizations.footerText}</p>
           </div>
         </div>
       `;

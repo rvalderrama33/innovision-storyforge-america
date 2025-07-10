@@ -40,19 +40,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Send welcome email when user signs up
+        // Send welcome email only for new signups by checking if user was created recently
         if (event === 'SIGNED_IN' && session?.user && !user) {
-          setTimeout(async () => {
-            try {
-              await sendWelcomeEmail(
-                session.user.email!, 
-                session.user.user_metadata?.full_name || session.user.email
-              );
-              console.log('Welcome email sent successfully');
-            } catch (error) {
-              console.error('Failed to send welcome email:', error);
-            }
-          }, 0);
+          const userCreatedAt = new Date(session.user.created_at);
+          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
+          
+          // Only send welcome email if user was created in the last 5 minutes
+          if (userCreatedAt > fiveMinutesAgo) {
+            setTimeout(async () => {
+              try {
+                await sendWelcomeEmail(
+                  session.user.email!, 
+                  session.user.user_metadata?.full_name || session.user.email
+                );
+                console.log('Welcome email sent successfully');
+              } catch (error) {
+                console.error('Failed to send welcome email:', error);
+              }
+            }, 0);
+          }
         }
         
         if (session?.user) {

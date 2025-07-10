@@ -52,3 +52,15 @@ verify_jwt = false
 
 [functions.security-audit]
 verify_jwt = false
+
+[functions.send-newsletter]
+verify_jwt = true
+
+[functions.track-open]
+verify_jwt = false
+
+[functions.track-click]
+verify_jwt = false
+
+[functions.unsubscribe]
+verify_jwt = false

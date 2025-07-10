@@ -9,8 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 import EmailNotificationForm from "@/components/EmailNotificationForm";
 import EmailTemplateCustomizer from "@/components/EmailTemplateCustomizer";
 import AdminManualSubmission from "@/components/AdminManualSubmission";
+import NewsletterManagement from "@/components/NewsletterManagement";
+import NewsletterAnalytics from "@/components/NewsletterAnalytics";
 import { sendArticleApprovalEmail, sendFeaturedStoryEmail } from "@/lib/emailService";
-import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus, Edit, Trash2, Shield, ShieldOff } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus, Edit, Trash2, Shield, ShieldOff, BarChart3 } from "lucide-react";
 import ArticlePreviewDialog from "@/components/ArticlePreviewDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -415,7 +417,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="submissions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-8">
             <TabsTrigger value="submissions" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Submissions
@@ -423,6 +425,14 @@ const AdminDashboard = () => {
             <TabsTrigger value="create" className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
               Create Article
+            </TabsTrigger>
+            <TabsTrigger value="newsletter" className="flex items-center gap-2">
+              <Mail className="w-4 h-4" />
+              Newsletter
+            </TabsTrigger>
+            <TabsTrigger value="newsletter-analytics" className="flex items-center gap-2">
+              <BarChart3 className="w-4 h-4" />
+              Newsletter Analytics
             </TabsTrigger>
             <TabsTrigger value="analytics" className="flex items-center gap-2">
               <TrendingUp className="w-4 h-4" />
@@ -441,6 +451,14 @@ const AdminDashboard = () => {
               Email Center
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="newsletter" className="space-y-6">
+            <NewsletterManagement />
+          </TabsContent>
+
+          <TabsContent value="newsletter-analytics" className="space-y-6">
+            <NewsletterAnalytics />
+          </TabsContent>
 
           <TabsContent value="create" className="space-y-6">
             <AdminManualSubmission onSubmissionCreated={fetchSubmissions} />

@@ -445,6 +445,14 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_newsletter_clicks: {
+        Args: { newsletter_id: string }
+        Returns: undefined
+      }
+      increment_newsletter_opens: {
+        Args: { newsletter_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "subscriber"

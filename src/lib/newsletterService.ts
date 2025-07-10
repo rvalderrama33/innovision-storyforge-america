@@ -128,10 +128,10 @@ export const getNewsletterSubscribers = async () => {
     }
     
     console.log('Subscribers fetched:', data?.length || 0);
-    return data || [];
+    return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error('Error fetching newsletter subscribers:', error);
-    throw error;
+    return []; // Return empty array instead of throwing
   }
 };
 
@@ -150,10 +150,10 @@ export const getNewsletters = async () => {
     }
     
     console.log('Newsletters fetched:', data?.length || 0);
-    return data || [];
+    return Array.isArray(data) ? data : [];
   } catch (error) {
     console.error('Error fetching newsletters:', error);
-    throw error;
+    return []; // Return empty array instead of throwing
   }
 };
 
@@ -308,6 +308,10 @@ export const getSubscriptionStats = async () => {
     return stats;
   } catch (error) {
     console.error('Error fetching subscription stats:', error);
-    throw error;
+    return {
+      totalSubscribers: 0,
+      newThisMonth: 0,
+      unsubscribesThisMonth: 0
+    }; // Return default stats instead of throwing
   }
 };

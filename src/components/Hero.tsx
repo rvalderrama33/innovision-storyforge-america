@@ -1,11 +1,9 @@
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Menu, LogOut, Settings } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
 
 const Hero = () => {
-  const { user, isAdmin, signOut } = useAuth();
 
   return (
     <div className="relative overflow-hidden bg-white">
@@ -29,66 +27,6 @@ const Hero = () => {
           />
         </Link>
       </div>
-
-      {/* Navigation */}
-      <nav className="relative z-20 flex items-center justify-between px-6 py-2 lg:px-12 backdrop-blur-sm">
-        {/* Desktop Logo */}
-        <div className="hidden md:flex items-center space-x-3">
-          <Link to="/">
-            <img 
-              src="/lovable-uploads/0b7aab03-b403-4c89-bfbb-d50750598cce.png" 
-              alt="America Innovates Magazine" 
-              className="h-48 lg:h-60"
-            />
-          </Link>
-        </div>
-        
-        <div className="hidden md:flex items-center space-x-8">
-          <Link to="/" className="text-white hover:text-gray-200 transition-colors font-medium">Magazine</Link>
-          <Link to="/stories" className="text-white hover:text-gray-200 transition-colors font-medium">Browse Stories</Link>
-          <Link to="/submit" className="text-white hover:text-gray-200 transition-colors font-medium">Submit Story</Link>
-          <Link to="/about" className="text-white hover:text-gray-200 transition-colors font-medium">About</Link>
-          {isAdmin && (
-            <Link to="/admin" className="text-white hover:text-gray-200 transition-colors font-medium">
-              <Settings className="inline h-4 w-4 mr-1" />
-              Admin
-            </Link>
-          )}
-        </div>
-        
-        <div className="flex items-center space-x-4">
-          {user ? (
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-white hidden sm:block">
-                Welcome, {user.user_metadata?.full_name || user.email}
-              </span>
-              <Button
-                onClick={signOut}
-                variant="outline"
-                size="sm"
-                className="border-white/30 text-black bg-white/90 hover:bg-white"
-              >
-                <LogOut className="h-4 w-4 mr-1" />
-                Sign Out
-              </Button>
-            </div>
-          ) : (
-            <>
-              <Link to="/auth">
-                <Button variant="outline" className="border-white/30 text-black bg-white/90 hover:bg-white">
-                  Sign In
-                </Button>
-              </Link>
-              <Link to="/submit">
-                <Button className="bg-white hover:bg-gray-100 text-gray-900 border-0 px-6 py-2">
-                  Submit Story
-                </Button>
-              </Link>
-            </>
-          )}
-          <Menu className="md:hidden h-6 w-6 text-white" />
-        </div>
-      </nav>
 
       {/* Hero Content */}
       <div className="relative z-10 px-6 py-12 lg:px-12 lg:py-20">

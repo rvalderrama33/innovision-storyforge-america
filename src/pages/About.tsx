@@ -22,7 +22,7 @@ const About = () => {
             About America Innovates
           </h1>
           <p className="text-xl text-blue-100 max-w-2xl">
-            Celebrating the inventors, disruptors, and breakthrough ideas shaping tomorrow's world.
+            Spotlighting the entrepreneurs and creators behind breakthrough consumer products.
           </p>
         </div>
       </div>
@@ -34,41 +34,41 @@ const About = () => {
             <CardContent className="p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Our Mission</h2>
               <p className="text-lg text-gray-700 leading-relaxed">
-                America Innovates Magazine exists to spotlight the brilliant minds and groundbreaking inventions 
-                that are solving real-world problems and shaping our future. We believe every innovation has a 
-                story worth telling, and every inventor deserves recognition for their contribution to progress.
+                America Innovates Magazine showcases the entrepreneurs and creators behind breakthrough consumer 
+                products that make everyday life better. We spotlight the innovators who are building the future 
+                through practical solutions and groundbreaking products that enhance how we live, work, and play.
               </p>
             </CardContent>
           </Card>
 
-          {/* What We Cover */}
+          {/* What We Feature */}
           <Card className="border-0 shadow-lg">
             <CardContent className="p-8">
-              <h2 className="text-2xl font-bold text-gray-900 mb-6">What We Cover</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">What We Feature</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">🌟 Spotlight Profiles</h3>
-                  <p className="text-gray-600">In-depth features on breakthrough inventors and their journeys</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">🛍️ Consumer Products</h3>
+                  <p className="text-gray-600">Innovative products that solve real problems and improve daily life</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">🚀 Emerging Innovators</h3>
-                  <p className="text-gray-600">Young minds and first-time inventors changing the world</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">👥 Entrepreneur Stories</h3>
+                  <p className="text-gray-600">Personal journeys of creators bringing their visions to life</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">🔬 Innovation Labs</h3>
-                  <p className="text-gray-600">Inside the world's leading R&D facilities and research centers</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">💡 Innovation Insights</h3>
+                  <p className="text-gray-600">Behind-the-scenes looks at product development and creative processes</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">📜 Historical Inventors</h3>
-                  <p className="text-gray-600">Celebrating the pioneers who paved the way for today's innovations</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">🚀 Market Breakthroughs</h3>
+                  <p className="text-gray-600">Products disrupting industries and creating new market categories</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">⚡ Tech Breakthroughs</h3>
-                  <p className="text-gray-600">The latest in cutting-edge technology and scientific discoveries</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">🎯 Problem Solvers</h3>
+                  <p className="text-gray-600">Innovations addressing everyday challenges with elegant solutions</p>
                 </div>
                 <div>
-                  <h3 className="font-semibold text-gray-900 mb-2">🌍 Global Impact</h3>
-                  <p className="text-gray-600">Innovations solving worldwide challenges and creating positive change</p>
+                  <h3 className="font-semibold text-gray-900 mb-2">🌟 Featured Creators</h3>
+                  <p className="text-gray-600">Highlighting diverse voices and perspectives in product innovation</p>
                 </div>
               </div>
             </CardContent>
@@ -77,10 +77,10 @@ const About = () => {
           {/* Share Your Story */}
           <Card className="border-0 shadow-lg bg-gradient-to-r from-blue-50 to-orange-50">
             <CardContent className="p-8 text-center">
-              <h2 className="text-2xl font-bold text-gray-900 mb-4">Share Your Innovation Story</h2>
+              <h2 className="text-2xl font-bold text-gray-900 mb-4">Share Your Product Story</h2>
               <p className="text-lg text-gray-700 mb-6 max-w-2xl mx-auto">
-                Are you an inventor, entrepreneur, or innovator with a story to tell? We'd love to feature 
-                your breakthrough idea and share your journey with our community of forward-thinkers.
+                Are you an entrepreneur or creator with an innovative consumer product? We'd love to feature 
+                your breakthrough creation and share your journey with our community of innovators and consumers.
               </p>
               <Link to="/submit">
                 <Button size="lg" className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 text-lg">

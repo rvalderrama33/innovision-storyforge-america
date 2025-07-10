@@ -70,8 +70,8 @@ const Header = () => {
                 <Link to="/auth">
                   <Button variant="outline" size="sm">Sign In</Button>
                 </Link>
-                <Link to="/submit">
-                  <Button size="sm">Submit</Button>
+                <Link to="/auth">
+                  <Button size="sm">Subscribe</Button>
                 </Link>
               </div>
             )}
@@ -92,7 +92,7 @@ const Header = () => {
           <div className="flex items-center space-x-8">
             <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
             <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Browse Stories</Link>
-            <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
+            <Link to="/auth" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Subscribe</Link>
             <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
             {isAdmin && (
               <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">
@@ -118,8 +118,8 @@ const Header = () => {
                 <Link to="/auth">
                   <Button variant="outline">Sign In</Button>
                 </Link>
-                <Link to="/submit">
-                  <Button>Submit Story</Button>
+                <Link to="/auth">
+                  <Button>Subscribe</Button>
                 </Link>
               </>
             )}

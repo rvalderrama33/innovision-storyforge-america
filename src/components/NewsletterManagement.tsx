@@ -40,20 +40,28 @@ const NewsletterManagement = () => {
   const loadData = async () => {
     try {
       setIsLoading(true);
+      console.log('Loading newsletter management data...');
+      
       const [newslettersData, subscribersData, statsData] = await Promise.all([
         getNewsletters(),
         getNewsletterSubscribers(),
         getSubscriptionStats()
       ]);
       
+      console.log('Data loaded successfully:', {
+        newsletters: newslettersData.length,
+        subscribers: subscribersData.length,
+        stats: statsData
+      });
+      
       setNewsletters(newslettersData as Newsletter[]);
       setSubscribers(subscribersData);
       setStats(statsData);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error loading data:', error);
       toast({
         title: "Error",
-        description: "Failed to load newsletter data",
+        description: `Failed to load newsletter data: ${error.message}`,
         variant: "destructive",
       });
     } finally {

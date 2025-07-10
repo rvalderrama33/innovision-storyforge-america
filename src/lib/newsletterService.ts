@@ -115,13 +115,19 @@ export const unsubscribeFromNewsletter = async (email: string) => {
 // Get all subscribers (admin only)
 export const getNewsletterSubscribers = async () => {
   try {
+    console.log('Fetching newsletter subscribers...');
     const { data, error } = await supabase
       .from('newsletter_subscribers')
       .select('*')
       .eq('is_active', true)
       .order('subscribed_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching subscribers:', error);
+      throw error;
+    }
+    
+    console.log('Subscribers fetched:', data?.length || 0);
     return data || [];
   } catch (error) {
     console.error('Error fetching newsletter subscribers:', error);
@@ -132,12 +138,18 @@ export const getNewsletterSubscribers = async () => {
 // Get newsletters (admin only)
 export const getNewsletters = async () => {
   try {
+    console.log('Fetching newsletters...');
     const { data, error } = await supabase
       .from('newsletters')
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) throw error;
+    if (error) {
+      console.error('Error fetching newsletters:', error);
+      throw error;
+    }
+    
+    console.log('Newsletters fetched:', data?.length || 0);
     return data || [];
   } catch (error) {
     console.error('Error fetching newsletters:', error);
@@ -246,35 +258,54 @@ export const trackEmailEvent = async (
 // Get subscription statistics
 export const getSubscriptionStats = async () => {
   try {
+    console.log('Fetching subscription stats...');
     // Total subscribers
-    const { count: totalSubscribers } = await supabase
+    const { count: totalSubscribers, error: totalError } = await supabase
       .from('newsletter_subscribers')
       .select('*', { count: 'exact', head: true })
       .eq('is_active', true);
+
+    if (totalError) {
+      console.error('Error fetching total subscribers:', totalError);
+      throw totalError;
+    }
 
     // New subscribers this month
     const startOfMonth = new Date();
     startOfMonth.setDate(1);
     startOfMonth.setHours(0, 0, 0, 0);
 
-    const { count: newThisMonth } = await supabase
+    const { count: newThisMonth, error: newError } = await supabase
       .from('newsletter_subscribers')
       .select('*', { count: 'exact', head: true })
       .eq('is_active', true)
       .gte('subscribed_at', startOfMonth.toISOString());
 
+    if (newError) {
+      console.error('Error fetching new subscribers:', newError);
+      throw newError;
+    }
+
     // Unsubscribes this month
-    const { count: unsubscribesThisMonth } = await supabase
+    const { count: unsubscribesThisMonth, error: unsubError } = await supabase
       .from('newsletter_subscribers')
       .select('*', { count: 'exact', head: true })
       .eq('is_active', false)
       .gte('unsubscribed_at', startOfMonth.toISOString());
 
-    return {
+    if (unsubError) {
+      console.error('Error fetching unsubscribes:', unsubError);
+      throw unsubError;
+    }
+
+    const stats = {
       totalSubscribers: totalSubscribers || 0,
       newThisMonth: newThisMonth || 0,
       unsubscribesThisMonth: unsubscribesThisMonth || 0
     };
+    
+    console.log('Subscription stats:', stats);
+    return stats;
   } catch (error) {
     console.error('Error fetching subscription stats:', error);
     throw error;

@@ -64,3 +64,6 @@ verify_jwt = false
 
 [functions.unsubscribe]
 verify_jwt = false
+
+[functions.generate-weekly-newsletter]
+verify_jwt = false

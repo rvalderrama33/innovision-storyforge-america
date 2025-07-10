@@ -453,6 +453,10 @@ export type Database = {
         Args: { newsletter_id: string }
         Returns: undefined
       }
+      trigger_weekly_newsletter: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       app_role: "admin" | "subscriber"

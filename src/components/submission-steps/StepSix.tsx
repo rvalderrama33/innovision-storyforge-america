@@ -61,6 +61,34 @@ const StepSix = ({ data, onValidationChange }: StepSixProps) => {
         throw error;
       }
 
+      // Save individual recommendations for tracking
+      if (data.recommendations && data.recommendations.length > 0) {
+        console.log("Saving individual recommendations for tracking...");
+        const recommendationRecords = data.recommendations.map((rec: any) => ({
+          name: rec.name,
+          email: rec.email,
+          reason: rec.reason || null,
+          submission_id: submission.id,
+          recommender_name: data.fullName,
+          recommender_email: data.email,
+          email_sent_at: new Date().toISOString()
+        }));
+
+        const { error: recError } = await supabase
+          .from('recommendations')
+          .insert(recommendationRecords);
+
+        if (recError) {
+          console.error("Error saving recommendation records:", recError);
+          // Don't fail the whole submission for this
+        }
+      }
+
+      if (error) {
+        console.error("Supabase insert error:", error);
+        throw error;
+      }
+
       console.log("Successfully saved to Supabase, now generating article...");
 
       // Generate article using Supabase Edge Function

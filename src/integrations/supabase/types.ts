@@ -71,6 +71,69 @@ export type Database = {
         }
         Relationships: []
       }
+      recommendations: {
+        Row: {
+          created_at: string
+          email: string
+          email_sent_at: string | null
+          id: string
+          name: string
+          reason: string | null
+          recommender_email: string | null
+          recommender_name: string | null
+          submission_id: string | null
+          submission_id_created: string | null
+          submitted_story_at: string | null
+          subscribed_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          email_sent_at?: string | null
+          id?: string
+          name: string
+          reason?: string | null
+          recommender_email?: string | null
+          recommender_name?: string | null
+          submission_id?: string | null
+          submission_id_created?: string | null
+          submitted_story_at?: string | null
+          subscribed_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          email_sent_at?: string | null
+          id?: string
+          name?: string
+          reason?: string | null
+          recommender_email?: string | null
+          recommender_name?: string | null
+          submission_id?: string | null
+          submission_id_created?: string | null
+          submitted_story_at?: string | null
+          subscribed_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recommendations_submission_id_created_fkey"
+            columns: ["submission_id_created"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recommendations_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       submissions: {
         Row: {
           approved_at: string | null

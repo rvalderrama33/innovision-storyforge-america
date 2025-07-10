@@ -110,6 +110,11 @@ const Auth = () => {
             />
           </Link>
           <p className="text-gray-600 mt-1">Sign in to your account or create a free subscription</p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-4">
+            <p className="text-blue-800 text-sm text-center">
+              You must be logged in to begin the Story Submission Process
+            </p>
+          </div>
         </div>
 
         <Card>

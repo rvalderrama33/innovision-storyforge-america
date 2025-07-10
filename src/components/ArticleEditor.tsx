@@ -64,12 +64,19 @@ const ArticleEditor = () => {
   ];
 
   useEffect(() => {
-    if (!authLoading && !isAdmin) {
+    // Don't redirect while auth is still loading
+    if (authLoading) {
+      return;
+    }
+    
+    // If not admin, redirect to homepage
+    if (!isAdmin) {
       navigate('/');
       return;
     }
     
-    if (id && isAdmin) {
+    // If we have an ID and user is admin, fetch the article
+    if (id) {
       fetchArticle();
     }
   }, [id, isAdmin, authLoading, navigate]);

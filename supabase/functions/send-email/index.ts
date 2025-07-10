@@ -199,7 +199,7 @@ const handler = async (req: Request): Promise<Response> => {
     }
 
     const emailResponse = await resend.emails.send({
-      from: "America Innovates <noreply@resend.dev>", // Change this to your verified domain
+      from: "America Innovates Magazine <noreply@resend.dev>",
       to: [to],
       subject: emailSubject,
       html: emailContent,

@@ -81,7 +81,7 @@ const handler = async (req: Request): Promise<Response> => {
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             ${emailCustomizations.logoUrl ? 
-              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 60px; margin-bottom: 15px;" />` : 
+              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 180px; margin-bottom: 15px;" />` : 
               ''
             }
             <h1 style="color: #1a202c; margin-bottom: 10px;">${emailCustomizations.companyName}</h1>
@@ -123,7 +123,7 @@ const handler = async (req: Request): Promise<Response> => {
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             ${emailCustomizations.logoUrl ? 
-              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 60px; margin-bottom: 15px;" />` : 
+              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 180px; margin-bottom: 15px;" />` : 
               ''
             }
             <h1 style="color: #1a202c;">${emailCustomizations.companyName}</h1>
@@ -155,7 +155,7 @@ const handler = async (req: Request): Promise<Response> => {
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             ${emailCustomizations.logoUrl ? 
-              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 60px; margin-bottom: 15px;" />` : 
+              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 180px; margin-bottom: 15px;" />` : 
               ''
             }
             <h1 style="color: #1a202c; margin-bottom: 10px;">🎉 Congratulations!</h1>
@@ -198,7 +198,7 @@ const handler = async (req: Request): Promise<Response> => {
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="text-align: center; margin-bottom: 30px;">
             ${emailCustomizations.logoUrl ? 
-              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 60px; margin-bottom: 15px;" />` : 
+              `<img src="${emailCustomizations.logoUrl}" alt="${emailCustomizations.companyName}" style="max-height: 180px; margin-bottom: 15px;" />` : 
               ''
             }
             <h1 style="color: #1a202c; margin-bottom: 10px;">⭐ You're Featured!</h1>

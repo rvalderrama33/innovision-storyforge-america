@@ -200,13 +200,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log("About to send email with Resend...");
     console.log("Email details:", {
-      from: "America Innovates Magazine <noreply@resend.dev>",
+      from: "America Innovates Magazine <noreply@americainnovates.us>",
       to: [to],
       subject: emailSubject
     });
 
     const emailResponse = await resend.emails.send({
-      from: "America Innovates Magazine <noreply@resend.dev>",
+      from: "America Innovates Magazine <noreply@americainnovates.us>",
       to: [to],
       subject: emailSubject,
       html: emailContent,

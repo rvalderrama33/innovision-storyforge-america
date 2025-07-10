@@ -75,8 +75,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   _role: 'subscriber'
                 })
               ]);
-              setIsAdmin(adminData.data || false);
-              setIsSubscriber(subscriberData.data || false);
+              const isUserAdmin = adminData.data || false;
+              const isUserSubscriber = subscriberData.data || false;
+              
+              setIsAdmin(isUserAdmin);
+              // Admins should also have subscriber privileges
+              setIsSubscriber(isUserSubscriber || isUserAdmin);
             } catch (error) {
               console.error('Error checking user roles:', error);
               setIsAdmin(false);

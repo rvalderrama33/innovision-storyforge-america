@@ -12,10 +12,12 @@ import {
   updateNewsletter, 
   getNewsletterSubscribers,
   getSubscriptionStats,
+  testWeeklyNewsletter,
   type Newsletter 
 } from "@/lib/newsletterService";
 import { supabase } from "@/integrations/supabase/client";
-import { Plus, Send, Eye, Users, Mail, TrendingUp, BarChart3 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Plus, Send, Eye, Users, Mail, TrendingUp, BarChart3, TestTube } from "lucide-react";
 
 const NewsletterManagement = () => {
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
@@ -25,7 +27,9 @@ const NewsletterManagement = () => {
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [selectedNewsletter, setSelectedNewsletter] = useState<Newsletter | null>(null);
   const [sendingNewsletter, setSendingNewsletter] = useState<string | null>(null);
+  const [testingWeeklyNewsletter, setTestingWeeklyNewsletter] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   // Form state
   const [title, setTitle] = useState("");
@@ -152,6 +156,36 @@ const NewsletterManagement = () => {
     }
   };
 
+  const handleTestWeeklyNewsletter = async () => {
+    if (!user?.email) {
+      toast({
+        title: "Authentication required",
+        description: "You must be logged in to test the newsletter",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setTestingWeeklyNewsletter(true);
+
+    try {
+      const result = await testWeeklyNewsletter(user.email);
+      
+      toast({
+        title: "Weekly Newsletter Test Sent",
+        description: `Test newsletter sent to your email (${user.email}) with ${result.articles} latest articles`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to send test newsletter",
+        variant: "destructive",
+      });
+    } finally {
+      setTestingWeeklyNewsletter(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'draft':
@@ -182,13 +216,26 @@ const NewsletterManagement = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-3xl font-bold">Newsletter Management</h2>
-        <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="w-4 h-4 mr-2" />
-              Create Newsletter
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={handleTestWeeklyNewsletter}
+            disabled={testingWeeklyNewsletter}
+          >
+            {testingWeeklyNewsletter ? (
+              <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-2" />
+            ) : (
+              <TestTube className="w-4 h-4 mr-2" />
+            )}
+            Test Weekly Newsletter
+          </Button>
+          <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                Create Newsletter
+              </Button>
+            </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Create New Newsletter</DialogTitle>
@@ -233,7 +280,8 @@ const NewsletterManagement = () => {
               </div>
             </form>
           </DialogContent>
-        </Dialog>
+          </Dialog>
+        </div>
       </div>
 
       {/* Statistics Cards */}

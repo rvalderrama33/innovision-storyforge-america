@@ -315,3 +315,27 @@ export const getSubscriptionStats = async () => {
     }; // Return default stats instead of throwing
   }
 };
+
+// Test weekly newsletter generation
+export const testWeeklyNewsletter = async (testEmail: string) => {
+  try {
+    console.log('Testing weekly newsletter generation...');
+    const { data, error } = await supabase.functions.invoke('generate-weekly-newsletter', {
+      body: { 
+        isTest: true, 
+        testEmail: testEmail 
+      }
+    });
+
+    if (error) {
+      console.error('Error testing weekly newsletter:', error);
+      throw error;
+    }
+
+    console.log('Weekly newsletter test completed:', data);
+    return data;
+  } catch (error) {
+    console.error('Error testing weekly newsletter:', error);
+    throw error;
+  }
+};

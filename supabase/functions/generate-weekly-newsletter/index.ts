@@ -20,6 +20,10 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
+    const requestBody = await req.json();
+    const isTest = requestBody?.isTest || false;
+    const testEmail = requestBody?.testEmail || null;
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -62,8 +66,8 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     // Generate newsletter content
-    const newsletterTitle = `America Innovates Weekly - Week of ${weekOf}`;
-    const newsletterSubject = `🚀 This Week's Innovation Stories - ${currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`;
+    const newsletterTitle = isTest ? `[TEST] America Innovates Weekly - Week of ${weekOf}` : `America Innovates Weekly - Week of ${weekOf}`;
+    const newsletterSubject = isTest ? `[TEST] 🚀 This Week's Innovation Stories - ${currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}` : `🚀 This Week's Innovation Stories - ${currentDate.toLocaleDateString('en-US', { month: 'long', day: 'numeric' })}`;
 
     // Create HTML content
     let htmlContent = `
@@ -170,9 +174,13 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`Newsletter created with ID: ${newsletter.id}`);
 
-    // Automatically send the newsletter
+    // Send the newsletter (test mode or full send)
+    const sendPayload = isTest && testEmail ? 
+      { newsletterId: newsletter.id, testEmail: testEmail } : 
+      { newsletterId: newsletter.id };
+    
     const sendResponse = await supabase.functions.invoke('send-newsletter', {
-      body: { newsletterId: newsletter.id }
+      body: sendPayload
     });
 
     if (sendResponse.error) {

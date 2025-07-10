@@ -453,6 +453,10 @@ export type Database = {
         Args: { newsletter_id: string }
         Returns: undefined
       }
+      sync_admin_newsletter_subscriptions: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       trigger_weekly_newsletter: {
         Args: Record<PropertyKey, never>
         Returns: string

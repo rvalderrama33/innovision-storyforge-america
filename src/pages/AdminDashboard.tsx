@@ -231,6 +231,31 @@ const AdminDashboard = () => {
     }
   };
 
+  const deleteSubmission = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('submissions')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Article deleted",
+        description: "The article has been permanently removed",
+      });
+
+      fetchSubmissions();
+    } catch (error) {
+      console.error('Error deleting submission:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete article",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleEditUser = (user: any) => {
     setEditingUser(user);
     setEditUserData({
@@ -524,6 +549,36 @@ const AdminDashboard = () => {
                             Edit Article
                           </Button>
                         </Link>
+                        
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Delete
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Article</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete "{submission.product_name}"? 
+                                This action cannot be undone and will permanently remove the article.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteSubmission(submission.id)}
+                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                              >
+                                Delete Article
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
                       </div>
                     </CardContent>
                   </Card>

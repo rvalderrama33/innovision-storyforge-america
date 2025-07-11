@@ -118,6 +118,7 @@ const StepSix = ({ data, onUpdate, onValidationChange }: StepSixProps) => {
       const { data: submission, error } = await supabase.from('submissions').insert({
         full_name: data.fullName,
         email: data.email,
+        phone_number: data.phoneNumber,
         city: data.city,
         state: data.state,
         background: data.background,
@@ -134,7 +135,9 @@ const StepSix = ({ data, onUpdate, onValidationChange }: StepSixProps) => {
         inspiration: data.inspiration,
         motivation: data.motivation,
         image_urls: data.imageUrls || [],
-        recommendations: data.recommendations || []
+        recommendations: data.recommendations || [],
+        selected_vendors: data.selectedVendors || [],
+        status: 'pending'
       }).select().single();
 
       if (error) {

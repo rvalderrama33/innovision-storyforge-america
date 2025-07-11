@@ -330,11 +330,13 @@ export type Database = {
           inspiration: string | null
           is_manual_submission: boolean | null
           motivation: string | null
+          phone_number: string | null
           pinned: boolean | null
           problem_solved: string | null
           product_name: string | null
           proudest_moment: string | null
           recommendations: Json | null
+          selected_vendors: string[] | null
           slug: string | null
           social_media: string | null
           source_links: string[] | null
@@ -363,11 +365,13 @@ export type Database = {
           inspiration?: string | null
           is_manual_submission?: boolean | null
           motivation?: string | null
+          phone_number?: string | null
           pinned?: boolean | null
           problem_solved?: string | null
           product_name?: string | null
           proudest_moment?: string | null
           recommendations?: Json | null
+          selected_vendors?: string[] | null
           slug?: string | null
           social_media?: string | null
           source_links?: string[] | null
@@ -396,11 +400,13 @@ export type Database = {
           inspiration?: string | null
           is_manual_submission?: boolean | null
           motivation?: string | null
+          phone_number?: string | null
           pinned?: boolean | null
           problem_solved?: string | null
           product_name?: string | null
           proudest_moment?: string | null
           recommendations?: Json | null
+          selected_vendors?: string[] | null
           slug?: string | null
           social_media?: string | null
           source_links?: string[] | null

@@ -29,7 +29,7 @@ interface Submission {
   background?: string;
   website?: string;
   social_media?: string;
-  recommendations?: any[];
+  recommendations?: any;
   selected_vendors?: string[];
   status?: string;
   featured?: boolean;
@@ -127,7 +127,7 @@ const SubmissionReports = () => {
       selectedFields.forEach(field => {
         switch (field) {
           case 'recommendations_count':
-            row[field] = submission.recommendations?.length || 0;
+            row[field] = Array.isArray(submission.recommendations) ? submission.recommendations.length : 0;
             break;
           case 'selected_vendors_count':
             row[field] = submission.selected_vendors?.length || 0;

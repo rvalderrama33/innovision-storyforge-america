@@ -13,6 +13,7 @@ import AdminDashboard from "./pages/AdminDashboard";
 import Article from "./pages/Article";
 import ArticleEditor from "./components/ArticleEditor";
 import Stories from "./pages/Stories";
+import EmailPreview from "./pages/EmailPreview";
 import TestOpenAI from "./pages/TestOpenAI";
 import NotFound from "./pages/NotFound";
 
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="/article/:slug" element={<Article />} />
             <Route path="/admin/edit/:id" element={<ArticleEditor />} />
             <Route path="/stories" element={<Stories />} />
+            <Route path="/email-preview" element={<EmailPreview />} />
             
             <Route path="/sitemap.xml" element={<SitemapRoute />} />
             <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />

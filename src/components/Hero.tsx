@@ -29,9 +29,9 @@ const Hero = () => {
       </div>
 
       {/* Hero Content */}
-      <div className="relative z-10 px-6 pb-12 lg:px-12 lg:pb-20">
+      <div className="relative z-10 px-6 pb-12 pt-12 md:pt-20 lg:px-12 lg:pb-20 lg:pt-24">
         <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
+          <div className="text-center mb-12 md:mt-8 lg:mt-12">
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-tight mb-6 text-white">
               Spotlighting
               <span className="block text-gray-200 italic font-light"> Entrepreneurs & Creators</span>

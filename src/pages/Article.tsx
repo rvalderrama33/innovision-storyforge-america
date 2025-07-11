@@ -93,7 +93,7 @@ const Article = () => {
       {/* Hero Section */}
       <div className="relative">
         {article.image_urls && article.image_urls.length > 0 && (
-          <div className="w-full h-[60vh] lg:h-[70vh] relative overflow-hidden">
+          <div className="w-full h-[40vh] lg:h-[50vh] relative overflow-hidden">
             <img
               src={article.image_urls[0]}
               alt={article.product_name}

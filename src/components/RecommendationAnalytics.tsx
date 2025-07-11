@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Search, Users, TrendingUp, Mail, FileText, Trash2, Plus } from "lucide-react";
+import { Search, Users, TrendingUp, Mail, FileText, Trash2, Plus, Upload } from "lucide-react";
+import * as XLSX from 'xlsx';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,7 +30,10 @@ const RecommendationAnalytics = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
   const [newRecommendation, setNewRecommendation] = useState({
     recommenderName: "",
     name: "",
@@ -204,6 +208,125 @@ const RecommendationAnalytics = () => {
     }
   };
 
+  const handleSpreadsheetUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    setUploadProgress({ current: 0, total: 0 });
+
+    try {
+      const data = await file.arrayBuffer();
+      const workbook = XLSX.read(data);
+      const sheetName = workbook.SheetNames[0];
+      const worksheet = workbook.Sheets[sheetName];
+      const jsonData = XLSX.utils.sheet_to_json(worksheet);
+
+      // Validate and process the data
+      const validRecommendations = [];
+      for (let i = 0; i < jsonData.length; i++) {
+        const row = jsonData[i] as any;
+        
+        // Look for variations of column names (case insensitive)
+        const fromName = row['From Name'] || row['from name'] || row['From'] || row['from'] || row['Recommender Name'] || row['recommender name'];
+        const toName = row['To Name'] || row['to name'] || row['To'] || row['to'] || row['Name'] || row['name'];
+        const toEmail = row['To Email'] || row['to email'] || row['Email'] || row['email'];
+
+        if (fromName && toName && toEmail) {
+          validRecommendations.push({
+            recommenderName: String(fromName).trim(),
+            name: String(toName).trim(),
+            email: String(toEmail).trim()
+          });
+        }
+      }
+
+      if (validRecommendations.length === 0) {
+        toast({
+          title: "Error",
+          description: "No valid recommendations found. Please ensure your spreadsheet has columns for 'From Name', 'To Name', and 'To Email'.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setUploadProgress({ current: 0, total: validRecommendations.length });
+
+      // Process recommendations in batches
+      const batchSize = 5;
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (let i = 0; i < validRecommendations.length; i += batchSize) {
+        const batch = validRecommendations.slice(i, i + batchSize);
+        
+        for (const rec of batch) {
+          try {
+            // Create the recommendation record
+            const { error: dbError } = await supabase
+              .from('recommendations')
+              .insert({
+                name: rec.name,
+                email: rec.email,
+                reason: null,
+                recommender_name: rec.recommenderName,
+                recommender_email: null,
+                email_sent_at: new Date().toISOString()
+              });
+
+            if (dbError) throw dbError;
+
+            // Send the recommendation email
+            await supabase.functions.invoke('send-email', {
+              body: {
+                type: 'recommendation',
+                to: rec.email,
+                name: rec.name,
+                recommenderName: rec.recommenderName
+              }
+            });
+
+            successCount++;
+          } catch (error) {
+            console.error(`Error processing recommendation for ${rec.name}:`, error);
+            errorCount++;
+          }
+
+          setUploadProgress(prev => ({ ...prev, current: prev.current + 1 }));
+        }
+
+        // Small delay between batches to avoid overwhelming the system
+        if (i + batchSize < validRecommendations.length) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+
+      toast({
+        title: "Upload Complete",
+        description: `Successfully processed ${successCount} recommendations. ${errorCount > 0 ? `${errorCount} failed.` : ''}`,
+        variant: errorCount > 0 ? "destructive" : "default"
+      });
+
+      setUploadDialogOpen(false);
+      fetchRecommendations();
+
+    } catch (error) {
+      console.error('Error processing spreadsheet:', error);
+      toast({
+        title: "Error",
+        description: "Failed to process spreadsheet. Please check the file format.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+      setUploadProgress({ current: 0, total: 0 });
+      // Reset the file input
+      if (event.target) {
+        event.target.value = '';
+      }
+    }
+  };
+
   const filteredRecommendations = recommendations.filter(rec =>
     rec.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     rec.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -307,6 +430,75 @@ const RecommendationAnalytics = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          
+          <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Upload className="h-4 w-4 mr-2" />
+                Upload Spreadsheet
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Upload Recommendations Spreadsheet</DialogTitle>
+                <DialogDescription>
+                  Upload an Excel or CSV file with columns: "From Name", "To Name", and "To Email". 
+                  Each row will create a recommendation and send an email.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="spreadsheet">Choose File</Label>
+                  <Input
+                    id="spreadsheet"
+                    type="file"
+                    accept=".xlsx,.xls,.csv"
+                    onChange={handleSpreadsheetUpload}
+                    disabled={isUploading}
+                  />
+                  <p className="text-sm text-muted-foreground">
+                    Supported formats: Excel (.xlsx, .xls) and CSV (.csv)
+                  </p>
+                </div>
+                
+                {isUploading && (
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Processing recommendations...</span>
+                      <span>{uploadProgress.current}/{uploadProgress.total}</span>
+                    </div>
+                    <div className="w-full bg-secondary rounded-full h-2">
+                      <div 
+                        className="bg-primary h-2 rounded-full transition-all duration-300" 
+                        style={{ 
+                          width: uploadProgress.total > 0 ? `${(uploadProgress.current / uploadProgress.total) * 100}%` : '0%' 
+                        }}
+                      />
+                    </div>
+                  </div>
+                )}
+                
+                <div className="text-sm text-muted-foreground">
+                  <p className="font-semibold mb-2">Expected column headers:</p>
+                  <ul className="list-disc pl-5 space-y-1">
+                    <li><strong>From Name</strong> - Name of the person making the recommendation</li>
+                    <li><strong>To Name</strong> - Name of the person being recommended</li>
+                    <li><strong>To Email</strong> - Email address of the person being recommended</li>
+                  </ul>
+                </div>
+              </div>
+              <DialogFooter>
+                <Button 
+                  variant="outline" 
+                  onClick={() => setUploadDialogOpen(false)}
+                  disabled={isUploading}
+                >
+                  {isUploading ? "Processing..." : "Cancel"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          
           <Button onClick={fetchRecommendations} variant="outline">
             Refresh Data
           </Button>

@@ -64,7 +64,7 @@ const SubmissionReports = () => {
     { key: 'website', label: 'Website' },
     { key: 'social_media', label: 'Social Media' },
     { key: 'recommendations_count', label: 'Number of Recommendations' },
-    { key: 'selected_vendors_count', label: 'Number of Selected Vendors' },
+    { key: 'selected_vendors', label: 'Selected Vendors' },
     { key: 'status', label: 'Status' },
     { key: 'created_at', label: 'Submission Date' },
   ];
@@ -129,8 +129,10 @@ const SubmissionReports = () => {
           case 'recommendations_count':
             row[field] = Array.isArray(submission.recommendations) ? submission.recommendations.length : 0;
             break;
-          case 'selected_vendors_count':
-            row[field] = submission.selected_vendors?.length || 0;
+          case 'selected_vendors':
+            row[field] = Array.isArray(submission.selected_vendors) 
+              ? submission.selected_vendors.join(', ') 
+              : '';
             break;
           case 'created_at':
             row[field] = new Date(submission.created_at).toLocaleDateString();

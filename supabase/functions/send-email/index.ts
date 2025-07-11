@@ -80,6 +80,10 @@ const getEmailFooter = (customizations: EmailCustomizations, customFooter?: stri
 // Common email wrapper
 const wrapEmailContent = (content: string) => `
   <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+    <style>
+      a { color: #2563eb !important; text-decoration: underline !important; }
+      .button-link { color: white !important; text-decoration: none !important; }
+    </style>
     ${content}
   </div>
 `;
@@ -112,7 +116,8 @@ const createWelcomeEmail = (customizations: EmailCustomizations, name: string) =
       
       <div style="text-align: center; margin-bottom: 30px;">
         <a href="${baseUrl}" 
-           style="background: ${customizations.primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+           class="button-link"
+           style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
           Explore Stories
         </a>
       </div>
@@ -140,7 +145,8 @@ const createNotificationEmail = (customizations: EmailCustomizations, name: stri
       
       <div style="text-align: center; margin-bottom: 30px;">
         <a href="${baseUrl}" 
-           style="background: ${customizations.primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+           class="button-link"
+           style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
           Visit ${customizations.companyName}
         </a>
       </div>
@@ -178,7 +184,8 @@ const createApprovalEmail = (customizations: EmailCustomizations, name: string, 
       
       <div style="text-align: center; margin-bottom: 30px;">
         <a href="${articleUrl}" 
-           style="background: ${customizations.primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
+           class="button-link"
+           style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
           View Your Article
         </a>
       </div>
@@ -217,7 +224,8 @@ const createFeaturedEmail = (customizations: EmailCustomizations, name: string, 
       
       <div style="text-align: center; margin-bottom: 30px;">
         <a href="${articleUrl}" 
-           style="background: ${customizations.primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
+           class="button-link"
+           style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
           View Featured Article
         </a>
       </div>
@@ -248,7 +256,8 @@ const createRecommendationEmail = (customizations: EmailCustomizations, name: st
       
       <div style="text-align: center; margin-bottom: 30px;">
         <a href="${submitUrl}" 
-           style="background: ${customizations.primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
+           class="button-link"
+           style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
           Click here to begin the interview process
         </a>
       </div>

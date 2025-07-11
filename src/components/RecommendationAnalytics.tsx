@@ -32,7 +32,6 @@ const RecommendationAnalytics = () => {
   const [isCreating, setIsCreating] = useState(false);
   const [newRecommendation, setNewRecommendation] = useState({
     recommenderName: "",
-    recommenderEmail: "",
     name: "",
     email: "",
     reason: ""
@@ -140,7 +139,7 @@ const RecommendationAnalytics = () => {
   };
 
   const createRecommendation = async () => {
-    if (!newRecommendation.name || !newRecommendation.email || !newRecommendation.recommenderName || !newRecommendation.recommenderEmail) {
+    if (!newRecommendation.name || !newRecommendation.email || !newRecommendation.recommenderName) {
       toast({
         title: "Error",
         description: "Please fill in all required fields",
@@ -160,7 +159,7 @@ const RecommendationAnalytics = () => {
           email: newRecommendation.email,
           reason: newRecommendation.reason || null,
           recommender_name: newRecommendation.recommenderName,
-          recommender_email: newRecommendation.recommenderEmail,
+          recommender_email: null,
           email_sent_at: new Date().toISOString()
         })
         .select()
@@ -186,7 +185,6 @@ const RecommendationAnalytics = () => {
       // Reset form and close dialog
       setNewRecommendation({
         recommenderName: "",
-        recommenderEmail: "",
         name: "",
         email: "",
         reason: ""
@@ -258,19 +256,6 @@ const RecommendationAnalytics = () => {
                     onChange={(e) => setNewRecommendation(prev => ({...prev, recommenderName: e.target.value}))}
                     className="col-span-3"
                     placeholder="Recommender's name"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="recommenderEmail" className="text-right">
-                    From Email *
-                  </Label>
-                  <Input
-                    id="recommenderEmail"
-                    type="email"
-                    value={newRecommendation.recommenderEmail}
-                    onChange={(e) => setNewRecommendation(prev => ({...prev, recommenderEmail: e.target.value}))}
-                    className="col-span-3"
-                    placeholder="recommender@example.com"
                   />
                 </div>
                 <div className="grid grid-cols-4 items-center gap-4">

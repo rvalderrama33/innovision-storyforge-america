@@ -27,7 +27,7 @@ const LogoComponent = ({ isMobile = false }: { isMobile?: boolean }) => {
 
   return (
     <img 
-      src="/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png" 
+      src="/lovable-uploads/2108e82a-9d65-4ee6-b974-51aa5bc01a16.png" 
       alt="America Innovates Magazine" 
       className={isMobile 
         ? "h-16 w-auto max-w-[280px] object-contain" 

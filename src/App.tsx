@@ -34,8 +34,8 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
-            <Route path="/" element={<MobileIndex />} />
-            <Route path="/desktop" element={<Index />} />
+            <Route path="/" element={<Index />} />
+            <Route path="/mobile" element={<MobileIndex />} />
             <Route path="/submit" element={<ProtectedRoute><Submit /></ProtectedRoute>} />
             <Route path="/about" element={<About />} />
             <Route path="/auth" element={<Auth />} />

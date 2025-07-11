@@ -496,7 +496,7 @@ const ArticleEditor = () => {
                   <div className="space-y-2">
                     {article.image_urls?.map((url, index) => (
                       <div key={index} className="flex items-center gap-2 p-2 bg-gray-50 rounded">
-                        <img src={url} alt="" className="w-12 h-12 object-cover rounded" />
+                        <img src={url} alt="Article image thumbnail" className="w-12 h-12 object-cover rounded" />
                         <span className="flex-1 text-sm truncate">{url}</span>
                         <Button
                           onClick={() => removeImageUrl(index)}

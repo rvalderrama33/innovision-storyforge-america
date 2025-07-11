@@ -93,7 +93,7 @@ const FeaturedArticles = () => {
                       <div className="relative">
                         <img 
                           src={featuredStories[0].image_urls?.[0] || "https://images.unsplash.com/photo-1523362628745-0c100150b504?w=600&h=400&fit=crop"} 
-                          alt={featuredStories[0].full_name}
+                          alt={featuredStories[0].product_name || "Featured innovation story"}
                           className="w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -127,7 +127,7 @@ const FeaturedArticles = () => {
                           <div className="w-1/3">
                             <img 
                               src={story.image_urls?.[0] || "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop"} 
-                              alt={story.full_name}
+                              alt={story.product_name || "Innovation story"}
                               className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
                             />
                           </div>
@@ -157,7 +157,7 @@ const FeaturedArticles = () => {
                       <div className="aspect-[4/3] relative overflow-hidden">
                         <img 
                           src={story.image_urls?.[0] || "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop"} 
-                          alt={story.full_name}
+                          alt={story.product_name || "Innovation story"}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>

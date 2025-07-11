@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { EnhancedInput } from '@/components/ui/enhanced-input';
 import { PasswordInput } from '@/components/ui/password-input';
 import { rateLimiter } from '@/lib/validation';
+import { useSEO } from '@/hooks/useSEO';
 import { Shield, Clock } from 'lucide-react';
 
 const Auth = () => {
@@ -31,6 +32,12 @@ const Auth = () => {
 
   // Get the page user was trying to access before being redirected to login
   const from = location.state?.from?.pathname || '/';
+
+  useSEO({
+    title: "Sign In | America Innovates Magazine",
+    description: "Sign in to your America Innovates Magazine account to submit innovation stories, manage subscriptions, and access exclusive content.",
+    url: "https://americainnovates.us/auth"
+  });
 
   useEffect(() => {
     if (user) {

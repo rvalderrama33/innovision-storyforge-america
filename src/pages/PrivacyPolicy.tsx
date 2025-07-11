@@ -1,6 +1,12 @@
 import Header from "@/components/Header";
+import { useSEO } from "@/hooks/useSEO";
 
 const PrivacyPolicy = () => {
+  useSEO({
+    title: "Privacy Policy | America Innovates Magazine",
+    description: "Read America Innovates Magazine's privacy policy to understand how we collect, use, and protect your personal information.",
+    url: "https://americainnovates.us/privacy-policy"
+  });
   return (
     <div className="min-h-screen bg-white">
       <Header />

@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import Header from "@/components/Header";
+import { useSEO } from "@/hooks/useSEO";
 
 interface Story {
   id: string;
@@ -22,6 +23,12 @@ interface Story {
 const Stories = () => {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
+
+  useSEO({
+    title: "Innovation Stories | America Innovates Magazine",
+    description: "Discover inspiring stories from entrepreneurs and creators building breakthrough consumer products. Read about innovations that are making everyday life better.",
+    url: "https://americainnovates.us/stories"
+  });
 
   useEffect(() => {
     const fetchStories = async () => {
@@ -85,7 +92,7 @@ const Stories = () => {
                         {imageUrl ? (
                           <img 
                             src={imageUrl} 
-                            alt={story.full_name || 'Story author'}
+                            alt={story.product_name || 'Innovation story'}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (

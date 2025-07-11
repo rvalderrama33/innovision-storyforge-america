@@ -1,6 +1,12 @@
 import Header from "@/components/Header";
+import { useSEO } from "@/hooks/useSEO";
 
 const TermsOfService = () => {
+  useSEO({
+    title: "Terms of Service | America Innovates Magazine",
+    description: "Read the terms of service for America Innovates Magazine. Learn about your rights and responsibilities when using our platform.",
+    url: "https://americainnovates.us/terms-of-service"
+  });
   return (
     <div className="min-h-screen bg-white">
       <Header />

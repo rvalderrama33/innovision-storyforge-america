@@ -9,6 +9,7 @@ import Header from '@/components/Header';
 import SocialShare from '@/components/SocialShare';
 import SubscriptionGate from '@/components/SubscriptionGate';
 import { useAuth } from '@/contexts/AuthContext';
+import { useSEO } from '@/hooks/useSEO';
 import DOMPurify from 'dompurify';
 
 const Article = () => {
@@ -55,6 +56,15 @@ const Article = () => {
     }
   };
 
+  // Update SEO when article loads
+  useSEO({
+    title: article ? `${article.product_name} | America Innovates Magazine` : "Article | America Innovates Magazine",
+    description: article ? article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.` : "Discover inspiring innovation stories from entrepreneurs and creators building breakthrough consumer products.",
+    url: `https://americainnovates.us/article/${slug}`,
+    image: article?.image_urls?.[0],
+    type: "article"
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20 flex items-center justify-center">
@@ -96,7 +106,7 @@ const Article = () => {
           <div className="w-full h-[40vh] lg:h-[50vh] relative overflow-hidden">
             <img
               src={article.image_urls[0]}
-              alt={article.product_name}
+              alt={article.product_name || "Innovation story featured image"}
               className="w-full h-full object-cover object-top"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />

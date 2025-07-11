@@ -5,8 +5,14 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 
 import Header from "@/components/Header";
+import { useSEO } from "@/hooks/useSEO";
 
 const About = () => {
+  useSEO({
+    title: "About America Innovates Magazine | Our Mission & Vision",
+    description: "Learn about America Innovates Magazine's mission to spotlight breakthrough consumer products from visionary entrepreneurs and creators building innovations that make everyday life better.",
+    url: "https://americainnovates.us/about"
+  });
   return (
     <div className="min-h-screen bg-white">
       <Header />

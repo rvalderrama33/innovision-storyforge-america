@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import { useSEO } from "@/hooks/useSEO";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -26,6 +27,12 @@ import SubmissionReports from "@/components/SubmissionReports";
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
   const { toast } = useToast();
+
+  useSEO({
+    title: "Admin Dashboard | America Innovates Magazine",
+    description: "Admin dashboard for managing submissions, newsletters, and analytics at America Innovates Magazine.",
+    url: "https://americainnovates.us/admin"
+  });
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);

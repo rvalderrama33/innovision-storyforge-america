@@ -31,7 +31,7 @@ const LogoComponent = ({ isMobile = false }: { isMobile?: boolean }) => {
       alt="America Innovates Magazine" 
       className={isMobile 
         ? "h-16 w-auto max-w-[280px] object-contain" 
-        : "h-48 w-auto object-contain"
+        : "h-32 w-auto object-contain"
       }
       onError={handleImageError}
       style={{ display: 'block' }}

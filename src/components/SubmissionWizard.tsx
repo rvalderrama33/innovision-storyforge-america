@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -27,6 +27,7 @@ const SubmissionWizard = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [stepValidations, setStepValidations] = useState<Record<number, boolean>>({});
   const [savedDraftId, setSavedDraftId] = useState<string | null>(null);
+  const draftTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const steps = [
     { number: 1, title: "About You", component: StepOne },
@@ -88,10 +89,20 @@ const SubmissionWizard = () => {
     }
   };
 
+  const debouncedSaveDraft = useCallback((data: any) => {
+    if (draftTimeoutRef.current) {
+      clearTimeout(draftTimeoutRef.current);
+    }
+    draftTimeoutRef.current = setTimeout(() => {
+      saveDraft(data);
+    }, 2000); // Wait 2 seconds before saving
+  }, []);
+
   const updateFormData = (stepData: any) => {
-    setFormData(prev => ({ ...prev, ...stepData }));
-    // Auto-save as draft after each update
-    saveDraft({ ...formData, ...stepData });
+    const newData = { ...formData, ...stepData };
+    setFormData(newData);
+    // Debounced auto-save to prevent excessive database calls
+    debouncedSaveDraft(newData);
   };
 
   const saveDraft = async (data: any) => {

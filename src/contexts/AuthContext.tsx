@@ -1,5 +1,5 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { sendWelcomeEmail } from '@/lib/emailService';
@@ -32,6 +32,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isAdmin, setIsAdmin] = useState(false);
   const [isSubscriber, setIsSubscriber] = useState(false);
   const [loading, setLoading] = useState(true);
+  const roleCheckCache = useRef<Record<string, { admin: boolean; subscriber: boolean; timestamp: number }>>({});
 
   useEffect(() => {
     // Set up auth state listener
@@ -62,31 +63,47 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
         
         if (session?.user) {
-          // Check if user is admin and subscriber
-          setTimeout(async () => {
-            try {
-              const [adminData, subscriberData] = await Promise.all([
-                supabase.rpc('has_role', {
-                  _user_id: session.user.id,
-                  _role: 'admin'
-                }),
-                supabase.rpc('has_role', {
-                  _user_id: session.user.id,
-                  _role: 'subscriber'
-                })
-              ]);
-              const isUserAdmin = adminData.data || false;
-              const isUserSubscriber = subscriberData.data || false;
-              
-              setIsAdmin(isUserAdmin);
-              // Admins should also have subscriber privileges
-              setIsSubscriber(isUserSubscriber || isUserAdmin);
-            } catch (error) {
-              console.error('Error checking user roles:', error);
-              setIsAdmin(false);
-              setIsSubscriber(false);
-            }
-          }, 0);
+          // Check cache first (5 minute cache)
+          const cacheKey = session.user.id;
+          const cached = roleCheckCache.current[cacheKey];
+          const now = Date.now();
+          
+          if (cached && (now - cached.timestamp < 5 * 60 * 1000)) {
+            setIsAdmin(cached.admin);
+            setIsSubscriber(cached.subscriber || cached.admin);
+          } else {
+            // Check if user is admin and subscriber with debounced calls
+            setTimeout(async () => {
+              try {
+                const [adminData, subscriberData] = await Promise.all([
+                  supabase.rpc('has_role', {
+                    _user_id: session.user.id,
+                    _role: 'admin'
+                  }),
+                  supabase.rpc('has_role', {
+                    _user_id: session.user.id,
+                    _role: 'subscriber'
+                  })
+                ]);
+                const isUserAdmin = adminData.data || false;
+                const isUserSubscriber = subscriberData.data || false;
+                
+                // Cache the results
+                roleCheckCache.current[cacheKey] = {
+                  admin: isUserAdmin,
+                  subscriber: isUserSubscriber,
+                  timestamp: now
+                };
+                
+                setIsAdmin(isUserAdmin);
+                setIsSubscriber(isUserSubscriber || isUserAdmin);
+              } catch (error) {
+                console.error('Error checking user roles:', error);
+                setIsAdmin(false);
+                setIsSubscriber(false);
+              }
+            }, 100);
+          }
         } else {
           setIsAdmin(false);
           setIsSubscriber(false);

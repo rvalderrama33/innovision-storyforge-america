@@ -1,5 +1,5 @@
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
@@ -17,37 +17,46 @@ interface FeaturedStory {
 
 const FeaturedArticles = () => {
   const [featuredStories, setFeaturedStories] = useState<FeaturedStory[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Memoize shuffle function to avoid recreating it on every render
+  const shuffleArray = useMemo(() => (array: FeaturedStory[]) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  }, []);
 
   useEffect(() => {
-    const shuffleArray = (array: FeaturedStory[]) => {
-      const shuffled = [...array];
-      for (let i = shuffled.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-      }
-      return shuffled;
-    };
-
     const fetchFeaturedStories = async () => {
-      const { data, error } = await supabase
-        .from('submissions')
-        .select('*')
-        .eq('status', 'approved')
-        .eq('featured', true)
-        .order('pinned', { ascending: false })
-        .order('created_at', { ascending: false })
-        .limit(20);
+      try {
+        setIsLoading(true);
+        const { data, error } = await supabase
+          .from('submissions')
+          .select('*')
+          .eq('status', 'approved')
+          .eq('featured', true)
+          .order('pinned', { ascending: false })
+          .order('created_at', { ascending: false })
+          .limit(20);
 
-      if (error) {
-        console.error('Error fetching featured stories:', error);
-      } else {
-        const shuffledStories = shuffleArray(data || []);
-        setFeaturedStories(shuffledStories);
+        if (error) {
+          console.error('Error fetching featured stories:', error);
+        } else {
+          const shuffledStories = shuffleArray(data || []);
+          setFeaturedStories(shuffledStories);
+        }
+      } catch (error) {
+        console.error('Failed to fetch stories:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     fetchFeaturedStories();
-  }, []);
+  }, [shuffleArray]);
 
   return (
     <section className="py-16 px-6 lg:px-12 bg-white">
@@ -62,7 +71,14 @@ const FeaturedArticles = () => {
           </p>
         </div>
 
-        {featuredStories.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-12">
+            <div className="animate-pulse space-y-4">
+              <div className="h-4 bg-gray-200 rounded w-1/4 mx-auto"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+            </div>
+          </div>
+        ) : featuredStories.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500">No featured stories available yet.</p>
           </div>

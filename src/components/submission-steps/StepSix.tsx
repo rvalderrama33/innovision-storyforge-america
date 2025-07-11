@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { sendNewSubmissionNotification } from "@/lib/emailService";
 
 interface StepSixProps {
   data: any;
@@ -202,6 +203,15 @@ const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: S
       }
 
       console.log("Article generated successfully");
+
+      // Send notification email to admin
+      try {
+        await sendNewSubmissionNotification(submission);
+        console.log("Admin notification email sent successfully");
+      } catch (emailError) {
+        console.error("Failed to send admin notification email:", emailError);
+        // Don't fail the submission if email fails
+      }
 
       // Delete the draft after successful submission
       if (onSubmissionComplete) {

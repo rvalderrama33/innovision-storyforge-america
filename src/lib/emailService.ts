@@ -68,3 +68,13 @@ export const sendFeaturedStoryEmail = async (email: string, name: string, articl
     name
   });
 };
+
+export const sendNewSubmissionNotification = async (submissionData: any) => {
+  return sendEmail({
+    type: 'notification',
+    to: 'ricardo@myproduct.today',
+    subject: 'New Article Submission Received',
+    message: `A new article submission has been received:<br><br><strong>Title:</strong> ${submissionData.product_name}<br><strong>Submitter:</strong> ${submissionData.full_name}<br><strong>Email:</strong> ${submissionData.email}<br><strong>Category:</strong> ${submissionData.category}<br><br>Please review the submission in the admin dashboard.`,
+    name: 'Ricardo'
+  });
+};

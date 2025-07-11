@@ -3,7 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Users, TrendingUp, Mail, FileText } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Search, Users, TrendingUp, Mail, FileText, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -96,6 +97,31 @@ const RecommendationAnalytics = () => {
       toast({
         title: "Error",
         description: "Failed to update recommendation",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const deleteRecommendation = async (id: string, name: string) => {
+    try {
+      const { error } = await supabase
+        .from('recommendations')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+      
+      toast({
+        title: "Success",
+        description: `Deleted recommendation for ${name}`
+      });
+      
+      fetchRecommendations();
+    } catch (error) {
+      console.error('Error deleting recommendation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete recommendation",
         variant: "destructive"
       });
     }
@@ -246,6 +272,31 @@ const RecommendationAnalytics = () => {
                       Mark Submitted Story
                     </Button>
                   )}
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button size="sm" variant="destructive">
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete Recommendation</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete the recommendation for {rec.name}? 
+                          This action cannot be undone.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={() => deleteRecommendation(rec.id, rec.name)}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          Delete
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </div>
             </CardContent>

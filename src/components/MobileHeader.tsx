@@ -9,7 +9,7 @@ const MobileHeader = () => {
   };
 
   return (
-    <header className="bg-white px-4 py-4 border-b border-gray-100 shadow-sm">
+    <header className="bg-white px-4 py-1 border-b border-gray-100 shadow-sm">
       <div className="flex justify-center">
         <Link to="/" className="block">
           {imageError ? (

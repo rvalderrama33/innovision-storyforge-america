@@ -2,7 +2,8 @@
 import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
-import { Upload, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Upload, Loader2, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -131,6 +132,25 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
         <p className="text-gray-600">
           Upload high-quality images that showcase your product and tell its story visually.
         </p>
+      </div>
+
+      {/* Professional headshot promotion */}
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg p-6 mb-6">
+        <div className="text-center">
+          <h4 className="text-lg font-semibold text-gray-900 mb-3">
+            A professional headshot will make all the difference
+          </h4>
+          <p className="text-gray-700 mb-4">
+            We want your headshot to be spectacular. Let AI create professional headshots for you in minutes.
+          </p>
+          <Button
+            onClick={() => window.open('https://www.headshot.kiwi/?ref=ricardo', '_blank')}
+            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 mx-auto"
+          >
+            <span>Get Professional Headshots</span>
+            <ExternalLink className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

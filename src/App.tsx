@@ -16,6 +16,8 @@ import Stories from "./pages/Stories";
 import EmailPreview from "./pages/EmailPreview";
 import TestOpenAI from "./pages/TestOpenAI";
 import NotFound from "./pages/NotFound";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 
 import SecurityAudit from "./components/SecurityAudit";
 import SitemapRoute from "./components/SitemapRoute";
@@ -40,6 +42,8 @@ const App = () => (
             <Route path="/admin/edit/:id" element={<ArticleEditor />} />
             <Route path="/stories" element={<Stories />} />
             <Route path="/email-preview" element={<EmailPreview />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
             
             <Route path="/sitemap.xml" element={<SitemapRoute />} />
             <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />

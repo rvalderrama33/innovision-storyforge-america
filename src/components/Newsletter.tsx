@@ -30,7 +30,7 @@ const Newsletter = () => {
           Join 50,000+ product enthusiasts and entrepreneurs. Free subscription - Unsubscribe anytime.
         </p>
         
-        <div className="flex justify-center gap-6">
+        <div className="flex justify-center gap-6 mb-8">
           <a
             href="https://www.facebook.com/AmericaInnovatesMagazine"
             target="_blank"
@@ -49,6 +49,23 @@ const Newsletter = () => {
           >
             <Linkedin className="w-6 h-6" />
           </a>
+        </div>
+        
+        {/* Footer */}
+        <div className="border-t border-gray-700 pt-8 text-center">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <p className="text-gray-400 text-sm">
+              © {new Date().getFullYear()} America Innovates Magazine. All rights reserved.
+            </p>
+            <div className="flex gap-6 text-sm">
+              <Link to="/privacy-policy" className="text-gray-400 hover:text-white transition-colors">
+                Privacy Policy
+              </Link>
+              <Link to="/terms-of-service" className="text-gray-400 hover:text-white transition-colors">
+                Terms of Service
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </section>

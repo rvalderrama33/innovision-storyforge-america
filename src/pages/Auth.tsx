@@ -121,10 +121,10 @@ const Auth = () => {
     }
 
     // Validate form
-    if (!emailValid || !passwordValid || !email || !password || !fullName.trim()) {
+    if (!email || !password || !fullName.trim()) {
       toast({
         title: "Invalid Input",
-        description: "Please check all fields and ensure your password meets requirements.",
+        description: "Please fill in all required fields.",
         variant: "destructive",
       });
       return;

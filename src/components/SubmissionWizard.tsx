@@ -26,6 +26,7 @@ const SubmissionWizard = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({});
   const [stepValidations, setStepValidations] = useState<Record<number, boolean>>({});
+  const [savedDraftId, setSavedDraftId] = useState<string | null>(null);
 
   const steps = [
     { number: 1, title: "About You", component: StepOne },
@@ -89,6 +90,81 @@ const SubmissionWizard = () => {
 
   const updateFormData = (stepData: any) => {
     setFormData(prev => ({ ...prev, ...stepData }));
+    // Auto-save as draft after each update
+    saveDraft({ ...formData, ...stepData });
+  };
+
+  const saveDraft = async (data: any) => {
+    try {
+      const { supabase } = await import("@/integrations/supabase/client");
+      
+      if (savedDraftId) {
+        // Update existing draft
+        await supabase
+          .from('submissions')
+          .update({
+            full_name: data.fullName,
+            email: data.email,
+            phone_number: data.phoneNumber,
+            city: data.city,
+            state: data.state,
+            background: data.background,
+            website: data.website,
+            social_media: data.socialMedia,
+            product_name: data.productName,
+            category: data.category,
+            description: data.description,
+            problem_solved: data.problemSolved,
+            stage: data.stage,
+            idea_origin: data.ideaOrigin,
+            biggest_challenge: data.biggestChallenge,
+            proudest_moment: data.proudestMoment,
+            inspiration: data.inspiration,
+            motivation: data.motivation,
+            image_urls: data.imageUrls || [],
+            recommendations: data.recommendations || [],
+            selected_vendors: data.selectedVendors || [],
+            status: 'draft'
+          })
+          .eq('id', savedDraftId);
+      } else {
+        // Create new draft
+        const { data: newDraft, error } = await supabase
+          .from('submissions')
+          .insert({
+            full_name: data.fullName,
+            email: data.email,
+            phone_number: data.phoneNumber,
+            city: data.city,
+            state: data.state,
+            background: data.background,
+            website: data.website,
+            social_media: data.socialMedia,
+            product_name: data.productName,
+            category: data.category,
+            description: data.description,
+            problem_solved: data.problemSolved,
+            stage: data.stage,
+            idea_origin: data.ideaOrigin,
+            biggest_challenge: data.biggestChallenge,
+            proudest_moment: data.proudestMoment,
+            inspiration: data.inspiration,
+            motivation: data.motivation,
+            image_urls: data.imageUrls || [],
+            recommendations: data.recommendations || [],
+            selected_vendors: data.selectedVendors || [],
+            status: 'draft'
+          })
+          .select()
+          .single();
+        
+        if (!error && newDraft) {
+          setSavedDraftId(newDraft.id);
+        }
+      }
+    } catch (error) {
+      console.error('Error saving draft:', error);
+    }
   };
 
   const handleValidationChange = (stepNumber: number, isValid: boolean) => {
@@ -164,6 +240,15 @@ const SubmissionWizard = () => {
             />
           </CardContent>
         </Card>
+
+        {/* Save Draft Notice */}
+        {savedDraftId && (
+          <div className="text-center mb-4">
+            <p className="text-sm text-green-600">
+              ✓ Your progress is automatically saved. You can return to complete this form later.
+            </p>
+          </div>
+        )}
 
         {/* Navigation */}
         <div className="flex justify-between mt-8">

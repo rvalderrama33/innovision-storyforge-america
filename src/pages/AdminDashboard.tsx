@@ -12,7 +12,7 @@ import AdminManualSubmission from "@/components/AdminManualSubmission";
 import NewsletterManagement from "@/components/NewsletterManagement";
 import NewsletterAnalytics from "@/components/NewsletterAnalytics";
 import { sendArticleApprovalEmail, sendFeaturedStoryEmail } from "@/lib/emailService";
-import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus, Edit, Trash2, Shield, ShieldOff, BarChart3 } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus, Edit, Trash2, Shield, ShieldOff, BarChart3, Database } from "lucide-react";
 import ArticlePreviewDialog from "@/components/ArticlePreviewDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -21,6 +21,7 @@ import { Link } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import RecommendationAnalytics from "@/components/RecommendationAnalytics";
+import SubmissionReports from "@/components/SubmissionReports";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -417,10 +418,14 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="submissions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-8">
+          <TabsList className="grid w-full grid-cols-9">
             <TabsTrigger value="submissions" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Submissions
+            </TabsTrigger>
+            <TabsTrigger value="reports" className="flex items-center gap-2">
+              <Database className="w-4 h-4" />
+              Reports
             </TabsTrigger>
             <TabsTrigger value="create" className="flex items-center gap-2">
               <Plus className="w-4 h-4" />
@@ -451,6 +456,10 @@ const AdminDashboard = () => {
               Email Center
             </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="reports" className="space-y-6">
+            <SubmissionReports />
+          </TabsContent>
 
           <TabsContent value="newsletter" className="space-y-6">
             <NewsletterManagement />

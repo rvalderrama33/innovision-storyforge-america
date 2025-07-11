@@ -66,7 +66,9 @@ const vendorCategories = [
       "Public relations (PR) firms",
       "Influencer marketing platforms",
       "Sales representatives and distributors",
-      "Retail brokers"
+      "Retail brokers",
+      "Product photography",
+      "Amazon consulting"
     ]
   },
   {

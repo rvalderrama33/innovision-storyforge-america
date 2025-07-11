@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { EnhancedInput } from "@/components/ui/enhanced-input";
 
 interface StepOneProps {
   data: any;
@@ -23,17 +24,33 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
     socialMedia: data.socialMedia || ""
   });
 
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+
   // Use useCallback to prevent onUpdate from changing on every render
   const stableOnUpdate = useCallback(onUpdate, [onUpdate]);
 
   const validateForm = useCallback(() => {
     const requiredFields = ['fullName', 'email', 'phoneNumber', 'city', 'state', 'background'];
-    const isValid = requiredFields.every(field => 
+    const hasRequiredFields = requiredFields.every(field => 
       formData[field as keyof typeof formData]?.trim() !== ""
     );
+    const hasNoValidationErrors = Object.keys(validationErrors).length === 0;
+    const isValid = hasRequiredFields && hasNoValidationErrors;
     onValidationChange(isValid);
     return isValid;
-  }, [formData, onValidationChange]);
+  }, [formData, validationErrors, onValidationChange]);
+
+  const handleValidationChange = (field: string, isValid: boolean, error?: string) => {
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      if (isValid || !error) {
+        delete newErrors[field];
+      } else {
+        newErrors[field] = error;
+      }
+      return newErrors;
+    });
+  };
 
   useEffect(() => {
     stableOnUpdate(formData);
@@ -67,29 +84,31 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
           />
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="email">Email Address *</Label>
-          <Input
-            id="email"
-            type="email"
-            value={formData.email}
-            onChange={(e) => handleChange("email", e.target.value)}
-            placeholder="you@example.com"
-            className="text-lg py-3"
-          />
-        </div>
+        <EnhancedInput
+          id="email"
+          label="Email Address"
+          type="email"
+          validation="email"
+          value={formData.email}
+          onChange={(e) => handleChange("email", e.target.value)}
+          onValidationChange={(isValid, error) => handleValidationChange("email", isValid, error)}
+          placeholder="you@example.com"
+          className="text-lg py-3"
+          required
+        />
 
-        <div className="space-y-2">
-          <Label htmlFor="phoneNumber">Phone Number *</Label>
-          <Input
-            id="phoneNumber"
-            type="tel"
-            value={formData.phoneNumber}
-            onChange={(e) => handleChange("phoneNumber", e.target.value)}
-            placeholder="(555) 123-4567"
-            className="text-lg py-3"
-          />
-        </div>
+        <EnhancedInput
+          id="phoneNumber"
+          label="Phone Number"
+          type="tel"
+          validation="phone"
+          value={formData.phoneNumber}
+          onChange={(e) => handleChange("phoneNumber", e.target.value)}
+          onValidationChange={(isValid, error) => handleValidationChange("phoneNumber", isValid, error)}
+          placeholder="(555) 123-4567"
+          className="text-lg py-3"
+          required
+        />
 
         <div className="space-y-2">
           <Label htmlFor="city">City *</Label>

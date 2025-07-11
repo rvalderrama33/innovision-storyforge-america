@@ -7,12 +7,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { EnhancedInput } from '@/components/ui/enhanced-input';
+import { PasswordInput } from '@/components/ui/password-input';
+import { rateLimiter } from '@/lib/validation';
+import { Shield, Clock } from 'lucide-react';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [emailValid, setEmailValid] = useState(true);
+  const [passwordValid, setPasswordValid] = useState(true);
+  const [rateLimitInfo, setRateLimitInfo] = useState<{
+    isLimited: boolean;
+    resetTime: number;
+    remaining: number;
+  }>({ isLimited: false, resetTime: 0, remaining: 5 });
   const { signIn, signUp, signInWithGoogle, user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -29,7 +40,43 @@ const Auth = () => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check rate limiting
+    const userKey = `signin-${email}`;
+    const limitCheck = rateLimiter.checkLimit(userKey, 5, 15 * 60 * 1000);
+    
+    if (!limitCheck.allowed) {
+      const resetTimeMinutes = Math.ceil((limitCheck.resetTime - Date.now()) / (60 * 1000));
+      setRateLimitInfo({
+        isLimited: true,
+        resetTime: limitCheck.resetTime,
+        remaining: limitCheck.remaining
+      });
+      
+      toast({
+        title: "Too Many Attempts",
+        description: `Please wait ${resetTimeMinutes} minutes before trying again.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate form
+    if (!emailValid || !email || !password) {
+      toast({
+        title: "Invalid Input",
+        description: "Please check your email and password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
+    setRateLimitInfo({ 
+      isLimited: false, 
+      resetTime: 0, 
+      remaining: limitCheck.remaining 
+    });
 
     try {
       const { error } = await signIn(email, password);
@@ -41,6 +88,8 @@ const Auth = () => {
           variant: "destructive",
         });
       } else {
+        // Reset rate limiter on successful login
+        rateLimiter.reset(userKey);
         toast({
           title: "Welcome back!",
           description: "You have been signed in successfully.",
@@ -56,6 +105,31 @@ const Auth = () => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Check rate limiting
+    const userKey = `signup-${email}`;
+    const limitCheck = rateLimiter.checkLimit(userKey, 3, 60 * 60 * 1000); // 3 attempts per hour
+    
+    if (!limitCheck.allowed) {
+      const resetTimeMinutes = Math.ceil((limitCheck.resetTime - Date.now()) / (60 * 1000));
+      toast({
+        title: "Too Many Attempts",
+        description: `Please wait ${resetTimeMinutes} minutes before trying again.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate form
+    if (!emailValid || !passwordValid || !email || !password || !fullName.trim()) {
+      toast({
+        title: "Invalid Input",
+        description: "Please check all fields and ensure your password meets requirements.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -68,6 +142,8 @@ const Auth = () => {
           variant: "destructive",
         });
       } else {
+        // Reset rate limiter on successful signup
+        rateLimiter.reset(userKey);
         toast({
           title: "Account Created!",
           description: "Please check your email to verify your account.",
@@ -159,25 +235,47 @@ const Auth = () => {
                 </div>
                 
                 <form onSubmit={handleSignIn} className="space-y-4">
-                  <div>
-                    <Input
-                      type="email"
-                      placeholder="Email address"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="password"
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  <EnhancedInput
+                    type="email"
+                    placeholder="Email address"
+                    validation="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onValidationChange={(isValid) => setEmailValid(isValid)}
+                    required
+                  />
+                  
+                  <Input
+                    type="password"
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                  
+                  {rateLimitInfo.isLimited && (
+                    <div className="flex items-center space-x-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                      <Clock className="h-4 w-4 text-yellow-600" />
+                      <span className="text-sm text-yellow-700">
+                        Too many failed attempts. Please wait before trying again.
+                      </span>
+                    </div>
+                  )}
+                  
+                  {!rateLimitInfo.isLimited && rateLimitInfo.remaining < 3 && (
+                    <div className="flex items-center space-x-2 p-3 bg-orange-50 border border-orange-200 rounded-lg">
+                      <Shield className="h-4 w-4 text-orange-600" />
+                      <span className="text-sm text-orange-700">
+                        {rateLimitInfo.remaining} attempts remaining
+                      </span>
+                    </div>
+                  )}
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading || !emailValid || rateLimitInfo.isLimited}
+                  >
                     {isLoading ? 'Signing In...' : 'Sign In'}
                   </Button>
                 </form>
@@ -214,34 +312,48 @@ const Auth = () => {
                 </div>
                 
                 <form onSubmit={handleSignUp} className="space-y-4">
-                  <div>
-                    <Input
-                      type="text"
-                      placeholder="Full Name"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                    />
+                  <Input
+                    type="text"
+                    placeholder="Full Name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                  
+                  <EnhancedInput
+                    type="email"
+                    placeholder="Email address"
+                    validation="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    onValidationChange={(isValid) => setEmailValid(isValid)}
+                    required
+                  />
+                  
+                  <PasswordInput
+                    placeholder="Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    onValidationChange={(isValid) => setPasswordValid(isValid)}
+                    showStrengthMeter={true}
+                    required
+                  />
+                  
+                  <div className="text-sm text-gray-600 space-y-1">
+                    <p className="font-medium">Password Requirements:</p>
+                    <ul className="list-disc list-inside space-y-1 text-xs">
+                      <li>At least 8 characters long</li>
+                      <li>Include uppercase and lowercase letters</li>
+                      <li>Include at least one number</li>
+                      <li>Include at least one special character</li>
+                    </ul>
                   </div>
-                  <div>
-                    <Input
-                      type="email"
-                      placeholder="Email address"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Input
-                      type="password"
-                      placeholder="Password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                  </div>
-                  <Button type="submit" className="w-full" disabled={isLoading}>
+                  
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={isLoading || !emailValid || !passwordValid || !fullName.trim()}
+                  >
                     {isLoading ? 'Creating Free Account...' : 'Create Free Account'}
                   </Button>
                 </form>

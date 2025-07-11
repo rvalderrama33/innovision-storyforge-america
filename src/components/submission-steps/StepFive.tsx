@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Trash2 } from "lucide-react";
+import { EnhancedInput } from "@/components/ui/enhanced-input";
 
 interface Recommendation {
   name: string;
@@ -23,6 +24,8 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>(
     data.recommendations || [{ name: "", email: "", reason: "" }, { name: "", email: "", reason: "" }]
   );
+  
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
     // At least 2 recommendations with name and email filled
@@ -30,8 +33,22 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
       rec.name.trim() !== "" && rec.email.trim() !== ""
     );
     const hasMinimumRecommendations = validRecommendations.length >= 2;
-    onValidationChange(hasMinimumRecommendations);
-    return hasMinimumRecommendations;
+    const hasNoValidationErrors = Object.keys(validationErrors).length === 0;
+    const isValid = hasMinimumRecommendations && hasNoValidationErrors;
+    onValidationChange(isValid);
+    return isValid;
+  };
+
+  const handleValidationChange = (field: string, isValid: boolean, error?: string) => {
+    setValidationErrors(prev => {
+      const newErrors = { ...prev };
+      if (isValid || !error) {
+        delete newErrors[field];
+      } else {
+        newErrors[field] = error;
+      }
+      return newErrors;
+    });
   };
 
   useEffect(() => {
@@ -102,19 +119,18 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
                   />
                 </div>
                 
-                <div className="space-y-2">
-                  <Label htmlFor={`email-${index}`}>
-                    Email Address {index < 2 && <span className="text-red-500">*</span>}
-                  </Label>
-                  <Input
-                    id={`email-${index}`}
-                    type="email"
-                    value={recommendation.email}
-                    onChange={(e) => updateRecommendation(index, "email", e.target.value)}
-                    placeholder="their.email@example.com"
-                    className="text-lg py-3"
-                  />
-                </div>
+                <EnhancedInput
+                  id={`email-${index}`}
+                  label="Email Address"
+                  type="email"
+                  validation="email"
+                  value={recommendation.email}
+                  onChange={(e) => updateRecommendation(index, "email", e.target.value)}
+                  onValidationChange={(isValid, error) => handleValidationChange(`email-${index}`, isValid, error)}
+                  placeholder="their.email@example.com"
+                  className="text-lg py-3"
+                  required={index < 2}
+                />
               </div>
               
               <div className="space-y-2">

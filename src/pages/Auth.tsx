@@ -352,7 +352,7 @@ const Auth = () => {
                   <Button 
                     type="submit" 
                     className="w-full" 
-                    disabled={isLoading || !emailValid || !passwordValid || !fullName.trim()}
+                    disabled={isLoading || !email || !password || !fullName.trim()}
                   >
                     {isLoading ? 'Creating Free Account...' : 'Create Free Account'}
                   </Button>

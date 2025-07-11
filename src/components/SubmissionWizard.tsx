@@ -262,14 +262,24 @@ const SubmissionWizard = () => {
             <span>Previous</span>
           </Button>
 
-          <Button
-            onClick={handleNext}
-            disabled={currentStep === steps.length || !stepValidations[currentStep]}
-            className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
-          >
-            <span>Next</span>
-            <ArrowRight className="h-4 w-4" />
-          </Button>
+          <div className="flex items-center space-x-4">
+            <Button
+              variant="outline"
+              onClick={() => saveDraft(formData)}
+              className="text-blue-600 border-blue-600 hover:bg-blue-50"
+            >
+              Save Draft
+            </Button>
+            
+            <Button
+              onClick={handleNext}
+              disabled={currentStep === steps.length || !stepValidations[currentStep]}
+              className="flex items-center space-x-2 bg-blue-600 hover:bg-blue-700"
+            >
+              <span>Next</span>
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
     </div>

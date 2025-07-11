@@ -25,7 +25,7 @@ const MobileHeader = () => {
             <img 
               src="/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png" 
               alt="America Innovates Magazine" 
-              className="h-12 w-auto max-w-[240px] object-contain"
+              className="h-36 w-auto max-w-[720px] object-contain"
               onError={handleImageError}
             />
           )}

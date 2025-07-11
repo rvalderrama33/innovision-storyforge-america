@@ -78,7 +78,8 @@ const vendorCategories = [
       "Business and Product Liability Insurance",
       "Grant writers and SBIR consultants",
       "Crowdfunding agencies", 
-      "Virtual assistants"
+      "Virtual assistants",
+      "Licensing consultant"
     ]
   },
   {

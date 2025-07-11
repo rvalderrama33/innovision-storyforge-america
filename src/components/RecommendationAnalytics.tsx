@@ -3,8 +3,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Search, Users, TrendingUp, Mail, FileText, Trash2 } from "lucide-react";
+import { Search, Users, TrendingUp, Mail, FileText, Trash2, Plus } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
@@ -25,6 +28,15 @@ const RecommendationAnalytics = () => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
+  const [newRecommendation, setNewRecommendation] = useState({
+    recommenderName: "",
+    recommenderEmail: "",
+    name: "",
+    email: "",
+    reason: ""
+  });
   const { toast } = useToast();
 
   useEffect(() => {
@@ -127,6 +139,73 @@ const RecommendationAnalytics = () => {
     }
   };
 
+  const createRecommendation = async () => {
+    if (!newRecommendation.name || !newRecommendation.email || !newRecommendation.recommenderName || !newRecommendation.recommenderEmail) {
+      toast({
+        title: "Error",
+        description: "Please fill in all required fields",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsCreating(true);
+    
+    try {
+      // Create the recommendation record
+      const { data, error } = await supabase
+        .from('recommendations')
+        .insert({
+          name: newRecommendation.name,
+          email: newRecommendation.email,
+          reason: newRecommendation.reason || null,
+          recommender_name: newRecommendation.recommenderName,
+          recommender_email: newRecommendation.recommenderEmail,
+          email_sent_at: new Date().toISOString()
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Send the recommendation email
+      await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'recommendation',
+          to: newRecommendation.email,
+          name: newRecommendation.name,
+          recommenderName: newRecommendation.recommenderName
+        }
+      });
+
+      toast({
+        title: "Success",
+        description: `Recommendation created and email sent to ${newRecommendation.name}`
+      });
+
+      // Reset form and close dialog
+      setNewRecommendation({
+        recommenderName: "",
+        recommenderEmail: "",
+        name: "",
+        email: "",
+        reason: ""
+      });
+      setCreateDialogOpen(false);
+      fetchRecommendations();
+
+    } catch (error) {
+      console.error('Error creating recommendation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to create recommendation",
+        variant: "destructive"
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
   const filteredRecommendations = recommendations.filter(rec =>
     rec.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     rec.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -153,9 +232,100 @@ const RecommendationAnalytics = () => {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Recommendation Analytics</h2>
-        <Button onClick={fetchRecommendations} variant="outline">
-          Refresh Data
-        </Button>
+        <div className="flex gap-2">
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Create Recommendation
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>Create New Recommendation</DialogTitle>
+                <DialogDescription>
+                  Manually create a recommendation and send an email to the recommended person.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="recommenderName" className="text-right">
+                    From Name *
+                  </Label>
+                  <Input
+                    id="recommenderName"
+                    value={newRecommendation.recommenderName}
+                    onChange={(e) => setNewRecommendation(prev => ({...prev, recommenderName: e.target.value}))}
+                    className="col-span-3"
+                    placeholder="Recommender's name"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="recommenderEmail" className="text-right">
+                    From Email *
+                  </Label>
+                  <Input
+                    id="recommenderEmail"
+                    type="email"
+                    value={newRecommendation.recommenderEmail}
+                    onChange={(e) => setNewRecommendation(prev => ({...prev, recommenderEmail: e.target.value}))}
+                    className="col-span-3"
+                    placeholder="recommender@example.com"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    To Name *
+                  </Label>
+                  <Input
+                    id="name"
+                    value={newRecommendation.name}
+                    onChange={(e) => setNewRecommendation(prev => ({...prev, name: e.target.value}))}
+                    className="col-span-3"
+                    placeholder="Person being recommended"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="email" className="text-right">
+                    To Email *
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={newRecommendation.email}
+                    onChange={(e) => setNewRecommendation(prev => ({...prev, email: e.target.value}))}
+                    className="col-span-3"
+                    placeholder="person@example.com"
+                  />
+                </div>
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="reason" className="text-right">
+                    Reason
+                  </Label>
+                  <Textarea
+                    id="reason"
+                    value={newRecommendation.reason}
+                    onChange={(e) => setNewRecommendation(prev => ({...prev, reason: e.target.value}))}
+                    className="col-span-3"
+                    placeholder="Why are you recommending this person? (optional)"
+                    rows={3}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setCreateDialogOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={createRecommendation} disabled={isCreating}>
+                  {isCreating ? "Creating..." : "Create & Send Email"}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+          <Button onClick={fetchRecommendations} variant="outline">
+            Refresh Data
+          </Button>
+        </div>
       </div>
 
       {/* Stats Cards */}

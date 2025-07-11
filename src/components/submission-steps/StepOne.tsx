@@ -17,6 +17,7 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
     city: data.city || "",
     state: data.state || "",
     email: data.email || "",
+    phoneNumber: data.phoneNumber || "",
     background: data.background || "",
     website: data.website || "",
     socialMedia: data.socialMedia || ""
@@ -26,7 +27,7 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
   const stableOnUpdate = useCallback(onUpdate, [onUpdate]);
 
   const validateForm = useCallback(() => {
-    const requiredFields = ['fullName', 'email', 'city', 'state', 'background'];
+    const requiredFields = ['fullName', 'email', 'phoneNumber', 'city', 'state', 'background'];
     const isValid = requiredFields.every(field => 
       formData[field as keyof typeof formData]?.trim() !== ""
     );
@@ -74,6 +75,18 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
             value={formData.email}
             onChange={(e) => handleChange("email", e.target.value)}
             placeholder="you@example.com"
+            className="text-lg py-3"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="phoneNumber">Phone Number *</Label>
+          <Input
+            id="phoneNumber"
+            type="tel"
+            value={formData.phoneNumber}
+            onChange={(e) => handleChange("phoneNumber", e.target.value)}
+            placeholder="(555) 123-4567"
             className="text-lg py-3"
           />
         </div>

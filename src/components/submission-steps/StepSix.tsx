@@ -14,18 +14,97 @@ interface StepSixProps {
   onValidationChange: (isValid: boolean) => void;
 }
 
-const StepSix = ({ data, onValidationChange }: StepSixProps) => {
+const vendorCategories = [
+  {
+    category: "Idea & Business Planning",
+    services: [
+      "Business consultants",
+      "Patent attorneys / IP lawyers", 
+      "Business formation services",
+      "Startup advisors and mentors"
+    ]
+  },
+  {
+    category: "Design & Development", 
+    services: [
+      "Product designers / industrial designers",
+      "Prototype developers / 3D Printing"
+    ]
+  },
+  {
+    category: "Product Manufacturing & Supply Chain",
+    services: [
+      "Sourcing agents",
+      "Manufacturers (OEM/ODM)",
+      "Tooling and injection molding services",
+      "PCB and electronics fabricators",
+      "Assembly and kitting services", 
+      "Supply chain managers",
+      "Packaging suppliers",
+      "Quality control inspectors"
+    ]
+  },
+  {
+    category: "Logistics & Fulfillment",
+    services: [
+      "Freight forwarders",
+      "Customs brokers",
+      "3PL fulfillment centers",
+      "Warehousing services",
+      "Dropshipping partners"
+    ]
+  },
+  {
+    category: "Branding, Marketing & Sales",
+    services: [
+      "Brand strategists",
+      "Graphic designers", 
+      "Website designers and developers",
+      "Copywriters",
+      "SEO specialists",
+      "Digital marketing agencies",
+      "Public relations (PR) firms",
+      "Influencer marketing platforms",
+      "Sales representatives and distributors",
+      "Retail brokers"
+    ]
+  },
+  {
+    category: "Finance & Operations",
+    services: [
+      "Accountants / CPAs",
+      "Business and Product Liability Insurance",
+      "Grant writers and SBIR consultants",
+      "Crowdfunding agencies", 
+      "Virtual assistants"
+    ]
+  },
+  {
+    category: "Technology & Tools",
+    services: [
+      "CRM providers",
+      "Project management tool specialists",
+      "Email marketing platforms",
+      "E-commerce platform experts (Shopify, WooCommerce, etc.)",
+      "AI integration specialists"
+    ]
+  }
+];
+
+const StepSix = ({ data, onUpdate, onValidationChange }: StepSixProps) => {
   const [consent, setConsent] = useState(false);
+  const [selectedVendors, setSelectedVendors] = useState<string[]>(data.selectedVendors || []);
   const [submitted, setSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    onValidationChange(consent);
-  }, [consent, onValidationChange]);
+    onValidationChange(consent && selectedVendors.length > 0);
+    onUpdate({ selectedVendors });
+  }, [consent, selectedVendors, onValidationChange, onUpdate]);
 
   const handleSubmit = async () => {
-    if (!consent) return;
+    if (!consent || selectedVendors.length === 0) return;
     
     setIsSubmitting(true);
     
@@ -179,6 +258,7 @@ const StepSix = ({ data, onValidationChange }: StepSixProps) => {
             <p><strong>Name:</strong> {data.fullName || "Not provided"}</p>
             <p><strong>Location:</strong> {data.city && data.state ? `${data.city}, ${data.state}` : "Not provided"}</p>
             <p><strong>Email:</strong> {data.email || "Not provided"}</p>
+            <p><strong>Phone:</strong> {data.phoneNumber || "Not provided"}</p>
           </CardContent>
         </Card>
 
@@ -217,6 +297,58 @@ const StepSix = ({ data, onValidationChange }: StepSixProps) => {
         </Card>
       )}
 
+      {/* Vendor Network Section */}
+      <Card className="border-2 border-orange-200">
+        <CardHeader>
+          <CardTitle className="text-lg">Business Growth Network</CardTitle>
+          <p className="text-sm text-gray-600">
+            America Innovates Magazine has created a network of trusted vendors that may be able to help you grow your business. 
+            If you would like to be connected with someone please select from the list below. <strong>You must select at least one category.</strong>
+          </p>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {vendorCategories.map((category) => (
+            <div key={category.category} className="space-y-3">
+              <h4 className="font-semibold text-gray-900">{category.category}</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                {category.services.map((service) => (
+                  <div key={service} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={service}
+                      checked={selectedVendors.includes(service)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setSelectedVendors([...selectedVendors, service]);
+                        } else {
+                          setSelectedVendors(selectedVendors.filter(v => v !== service));
+                        }
+                      }}
+                    />
+                    <label htmlFor={service} className="text-sm cursor-pointer">
+                      {service}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+          
+          {selectedVendors.length === 0 && (
+            <p className="text-sm text-red-600">
+              Please select at least one vendor category to continue.
+            </p>
+          )}
+          
+          {selectedVendors.length > 0 && (
+            <div className="bg-green-50 p-3 rounded-lg">
+              <p className="text-sm text-green-800">
+                <strong>Selected:</strong> {selectedVendors.length} service{selectedVendors.length > 1 ? 's' : ''}
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       {/* Consent */}
       <Card className="border-2 border-blue-200">
         <CardContent className="p-6">
@@ -245,7 +377,7 @@ const StepSix = ({ data, onValidationChange }: StepSixProps) => {
       <div className="text-center">
         <Button
           onClick={handleSubmit}
-          disabled={!consent || isSubmitting}
+          disabled={!consent || selectedVendors.length === 0 || isSubmitting}
           size="lg"
           className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 text-lg"
         >
@@ -259,9 +391,9 @@ const StepSix = ({ data, onValidationChange }: StepSixProps) => {
           )}
         </Button>
         
-        {!consent && !isSubmitting && (
+        {(!consent || selectedVendors.length === 0) && !isSubmitting && (
           <p className="text-sm text-red-600 mt-2">
-            Please provide consent to feature your story before submitting.
+            {!consent && "Please provide consent to feature your story"}{!consent && selectedVendors.length === 0 && " and"} {selectedVendors.length === 0 && "select at least one vendor category"} before submitting.
           </p>
         )}
       </div>

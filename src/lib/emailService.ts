@@ -54,7 +54,7 @@ export const sendArticleApprovalEmail = async (email: string, name: string, arti
     type: 'notification',
     to: email,
     subject: 'Your story has been approved!',
-    message: `Congratulations! Your innovation story "${articleTitle}" has been approved and is now live on America Innovates. <br><br><a href="${window.location.origin}/article/${articleSlug}" style="color: #667eea;">View Your Published Story</a><br><br>Thank you for sharing your entrepreneurial journey with our community!`,
+    message: `Congratulations! Your innovation story "${articleTitle}" has been approved and is now live on America Innovates. <br><br><a href="https://americainnovates.us/article/${articleSlug}" style="color: #667eea;">View Your Published Story</a><br><br>Thank you for sharing your entrepreneurial journey with our community!`,
     name
   });
 };
@@ -64,7 +64,7 @@ export const sendFeaturedStoryEmail = async (email: string, name: string, articl
     type: 'notification',
     to: email,
     subject: 'Your story is now featured!',
-    message: `Amazing news! Your story "${articleTitle}" has been selected as a featured article on America Innovates. This means it will be prominently displayed on our homepage and reach even more readers. <br><br><a href="${window.location.origin}/article/${articleSlug}" style="color: #667eea;">See Your Featured Story</a><br><br>Congratulations on this achievement!`,
+    message: `Amazing news! Your story "${articleTitle}" has been selected as a featured article on America Innovates. This means it will be prominently displayed on our homepage and reach even more readers. <br><br><a href="https://americainnovates.us/article/${articleSlug}" style="color: #667eea;">See Your Featured Story</a><br><br>Congratulations on this achievement!`,
     name
   });
 };

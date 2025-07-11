@@ -12,6 +12,7 @@ interface StepSixProps {
   onUpdate: (data: any) => void;
   onNext: () => void;
   onValidationChange: (isValid: boolean) => void;
+  onSubmissionComplete?: () => void;
 }
 
 const vendorCategories = [
@@ -94,7 +95,7 @@ const vendorCategories = [
   }
 ];
 
-const StepSix = ({ data, onUpdate, onValidationChange }: StepSixProps) => {
+const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: StepSixProps) => {
   const [consent, setConsent] = useState(false);
   const [selectedVendors, setSelectedVendors] = useState<string[]>(data.selectedVendors || []);
   const [submitted, setSubmitted] = useState(false);
@@ -201,6 +202,11 @@ const StepSix = ({ data, onUpdate, onValidationChange }: StepSixProps) => {
       }
 
       console.log("Article generated successfully");
+
+      // Delete the draft after successful submission
+      if (onSubmissionComplete) {
+        onSubmissionComplete();
+      }
 
       setSubmitted(true);
       toast({

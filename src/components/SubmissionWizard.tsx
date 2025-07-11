@@ -83,6 +83,22 @@ const SubmissionWizard = () => {
     }
   };
 
+  const deleteDraft = async () => {
+    if (savedDraftId) {
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        await supabase
+          .from('submissions')
+          .delete()
+          .eq('id', savedDraftId)
+          .eq('status', 'draft');
+        setSavedDraftId(null);
+      } catch (error) {
+        console.error('Error deleting draft:', error);
+      }
+    }
+  };
+
   const handlePrevious = () => {
     if (currentStep > 1) {
       setCurrentStep(currentStep - 1);
@@ -248,6 +264,7 @@ const SubmissionWizard = () => {
               onUpdate={updateFormData}
               onNext={handleNext}
               onValidationChange={(isValid: boolean) => handleValidationChange(currentStep, isValid)}
+              {...(currentStep === 6 && { onSubmissionComplete: deleteDraft })}
             />
           </CardContent>
         </Card>

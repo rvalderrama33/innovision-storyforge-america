@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import MobileHero from "@/components/MobileHero";
 import MobileArticleCard from "@/components/MobileArticleCard";
 import MobileCategoryTabs from "@/components/MobileCategoryTabs";
+import MobileHeader from "@/components/MobileHeader";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
@@ -63,6 +64,9 @@ const MobileIndex = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Mobile Header - Only on home page */}
+      <MobileHeader />
+      
       {/* Mobile Hero Section */}
       <MobileHero featuredArticle={featuredArticle} />
 

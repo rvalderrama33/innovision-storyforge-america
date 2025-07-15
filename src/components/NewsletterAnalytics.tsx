@@ -25,10 +25,15 @@ const NewsletterAnalytics = () => {
   const loadAnalytics = async () => {
     try {
       setIsLoading(true);
+      console.log('Loading newsletter analytics...');
+      
       const [analyticsData, newslettersData] = await Promise.all([
         getNewsletterAnalytics(),
         getNewsletters()
       ]);
+      
+      console.log('Analytics data:', analyticsData);
+      console.log('Newsletters data:', newslettersData);
       
       setAnalytics(analyticsData as AnalyticsData[]);
       setNewsletters(newslettersData as Newsletter[]);

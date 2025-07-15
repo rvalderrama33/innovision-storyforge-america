@@ -3,6 +3,7 @@ import React, { createContext, useContext, useEffect, useState, useCallback, use
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { sendWelcomeEmail } from '@/lib/emailService';
+import { subscribeToNewsletter } from '@/lib/newsletterService';
 
 interface AuthContextType {
   user: User | null;
@@ -55,8 +56,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                   session.user.user_metadata?.full_name || session.user.email
                 );
                 console.log('Welcome email sent successfully');
+                
+                // Subscribe user to newsletter
+                await subscribeToNewsletter(
+                  session.user.email!,
+                  session.user.user_metadata?.full_name
+                );
+                console.log('User automatically subscribed to newsletter');
               } catch (error) {
-                console.error('Failed to send welcome email:', error);
+                console.error('Failed to send welcome email or subscribe to newsletter:', error);
               }
             }, 0);
           }

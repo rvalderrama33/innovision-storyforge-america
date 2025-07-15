@@ -12,6 +12,7 @@ import { PasswordInput } from '@/components/ui/password-input';
 import { rateLimiter } from '@/lib/validation';
 import { useSEO } from '@/hooks/useSEO';
 import { Shield, Clock } from 'lucide-react';
+import { subscribeToNewsletter } from '@/lib/newsletterService';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -151,9 +152,19 @@ const Auth = () => {
       } else {
         // Reset rate limiter on successful signup
         rateLimiter.reset(userKey);
+        
+        // Subscribe user to newsletter
+        try {
+          await subscribeToNewsletter(email, fullName);
+          console.log('User automatically subscribed to newsletter');
+        } catch (newsletterError) {
+          console.error('Newsletter subscription failed:', newsletterError);
+          // Don't show error to user as account creation was successful
+        }
+        
         toast({
           title: "Account Created!",
-          description: "Please check your email to verify your account.",
+          description: "Please check your email to verify your account. You've been subscribed to our newsletter.",
         });
       }
     } catch (error) {

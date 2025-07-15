@@ -14,13 +14,11 @@ const StepThree = ({ data, onUpdate, onValidationChange }: StepThreeProps) => {
   const [formData, setFormData] = useState({
     ideaOrigin: data.ideaOrigin || "",
     biggestChallenge: data.biggestChallenge || "",
-    proudestMoment: data.proudestMoment || "",
-    inspiration: data.inspiration || "",
     motivation: data.motivation || ""
   });
 
   const validateForm = () => {
-    const requiredFields = ['ideaOrigin', 'biggestChallenge', 'proudestMoment', 'inspiration', 'motivation'];
+    const requiredFields = ['ideaOrigin', 'biggestChallenge', 'motivation'];
     const isValid = requiredFields.every(field => 
       formData[field as keyof typeof formData]?.trim() !== ""
     );
@@ -47,16 +45,6 @@ const StepThree = ({ data, onUpdate, onValidationChange }: StepThreeProps) => {
       key: "biggestChallenge",
       label: "What was your biggest challenge in building this innovation/business?",
       placeholder: "Tell us about the most difficult obstacle you've faced and how you overcame it..."
-    },
-    {
-      key: "proudestMoment",
-      label: "What was your proudest moment so far?",
-      placeholder: "Share a moment when you felt most proud of your progress, achievement, or impact..."
-    },
-    {
-      key: "inspiration",
-      label: "Who helped or inspired you most in this journey?",
-      placeholder: "Mention mentors, family, colleagues, or anyone who supported your entrepreneurial journey..."
     },
     {
       key: "motivation",

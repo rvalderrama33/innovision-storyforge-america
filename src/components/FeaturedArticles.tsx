@@ -40,7 +40,7 @@ const FeaturedArticles = () => {
           .eq('featured', true)
           .order('pinned', { ascending: false })
           .order('created_at', { ascending: false })
-          .limit(20);
+          .limit(28);
 
         if (error) {
           console.error('Error fetching featured stories:', error);

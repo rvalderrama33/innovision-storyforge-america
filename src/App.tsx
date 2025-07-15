@@ -21,7 +21,6 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 
 import SecurityAudit from "./components/SecurityAudit";
-import SitemapRoute from "./components/SitemapRoute";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
@@ -47,7 +46,7 @@ const App = () => (
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             
-            <Route path="/sitemap.xml" element={<SitemapRoute />} />
+            
             <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />
             <Route path="/test-openai" element={<TestOpenAI />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

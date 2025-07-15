@@ -9,4 +9,4 @@ Disallow: /admin
 Disallow: /auth
 Disallow: /submit
 
-Sitemap: https://americainnovates.us/sitemap.xml
+Sitemap: https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/sitemap

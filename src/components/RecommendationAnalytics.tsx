@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Search, Users, TrendingUp, Mail, FileText, Trash2, Plus, Upload } from "lucide-react";
+import { Search, Users, TrendingUp, Mail, FileText, Trash2, Plus, Upload, RefreshCw } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -137,6 +137,42 @@ const RecommendationAnalytics = () => {
       toast({
         title: "Error",
         description: "Failed to delete recommendation",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const resendRecommendation = async (rec: Recommendation) => {
+    try {
+      // Send the recommendation email
+      await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'recommendation',
+          to: rec.email,
+          name: rec.name,
+          recommenderName: rec.recommender_name
+        }
+      });
+
+      // Update the email_sent_at timestamp
+      const { error } = await supabase
+        .from('recommendations')
+        .update({ email_sent_at: new Date().toISOString() })
+        .eq('id', rec.id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Recommendation email resent to ${rec.name}`
+      });
+
+      fetchRecommendations();
+    } catch (error) {
+      console.error('Error resending recommendation:', error);
+      toast({
+        title: "Error",
+        description: "Failed to resend recommendation email",
         variant: "destructive"
       });
     }
@@ -601,6 +637,14 @@ const RecommendationAnalytics = () => {
                 </div>
 
                 <div className="flex flex-col gap-2 ml-4">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => resendRecommendation(rec)}
+                  >
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Resend
+                  </Button>
                   {!rec.subscribed_at && (
                     <Button
                       size="sm"

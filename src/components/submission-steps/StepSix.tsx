@@ -18,80 +18,19 @@ interface StepSixProps {
 
 const vendorCategories = [
   {
-    category: "Idea & Business Planning",
+    category: "Product Creators and Inventors",
     services: [
-      "Business consultants",
-      "Patent attorneys / IP lawyers", 
-      "Business formation services",
-      "Startup advisors and mentors"
+      "Patent and Licensing",
+      "Engineering and Prototyping",
+      "Manufacturing or Product Launch"
     ]
   },
   {
-    category: "Design & Development", 
+    category: "Entrepreneurs",
     services: [
-      "Product designers / industrial designers",
-      "Prototype developers / 3D Printing"
-    ]
-  },
-  {
-    category: "Product Manufacturing & Supply Chain",
-    services: [
-      "Sourcing agents",
-      "Manufacturers (OEM/ODM)",
-      "Tooling and injection molding services",
-      "PCB and electronics fabricators",
-      "Assembly and kitting services", 
-      "Supply chain managers",
-      "Packaging suppliers",
-      "Quality control inspectors"
-    ]
-  },
-  {
-    category: "Logistics & Fulfillment",
-    services: [
-      "Freight forwarders",
-      "Customs brokers",
-      "3PL fulfillment centers",
-      "Warehousing services",
-      "Dropshipping partners"
-    ]
-  },
-  {
-    category: "Branding, Marketing & Sales",
-    services: [
-      "Brand strategists",
-      "Graphic designers", 
-      "Website designers and developers",
-      "Copywriters",
-      "SEO specialists",
-      "Digital marketing agencies",
-      "Public relations (PR) firms",
-      "Influencer marketing platforms",
-      "Sales representatives and distributors",
-      "Retail brokers",
-      "Product photography",
-      "Amazon consulting"
-    ]
-  },
-  {
-    category: "Finance & Operations",
-    services: [
-      "Accountants / CPAs",
-      "Business and Product Liability Insurance",
-      "Grant writers and SBIR consultants",
-      "Crowdfunding agencies", 
-      "Virtual assistants",
-      "Licensing consultant"
-    ]
-  },
-  {
-    category: "Technology & Tools",
-    services: [
-      "CRM providers",
-      "Project management tool specialists",
-      "Email marketing platforms",
-      "E-commerce platform experts (Shopify, WooCommerce, etc.)",
-      "AI integration specialists"
+      "Operational Help",
+      "Business Technology",
+      "Sales and Marketing"
     ]
   }
 ];

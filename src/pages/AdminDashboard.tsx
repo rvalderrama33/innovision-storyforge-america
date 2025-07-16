@@ -23,6 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import RecommendationAnalytics from "@/components/RecommendationAnalytics";
 import SubmissionReports from "@/components/SubmissionReports";
+import { SubmissionCard } from "@/components/SubmissionCard";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -488,136 +489,137 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid gap-6">
-                {submissions.map((submission) => (
-                  <Card key={submission.id} className="hover:shadow-lg transition-shadow">
-                    <CardHeader>
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <CardTitle className="text-xl mb-2">{submission.product_name}</CardTitle>
-                          <CardDescription className="text-base">
-                            by {submission.full_name} • {submission.email}
-                          </CardDescription>
-                          <p className="text-sm text-muted-foreground mt-2">
-                            {submission.description}
-                          </p>
-                        </div>
-                        <div className="flex gap-2 flex-wrap">
-                          <Badge variant={getStatusVariant(submission.status)}>
-                            {submission.status}
-                          </Badge>
-                          {submission.featured && (
-                            <Badge variant="secondary">
-                              <Star className="w-3 h-3 mr-1" />
-                              Featured
-                            </Badge>
-                          )}
-                          {submission.pinned && (
-                            <Badge variant="outline">
-                              <Pin className="w-3 h-3 mr-1" />
-                              Pinned
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex gap-2 flex-wrap">
-                        <Button
-                          onClick={() => {
-                            setSelectedSubmission(submission);
-                            setPreviewDialogOpen(true);
-                          }}
-                          size="sm"
-                          variant="outline"
-                        >
-                          <Eye className="w-4 h-4 mr-2" />
-                          Preview
-                        </Button>
-                        
-                        {submission.status === 'pending' && (
-                          <>
-                            <Button
-                              onClick={() => updateSubmissionStatus(submission.id, 'approved')}
-                              size="sm"
-                              variant="default"
-                            >
-                              <CheckCircle className="w-4 h-4 mr-2" />
-                              Approve
-                            </Button>
-                            <Button
-                              onClick={() => updateSubmissionStatus(submission.id, 'rejected')}
-                              size="sm"
-                              variant="destructive"
-                            >
-                              <XCircle className="w-4 h-4 mr-2" />
-                              Reject
-                            </Button>
-                          </>
-                        )}
-                        
-                        <Button
-                          onClick={() => toggleFeatured(submission.id, !submission.featured)}
-                          size="sm"
-                          variant={submission.featured ? "secondary" : "outline"}
-                        >
-                          <Star className="w-4 h-4 mr-2" />
-                          {submission.featured ? 'Unfeature' : 'Feature'}
-                        </Button>
-                        
-                        <Button
-                          onClick={() => togglePinned(submission.id, !submission.pinned)}
-                          size="sm"
-                          variant={submission.pinned ? "secondary" : "outline"}
-                        >
-                          <Pin className="w-4 h-4 mr-2" />
-                          {submission.pinned ? 'Unpin' : 'Pin'}
-                        </Button>
-                        
-                        <Link to={`/admin/edit/${submission.id}`}>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                          >
-                            <Edit className="w-4 h-4 mr-2" />
-                            Edit Article
-                          </Button>
-                        </Link>
-                        
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                            >
-                              <Trash2 className="w-4 h-4 mr-2" />
-                              Delete
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Delete Article</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Are you sure you want to delete "{submission.product_name}"? 
-                                This action cannot be undone and will permanently remove the article.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => deleteSubmission(submission.id)}
-                                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                              >
-                                Delete Article
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+              <Tabs defaultValue="all" className="space-y-6">
+                <TabsList className="grid w-full grid-cols-6">
+                  <TabsTrigger value="all">All ({submissions.length})</TabsTrigger>
+                  <TabsTrigger value="pending">Pending ({submissions.filter(s => s.status === 'pending').length})</TabsTrigger>
+                  <TabsTrigger value="approved">Approved ({submissions.filter(s => s.status === 'approved').length})</TabsTrigger>
+                  <TabsTrigger value="draft">Draft ({submissions.filter(s => s.status === 'draft').length})</TabsTrigger>
+                  <TabsTrigger value="featured">Featured ({submissions.filter(s => s.featured).length})</TabsTrigger>
+                  <TabsTrigger value="category">By Category</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="all" className="space-y-6">
+                  <div className="grid gap-6">
+                    {submissions.map((submission) => (
+                      <SubmissionCard 
+                        key={submission.id} 
+                        submission={submission}
+                        onPreview={() => {
+                          setSelectedSubmission(submission);
+                          setPreviewDialogOpen(true);
+                        }}
+                        onUpdateStatus={updateSubmissionStatus}
+                        onToggleFeatured={toggleFeatured}
+                        onTogglePinned={togglePinned}
+                        onDelete={deleteSubmission}
+                      />
+                    ))}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="pending" className="space-y-6">
+                  <div className="grid gap-6">
+                    {submissions.filter(s => s.status === 'pending').map((submission) => (
+                      <SubmissionCard 
+                        key={submission.id} 
+                        submission={submission}
+                        onPreview={() => {
+                          setSelectedSubmission(submission);
+                          setPreviewDialogOpen(true);
+                        }}
+                        onUpdateStatus={updateSubmissionStatus}
+                        onToggleFeatured={toggleFeatured}
+                        onTogglePinned={togglePinned}
+                        onDelete={deleteSubmission}
+                      />
+                    ))}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="approved" className="space-y-6">
+                  <div className="grid gap-6">
+                    {submissions.filter(s => s.status === 'approved').map((submission) => (
+                      <SubmissionCard 
+                        key={submission.id} 
+                        submission={submission}
+                        onPreview={() => {
+                          setSelectedSubmission(submission);
+                          setPreviewDialogOpen(true);
+                        }}
+                        onUpdateStatus={updateSubmissionStatus}
+                        onToggleFeatured={toggleFeatured}
+                        onTogglePinned={togglePinned}
+                        onDelete={deleteSubmission}
+                      />
+                    ))}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="draft" className="space-y-6">
+                  <div className="grid gap-6">
+                    {submissions.filter(s => s.status === 'draft').map((submission) => (
+                      <SubmissionCard 
+                        key={submission.id} 
+                        submission={submission}
+                        onPreview={() => {
+                          setSelectedSubmission(submission);
+                          setPreviewDialogOpen(true);
+                        }}
+                        onUpdateStatus={updateSubmissionStatus}
+                        onToggleFeatured={toggleFeatured}
+                        onTogglePinned={togglePinned}
+                        onDelete={deleteSubmission}
+                      />
+                    ))}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="featured" className="space-y-6">
+                  <div className="grid gap-6">
+                    {submissions.filter(s => s.featured).map((submission) => (
+                      <SubmissionCard 
+                        key={submission.id} 
+                        submission={submission}
+                        onPreview={() => {
+                          setSelectedSubmission(submission);
+                          setPreviewDialogOpen(true);
+                        }}
+                        onUpdateStatus={updateSubmissionStatus}
+                        onToggleFeatured={toggleFeatured}
+                        onTogglePinned={togglePinned}
+                        onDelete={deleteSubmission}
+                      />
+                    ))}
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="category" className="space-y-6">
+                  {Array.from(new Set(submissions.map(s => s.category).filter(Boolean))).map(category => (
+                    <Card key={category}>
+                      <CardHeader>
+                        <CardTitle>{category} ({submissions.filter(s => s.category === category).length})</CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        {submissions.filter(s => s.category === category).map((submission) => (
+                          <SubmissionCard 
+                            key={submission.id} 
+                            submission={submission}
+                            onPreview={() => {
+                              setSelectedSubmission(submission);
+                              setPreviewDialogOpen(true);
+                            }}
+                            onUpdateStatus={updateSubmissionStatus}
+                            onToggleFeatured={toggleFeatured}
+                            onTogglePinned={togglePinned}
+                            onDelete={deleteSubmission}
+                          />
+                        ))}
+                      </CardContent>
+                    </Card>
+                  ))}
+                </TabsContent>
+              </Tabs>
             )}
           </TabsContent>
 

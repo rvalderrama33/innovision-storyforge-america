@@ -10,6 +10,8 @@ interface SEOProps {
 
 export const useSEO = ({ title, description, url, image, type = "website" }: SEOProps) => {
   useEffect(() => {
+    console.log('useSEO hook running with:', { title, description, url, image, type });
+    
     // Update document title
     document.title = title;
 

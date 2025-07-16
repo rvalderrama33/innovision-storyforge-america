@@ -38,6 +38,7 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
     updateMetaTag("og:title", title, true);
     updateMetaTag("og:description", description, true);
     updateMetaTag("og:type", type, true);
+    updateMetaTag("fb:app_id", "1234567890", true); // Facebook App ID
     
     if (url) {
       updateMetaTag("og:url", url, true);

@@ -67,3 +67,6 @@ verify_jwt = false
 
 [functions.generate-weekly-newsletter]
 verify_jwt = false
+
+[functions.article-meta]
+verify_jwt = false

@@ -28,6 +28,9 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
           meta.setAttribute("name", name);
         }
         document.head.appendChild(meta);
+        console.log(`Created new meta tag: ${property ? 'property' : 'name'}="${name}" content="${content}"`);
+      } else {
+        console.log(`Updated existing meta tag: ${property ? 'property' : 'name'}="${name}" content="${content}"`);
       }
       meta.content = content;
     };

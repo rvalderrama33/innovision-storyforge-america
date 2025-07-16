@@ -32,7 +32,8 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
       } else {
         console.log(`Updated existing meta tag: ${property ? 'property' : 'name'}="${name}" content="${content}"`);
       }
-      meta.content = content;
+      // Always update the content, even if tag exists
+      meta.setAttribute('content', content);
     };
 
     // Basic meta tags

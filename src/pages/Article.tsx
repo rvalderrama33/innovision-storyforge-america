@@ -57,13 +57,17 @@ const Article = () => {
   };
 
   // Update SEO when article loads
-  useSEO({
-    title: article ? `${article.product_name} | America Innovates Magazine` : "Article | America Innovates Magazine",
-    description: article ? article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.` : "Discover inspiring innovation stories from entrepreneurs and creators building breakthrough consumer products.",
-    url: `https://americainnovates.us/article/${slug}`,
-    image: article?.image_urls?.[0],
-    type: "article"
-  });
+  useEffect(() => {
+    if (article) {
+      useSEO({
+        title: `${article.product_name} | America Innovates Magazine`,
+        description: article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`,
+        url: `https://americainnovates.us/article/${slug}`,
+        image: article.image_urls?.[0],
+        type: "article"
+      });
+    }
+  }, [article, slug]);
 
   // Debug logging
   useEffect(() => {

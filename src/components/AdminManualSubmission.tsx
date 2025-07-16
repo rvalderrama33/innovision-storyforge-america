@@ -101,7 +101,7 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
           image_urls: validImageUrls.length > 0 ? validImageUrls : null,
           is_manual_submission: true,
           status: 'pending',
-          email: 'admin@americainnovates.com'
+          email: 'admin@americainnovates.us'
         })
         .select()
         .single();

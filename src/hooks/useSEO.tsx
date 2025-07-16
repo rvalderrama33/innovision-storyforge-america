@@ -12,8 +12,10 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
   useEffect(() => {
     console.log('useSEO hook running with:', { title, description, url, image, type });
     
-    // Update document title
-    document.title = title;
+    // Small delay to ensure DOM is ready
+    const timer = setTimeout(() => {
+      // Update document title
+      document.title = title;
 
     // Update or create meta tags
     const updateMetaTag = (name: string, content: string, property = false) => {
@@ -64,7 +66,10 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
     updateMetaTag("twitter:description", description);
     updateMetaTag("twitter:image", imageToUse);
 
+    }, 100); // Small delay to ensure DOM is ready
+
     return () => {
+      clearTimeout(timer);
       // Reset to default title on unmount
       document.title = "America Innovates Magazine | Spotlighting Entrepreneurs & Creators";
     };

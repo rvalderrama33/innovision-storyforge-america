@@ -43,18 +43,16 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
       updateMetaTag("og:url", url, true);
     }
     
-    if (image) {
-      updateMetaTag("og:image", image, true);
-    }
+    // Always set an image - use provided image or fallback to logo
+    const fallbackImage = "https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png";
+    const imageToUse = image || fallbackImage;
+    updateMetaTag("og:image", imageToUse, true);
 
     // Twitter tags
     updateMetaTag("twitter:card", "summary_large_image");
     updateMetaTag("twitter:title", title);
     updateMetaTag("twitter:description", description);
-    
-    if (image) {
-      updateMetaTag("twitter:image", image);
-    }
+    updateMetaTag("twitter:image", imageToUse);
 
     return () => {
       // Reset to default title on unmount

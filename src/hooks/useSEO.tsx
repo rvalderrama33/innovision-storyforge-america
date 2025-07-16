@@ -46,6 +46,8 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
     // Always set an image - use provided image or fallback to logo
     const fallbackImage = "https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png";
     const imageToUse = image || fallbackImage;
+    console.log('useSEO - Image provided:', image);
+    console.log('useSEO - Image to use:', imageToUse);
     updateMetaTag("og:image", imageToUse, true);
 
     // Twitter tags

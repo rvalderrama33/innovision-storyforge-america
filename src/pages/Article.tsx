@@ -65,6 +65,15 @@ const Article = () => {
     type: "article"
   });
 
+  // Debug logging
+  useEffect(() => {
+    if (article) {
+      console.log('Article data:', article);
+      console.log('Article images:', article.image_urls);
+      console.log('First image URL:', article.image_urls?.[0]);
+    }
+  }, [article]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20 flex items-center justify-center">

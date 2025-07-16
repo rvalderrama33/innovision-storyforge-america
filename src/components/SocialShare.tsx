@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Share2, Facebook, Twitter, Linkedin, Mail, Link2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -13,62 +13,8 @@ interface SocialShareProps {
 const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '', image }) => {
   const { toast } = useToast();
 
-  // Update meta tags for social media sharing when component mounts
-  useEffect(() => {
-    // Function to remove existing meta tags
-    const removeExistingMetaTags = () => {
-      // Remove existing Open Graph tags
-      const ogTags = document.querySelectorAll('meta[property^="og:"]');
-      ogTags.forEach(tag => tag.remove());
-      
-      // Remove existing Twitter tags
-      const twitterTags = document.querySelectorAll('meta[name^="twitter:"]');
-      twitterTags.forEach(tag => tag.remove());
-    };
-
-    // Function to create new meta tags
-    const createMetaTag = (type: 'property' | 'name', name: string, content: string) => {
-      const metaTag = document.createElement('meta');
-      metaTag.setAttribute(type, name);
-      metaTag.setAttribute('content', content);
-      document.head.appendChild(metaTag);
-    };
-
-    // Remove all existing social media meta tags first
-    removeExistingMetaTags();
-
-    // Create new Open Graph tags
-    createMetaTag('property', 'og:title', title);
-    createMetaTag('property', 'og:description', description);
-    createMetaTag('property', 'og:url', url);
-    createMetaTag('property', 'og:type', 'article');
-    
-    if (image) {
-      createMetaTag('property', 'og:image', image);
-      createMetaTag('property', 'og:image:width', '1200');
-      createMetaTag('property', 'og:image:height', '630');
-      createMetaTag('property', 'og:image:alt', title);
-    }
-
-    // Create new Twitter Card tags
-    createMetaTag('name', 'twitter:card', 'summary_large_image');
-    createMetaTag('name', 'twitter:title', title);
-    createMetaTag('name', 'twitter:description', description);
-    
-    if (image) {
-      createMetaTag('name', 'twitter:image', image);
-      createMetaTag('name', 'twitter:image:alt', title);
-    }
-
-    // Also update the document title for better sharing
-    const originalTitle = document.title;
-    document.title = title;
-
-    // Clean up function
-    return () => {
-      document.title = originalTitle;
-    };
-  }, [url, title, description, image]);
+  // Meta tags are now managed globally by the useSEO hook
+  // This component only handles the sharing functionality
 
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,

@@ -50,6 +50,8 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
     console.log('useSEO - Image provided:', image);
     console.log('useSEO - Image to use:', imageToUse);
     updateMetaTag("og:image", imageToUse, true);
+    updateMetaTag("og:image:width", "1200", true);
+    updateMetaTag("og:image:height", "630", true);
 
     // Twitter tags
     updateMetaTag("twitter:card", "summary_large_image");

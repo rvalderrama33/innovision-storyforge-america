@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Clock, Calendar, ExternalLink, Share2 } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, ExternalLink, Share2, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import Header from '@/components/Header';
@@ -73,6 +73,49 @@ const Article = () => {
       console.log('First image URL:', article.image_urls?.[0]);
     }
   }, [article]);
+
+  // Function to distribute images randomly throughout article content
+  const distributeImagesInContent = (content, images) => {
+    if (!images || images.length <= 1) {
+      return content;
+    }
+
+    // Skip the first image as it's used as hero image
+    const availableImages = images.slice(1);
+    if (availableImages.length === 0) {
+      return content;
+    }
+
+    // Split content into paragraphs
+    const paragraphs = content.split('\n\n');
+    
+    // Calculate positions to insert images (roughly every 3-4 paragraphs)
+    const imagePositions = [];
+    const step = Math.max(3, Math.floor(paragraphs.length / availableImages.length));
+    
+    for (let i = 0; i < availableImages.length; i++) {
+      const position = Math.min(step * (i + 1), paragraphs.length - 1);
+      imagePositions.push({ position, imageUrl: availableImages[i] });
+    }
+
+    // Insert images at calculated positions
+    let result = [];
+    let imageIndex = 0;
+    
+    for (let i = 0; i < paragraphs.length; i++) {
+      result.push(paragraphs[i]);
+      
+      // Check if we should insert an image after this paragraph
+      if (imageIndex < imagePositions.length && i === imagePositions[imageIndex].position) {
+        result.push(`<div class="my-8 flex justify-center">
+          <img src="${imagePositions[imageIndex].imageUrl}" alt="${article.product_name} image" class="rounded-lg shadow-md max-w-full h-auto" style="max-height: 400px; object-fit: cover;" />
+        </div>`);
+        imageIndex++;
+      }
+    }
+    
+    return result.join('\n\n');
+  };
 
   if (loading) {
     return (
@@ -188,19 +231,25 @@ const Article = () => {
 
       {/* Content Section */}
       <div className="max-w-4xl mx-auto px-6 py-12 lg:py-16">
-        {/* Additional Images Gallery */}
-        {article.image_urls && article.image_urls.length > 1 && (
-          <div className="mb-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {article.image_urls.slice(1).map((imageUrl, index) => (
-                <div key={index} className="group relative overflow-hidden rounded-xl shadow-sm hover:shadow-lg transition-all duration-300">
-                  <img
-                    src={imageUrl}
-                    alt={`${article.product_name} image ${index + 2}`}
-                    className="w-full h-64 object-contain bg-muted/30 group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-              ))}
+        {/* Prominent Website Link */}
+        {article.website && (
+          <div className="mb-12 p-6 bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl border border-primary/20">
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
+                <Globe className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-foreground mb-2">Visit {article.product_name}</h3>
+                <a
+                  href={article.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium text-lg group"
+                >
+                  <span className="group-hover:underline">{article.website.replace(/^https?:\/\//, '')}</span>
+                  <ExternalLink className="w-5 h-5" />
+                </a>
+              </div>
             </div>
           </div>
         )}
@@ -219,13 +268,18 @@ const Article = () => {
               contentToShow = words.slice(0, teaserLength).join(' ');
             }
             
+            // Distribute images throughout the content if subscribed
+            const contentWithImages = isSubscribed ? 
+              distributeImagesInContent(contentToShow, article.image_urls) : 
+              contentToShow;
+            
             return (
               <>
                 <div 
-                  className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8"
+                  className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8 [&>div]:mb-6"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
-                      contentToShow?.replace(
+                      contentWithImages?.replace(
                         new RegExp(`\\b${article.full_name}\\b`, 'gi'),
                         `<span class="font-semibold text-primary">${article.full_name}</span>`
                       ).replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>') || ''

@@ -42,6 +42,18 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
   };
 
   const handleUpgrade = async () => {
+    console.log('Starting PayPal upgrade process for submission:', submission);
+    
+    if (!submission || !submission.id) {
+      console.error('No submission or submission ID provided:', submission);
+      toast({
+        title: "Error",
+        description: "Invalid submission data. Please refresh the page and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -54,6 +66,8 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
       // Create PayPal buttons
       window.paypal.Buttons({
         createOrder: async () => {
+          console.log('Creating PayPal order for submission ID:', submission.id);
+          
           const { data, error } = await supabase.functions.invoke('paypal-payment', {
             body: {
               action: 'create-order',
@@ -63,15 +77,24 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
             }
           });
 
+          console.log('PayPal create order response:', { data, error });
+
           if (error) {
             console.error('Error creating PayPal order:', error);
-            throw new Error('Failed to create payment order');
+            throw new Error(`Failed to create payment order: ${error.message}`);
+          }
+
+          if (!data || !data.orderID) {
+            console.error('No order ID received:', data);
+            throw new Error('Failed to create payment order - no order ID received');
           }
 
           return data.orderID;
         },
 
         onApprove: async (data: any) => {
+          console.log('PayPal payment approved:', data);
+          
           const { data: captureData, error } = await supabase.functions.invoke('paypal-payment', {
             body: {
               action: 'capture-order',
@@ -80,11 +103,13 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
             }
           });
 
+          console.log('PayPal capture response:', { captureData, error });
+
           if (error) {
             console.error('Error capturing PayPal payment:', error);
             toast({
               title: "Payment Failed",
-              description: "There was an error processing your payment. Please try again.",
+              description: `There was an error processing your payment: ${error.message}`,
               variant: "destructive"
             });
             return;
@@ -111,6 +136,7 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
         },
 
         onCancel: () => {
+          console.log('PayPal payment cancelled');
           toast({
             title: "Payment Cancelled",
             description: "Payment was cancelled. You can try again anytime.",
@@ -123,7 +149,7 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
       console.error('Error setting up PayPal:', error);
       toast({
         title: "Setup Error",
-        description: "Failed to initialize payment system. Please try again.",
+        description: `Failed to initialize payment system: ${error.message}`,
         variant: "destructive"
       });
     } finally {
@@ -132,7 +158,7 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
   };
 
   // Don't show if story is already featured
-  if (submission.featured) {
+  if (submission?.featured) {
     return (
       <Card className="border-green-200 bg-green-50">
         <CardHeader>
@@ -149,7 +175,7 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
   }
 
   // Only show for approved stories
-  if (submission.status !== 'approved') {
+  if (submission?.status !== 'approved') {
     return null;
   }
 

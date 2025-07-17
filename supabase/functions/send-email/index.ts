@@ -17,7 +17,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: 'welcome' | 'notification' | 'approval' | 'featured' | 'recommendation';
+  type: 'welcome' | 'notification' | 'approval' | 'featured' | 'recommendation' | 'draft_follow_up';
   to: string;
   name?: string;
   subject?: string;
@@ -123,6 +123,58 @@ const createWelcomeEmail = (customizations: EmailCustomizations, name: string) =
       </div>
       
       ${getEmailFooter(customizations)}
+    `)
+  };
+};
+
+// Draft follow-up email template
+const createDraftFollowUpEmail = (customizations: EmailCustomizations, name: string, productName: string) => {
+  const submitUrl = 'https://americainnovates.us/submit';
+  
+  return {
+    subject: 'Need help completing your story submission?',
+    html: wrapEmailContent(`
+      ${getEmailHeader(customizations, 'We\'re Here to Help!', 'Complete your innovation story submission')}
+      
+      <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+        <h2 style="margin: 0 0 15px 0; font-size: 24px;">Hello ${name || 'Innovator'}! 👋</h2>
+        <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6;">
+          We noticed you started submitting your innovation story${productName ? ` about "${productName}"` : ''} but haven't completed it yet. We understand that sharing your entrepreneurial journey can sometimes feel overwhelming.
+        </p>
+        <p style="margin: 0; font-size: 16px; line-height: 1.6;">
+          <strong>Are you experiencing any difficulties or have questions?</strong> Our team is here to help make the process as smooth as possible.
+        </p>
+      </div>
+      
+      <div style="margin-bottom: 30px;">
+        <h3 style="color: #1a202c; margin-bottom: 15px;">We're here to help with:</h3>
+        <ul style="color: #4a5568; line-height: 1.8;">
+          <li>📝 Questions about what information to include</li>
+          <li>📸 Help with image uploads or formatting</li>
+          <li>💭 Guidance on telling your story effectively</li>
+          <li>🤔 Technical issues with the submission form</li>
+          <li>⏰ Need more time? We can extend your draft</li>
+        </ul>
+      </div>
+      
+      <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+        <p style="margin: 0 0 15px 0; color: #4a5568; font-size: 16px;">
+          <strong>Need assistance?</strong> Simply reply to this email or contact our friendly staff at:
+        </p>
+        <p style="margin: 0; color: #2563eb; font-size: 16px; font-weight: 600;">
+          📧 admin@americainnovates.us
+        </p>
+      </div>
+      
+      <div style="text-align: center; margin-bottom: 30px;">
+        <a href="${submitUrl}" 
+           class="button-link"
+           style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
+          Continue Your Submission
+        </a>
+      </div>
+      
+      ${getEmailFooter(customizations, 'We believe your story matters and look forward to sharing it with our community.<br/><br/>Warm regards,<br/>America Innovates Magazine Staff')}
     `)
   };
 };
@@ -313,6 +365,9 @@ const handler = async (req: Request): Promise<Response> => {
         break;
       case 'recommendation':
         emailData = createRecommendationEmail(emailCustomizations, name || '', recommenderName || '');
+        break;
+      case 'draft_follow_up':
+        emailData = createDraftFollowUpEmail(emailCustomizations, name || '', productName || '');
         break;
       default:
         throw new Error(`Unknown email type: ${type}`);

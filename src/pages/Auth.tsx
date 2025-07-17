@@ -166,6 +166,9 @@ const Auth = () => {
           title: "Account Created!",
           description: "Please check your email to verify your account. You've been subscribed to our newsletter.",
         });
+
+        // Redirect to home page after successful signup
+        navigate('/', { replace: true });
       }
     } catch (error) {
       console.error('Sign up error:', error);

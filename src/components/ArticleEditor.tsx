@@ -126,11 +126,20 @@ const ArticleEditor = () => {
       const parsedData = { ...data };
       try {
         if (data.banner_image && typeof data.banner_image === 'string') {
-          const parsed = JSON.parse(data.banner_image);
-          if (typeof parsed === 'object' && parsed.url) {
-            parsedData.banner_image = parsed;
-          } else {
-            // If it's just a string URL, convert to object format
+          try {
+            const parsed = JSON.parse(data.banner_image);
+            if (typeof parsed === 'object' && parsed.url) {
+              parsedData.banner_image = parsed as BannerImageSettings;
+            } else {
+              // If it's just a string URL, convert to object format
+              parsedData.banner_image = {
+                url: data.banner_image,
+                position: 'center',
+                size: 'cover'
+              };
+            }
+          } catch (e) {
+            // If parsing fails, treat as URL string and convert to object
             parsedData.banner_image = {
               url: data.banner_image,
               position: 'center',
@@ -173,7 +182,9 @@ const ArticleEditor = () => {
     if (!article) return;
 
     if (imageType === 'banner_image') {
-      const currentBanner = typeof article.banner_image === 'object' ? article.banner_image : null;
+      const currentBanner = typeof article.banner_image === 'object' 
+        ? article.banner_image as BannerImageSettings 
+        : null;
       setArticle({
         ...article,
         banner_image: {
@@ -190,7 +201,9 @@ const ArticleEditor = () => {
   const handleBannerSettingChange = (setting: 'position' | 'size', value: string) => {
     if (!article) return;
     
-    const currentBanner = typeof article.banner_image === 'object' ? article.banner_image : { url: '', position: 'center', size: 'cover' };
+    const currentBanner = typeof article.banner_image === 'object' 
+      ? article.banner_image as BannerImageSettings 
+      : { url: '', position: 'center', size: 'cover' };
     
     setArticle({
       ...article,
@@ -330,7 +343,9 @@ const ArticleEditor = () => {
     );
   }
 
-  const bannerImage = typeof article.banner_image === 'object' ? article.banner_image : null;
+  const bannerImage = typeof article?.banner_image === 'object' 
+    ? article.banner_image as BannerImageSettings 
+    : null;
   const bannerUrl = bannerImage?.url || '';
 
   return (

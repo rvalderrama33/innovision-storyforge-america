@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut, Settings, X } from "lucide-react";
+import { Menu, LogOut, Settings } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -41,7 +41,6 @@ const LogoComponent = ({ isMobile = false }: { isMobile?: boolean }) => {
 
 const Header = () => {
   const { user, isAdmin, signOut } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   return (
     <nav className="bg-white border-b border-gray-200 px-4 py-1.5 lg:px-12">
@@ -77,62 +76,8 @@ const Header = () => {
               </div>
             )}
           </div>
-          <button 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-md hover:bg-gray-100 transition-colors"
-            aria-label="Toggle mobile menu"
-          >
-            {isMobileMenuOpen ? (
-              <X className="h-6 w-6 text-gray-700" />
-            ) : (
-              <Menu className="h-6 w-6 text-gray-700" />
-            )}
-          </button>
+          <Menu className="h-6 w-6 text-gray-700" />
         </div>
-        
-        {/* Mobile Menu Dropdown */}
-        {isMobileMenuOpen && (
-          <div className="mt-4 border-t border-gray-200 pt-4 space-y-3">
-            <Link 
-              to="/" 
-              className="block py-3 px-4 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors font-medium rounded-md"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Magazine
-            </Link>
-            <Link 
-              to="/stories" 
-              className="block py-3 px-4 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors font-medium rounded-md"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Browse Stories
-            </Link>
-            <Link 
-              to="/submit" 
-              className="block py-3 px-4 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors font-medium rounded-md"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Submit Story
-            </Link>
-            <Link 
-              to="/about" 
-              className="block py-3 px-4 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors font-medium rounded-md"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              About
-            </Link>
-            {isAdmin && (
-              <Link 
-                to="/admin" 
-                className="block py-3 px-4 text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors font-medium rounded-md"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <Settings className="inline h-4 w-4 mr-2" />
-                Admin
-              </Link>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Desktop Layout */}

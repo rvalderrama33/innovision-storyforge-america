@@ -120,6 +120,15 @@ const Article = () => {
     return result.join('\n\n');
   };
 
+  // Helper function to ensure website URL has proper protocol
+  const formatWebsiteUrl = (url) => {
+    if (!url) return url;
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return `https://${url}`;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20 flex items-center justify-center">
@@ -244,7 +253,7 @@ const Article = () => {
               <div className="flex-1">
                 <h3 className="text-lg font-semibold text-foreground mb-2">Visit {article.product_name}</h3>
                 <a
-                  href={article.website}
+                  href={formatWebsiteUrl(article.website)}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium text-lg group"
@@ -258,30 +267,32 @@ const Article = () => {
         )}
 
         <article className="prose prose-lg prose-slate max-w-none">
-          <style jsx>{`
-            .prose img {
-              margin: 0;
-            }
-            .prose .float-left {
-              float: left;
-              margin-right: 1.5rem;
-              margin-bottom: 1rem;
-              max-width: 20rem;
-              clear: left;
-            }
-            .prose .float-right {
-              float: right;
-              margin-left: 1.5rem;
-              margin-bottom: 1rem;
-              max-width: 20rem;
-              clear: right;
-            }
-            .prose::after {
-              content: "";
-              display: table;
-              clear: both;
-            }
-          `}</style>
+          <style dangerouslySetInnerHTML={{
+            __html: `
+              .prose img {
+                margin: 0;
+              }
+              .prose .float-left {
+                float: left;
+                margin-right: 1.5rem;
+                margin-bottom: 1rem;
+                max-width: 20rem;
+                clear: left;
+              }
+              .prose .float-right {
+                float: right;
+                margin-left: 1.5rem;
+                margin-bottom: 1rem;
+                max-width: 20rem;
+                clear: right;
+              }
+              .prose::after {
+                content: "";
+                display: table;
+                clear: both;
+              }
+            `
+          }} />
           {(() => {
             const isSubscribed = user && isSubscriber;
             const fullContent = article.generated_article || '';

@@ -131,30 +131,18 @@ const ArticleEditor = () => {
             if (typeof parsed === 'object' && parsed.url) {
               parsedData.banner_image = parsed as BannerImageSettings;
             } else {
-              // If it's just a string URL, convert to object format
-              parsedData.banner_image = {
-                url: data.banner_image,
-                position: 'center',
-                size: 'cover'
-              };
+              // If it's just a string URL, keep as string
+              parsedData.banner_image = data.banner_image;
             }
           } catch (e) {
-            // If parsing fails, treat as URL string and convert to object
-            parsedData.banner_image = {
-              url: data.banner_image,
-              position: 'center',
-              size: 'cover'
-            };
+            // If parsing fails, keep as string URL
+            parsedData.banner_image = data.banner_image;
           }
         }
       } catch (e) {
-        // If parsing fails, treat as URL string and convert to object
+        // If parsing fails, keep as string URL
         if (data.banner_image) {
-          parsedData.banner_image = {
-            url: data.banner_image,
-            position: 'center',
-            size: 'cover'
-          };
+          parsedData.banner_image = data.banner_image;
         }
       }
       
@@ -191,7 +179,7 @@ const ArticleEditor = () => {
           url,
           position: currentBanner?.position || 'center',
           size: currentBanner?.size || 'cover'
-        }
+        } as BannerImageSettings
       });
     } else {
       setArticle({ ...article, [imageType]: url });
@@ -211,7 +199,7 @@ const ArticleEditor = () => {
         url: currentBanner?.url || '',
         position: setting === 'position' ? value : (currentBanner?.position || 'center'),
         size: setting === 'size' ? value : (currentBanner?.size || 'cover')
-      }
+      } as BannerImageSettings
     });
   };
 
@@ -346,7 +334,7 @@ const ArticleEditor = () => {
   const bannerImage = typeof article?.banner_image === 'object' 
     ? article.banner_image as BannerImageSettings 
     : null;
-  const bannerUrl = bannerImage?.url || '';
+  const bannerUrl = bannerImage?.url || (typeof article?.banner_image === 'string' ? article.banner_image : '');
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -85,6 +85,37 @@ const Article = () => {
     type: "article"
   });
 
+  // Helper function to format image URLs for display
+  const formatImageUrl = (url: string): string => {
+    if (!url) return '';
+    
+    // If it's already a clean URL (doesn't contain the storage path), return as is
+    if (!url.includes('supabase.co/storage/v1/object/public/')) {
+      return url;
+    }
+    
+    // Extract just the filename from Supabase storage URLs for alt text
+    const parts = url.split('/');
+    const filename = parts[parts.length - 1];
+    
+    // Return the original URL but we'll use the filename for alt text
+    return url;
+  };
+
+  // Helper function to get clean filename for alt text
+  const getImageAltText = (url: string, productName: string): string => {
+    if (!url) return productName || 'Product image';
+    
+    // Extract filename from URL for more descriptive alt text
+    const parts = url.split('/');
+    const filename = parts[parts.length - 1];
+    
+    // Remove file extension and clean up the filename
+    const cleanName = filename.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
+    
+    return `${productName || 'Product'} - ${cleanName}`;
+  };
+
   // Function to distribute images with text wrapping throughout article content
   const distributeImagesInContent = (content, images) => {
     if (!content || !images || !Array.isArray(images) || images.length <= 1) {
@@ -93,7 +124,7 @@ const Article = () => {
 
     // Skip the banner image if it exists in image_urls
     const bannerUrl = article?.banner_image ? 
-      (typeof article.banner_image === 'object' ? article.banner_image.url : article.banner_image) : 
+      (typeof article.banner_image === 'object' && article.banner_image.url ? article.banner_image.url : article.banner_image) : 
       null;
       
     // Filter out undefined or null values and check if the image is not the banner, headshot or logo
@@ -134,7 +165,9 @@ const Article = () => {
       if (imageIndex < imagePositions.length && i === imagePositions[imageIndex].position) {
         const { imageUrl, float } = imagePositions[imageIndex];
         if (imageUrl) {  // Only add the image if URL is valid
-          result.push(`<img src="${imageUrl}" alt="${article.product_name || 'Product'} image" class="float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm rounded-lg shadow-md w-full h-auto object-cover" style="max-height: 300px;" />`);
+          const formattedUrl = formatImageUrl(imageUrl);
+          const altText = getImageAltText(imageUrl, article.product_name);
+          result.push(`<img src="${formattedUrl}" alt="${altText}" class="float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm rounded-lg shadow-md w-full h-auto object-cover" style="max-height: 300px;" />`);
         }
         imageIndex++;
       }

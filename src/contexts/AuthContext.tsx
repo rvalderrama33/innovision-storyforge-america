@@ -39,15 +39,18 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('User roles data:', data);
       const roles = data?.map(r => r.role) || [];
       
-      // If no roles found, treat authenticated users as subscribers by default
+      // Check for specific roles
       const hasSubscriberRole = roles.includes('subscriber');
       const hasAdminRole = roles.includes('admin');
       
+      // For authenticated users, if they have no roles or only subscriber role, treat as subscriber
+      // If they have admin role, they're also a subscriber (admins can read articles)
       const result = {
-        isSubscriber: hasSubscriberRole || roles.length === 0, // Default to subscriber if no roles
+        isSubscriber: hasSubscriberRole || hasAdminRole || roles.length === 0, // Default to subscriber for authenticated users
         isAdmin: hasAdminRole
       };
-      console.log('User role result:', result);
+      
+      console.log('User role result for', userId, ':', result);
       return result;
     } catch (error) {
       console.error('Error in checkUserRole:', error);
@@ -123,9 +126,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Check user role when user changes
   useEffect(() => {
     if (user) {
-      console.log('User changed, checking roles for:', user.email);
+      console.log('User changed, checking roles for:', user.email, 'ID:', user.id);
       checkUserRole(user.id).then(({ isSubscriber: sub, isAdmin: admin }) => {
-        console.log('Setting subscriber status:', sub, 'admin status:', admin);
+        console.log('Setting subscriber status:', sub, 'admin status:', admin, 'for user:', user.email);
         setIsSubscriber(sub);
         setIsAdmin(admin);
       });

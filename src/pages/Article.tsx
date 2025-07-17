@@ -152,6 +152,14 @@ const Article = () => {
     );
   }
 
+  // Debug logging for subscription access
+  console.log('Article access check:', {
+    userEmail: user?.email,
+    userId: user?.id,
+    isSubscriber,
+    hasUser: !!user
+  });
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20">
       <Header />
@@ -286,22 +294,30 @@ const Article = () => {
             `
           }} />
           {(() => {
-            // Simplified subscriber check - if user is logged in and isSubscriber is true, show full content
-            const isSubscribed = user && isSubscriber;
+            // Check if user is authenticated and is a subscriber
+            const isAuthenticated = !!user;
+            const canViewFullContent = isAuthenticated && isSubscriber;
+            
+            console.log('Content access decision:', {
+              isAuthenticated,
+              isSubscriber,
+              canViewFullContent,
+              userEmail: user?.email
+            });
             
             const fullContent = article.generated_article || '';
             
             // Get content for display - either full or teaser
             let contentToShow = fullContent;
-            if (!isSubscribed) {
+            if (!canViewFullContent) {
               // Show approximately first 20% of content for teaser
               const words = fullContent.split(' ');
               const teaserLength = Math.min(words.length, Math.floor(words.length * 0.2));
               contentToShow = words.slice(0, teaserLength).join(' ');
             }
             
-            // Distribute images throughout the content if subscribed
-            const contentWithImages = isSubscribed ? 
+            // Distribute images throughout the content if user can view full content
+            const contentWithImages = canViewFullContent ? 
               distributeImagesInContent(contentToShow, article.image_urls) : 
               contentToShow;
             
@@ -318,7 +334,7 @@ const Article = () => {
                     )
                   }}
                 />
-                {!isSubscribed && (
+                {!canViewFullContent && (
                   <SubscriptionGate articleTitle={article.product_name} />
                 )}
               </>

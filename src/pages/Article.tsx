@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,6 +17,13 @@ const Article = () => {
   const { isSubscriber, user } = useAuth();
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  // Debug logging for subscription status
+  useEffect(() => {
+    console.log('Article component - User:', user?.email);
+    console.log('Article component - IsSubscriber:', isSubscriber);
+    console.log('Article component - User ID:', user?.id);
+  }, [user, isSubscriber]);
 
   useEffect(() => {
     if (slug) {
@@ -295,6 +303,8 @@ const Article = () => {
           }} />
           {(() => {
             const isSubscribed = user && isSubscriber;
+            console.log('Content rendering - User:', !!user, 'IsSubscriber:', isSubscriber, 'IsSubscribed:', isSubscribed);
+            
             const fullContent = article.generated_article || '';
             
             // Get content for display - either full or teaser
@@ -304,6 +314,9 @@ const Article = () => {
               const words = fullContent.split(' ');
               const teaserLength = Math.min(words.length, Math.floor(words.length * 0.2));
               contentToShow = words.slice(0, teaserLength).join(' ');
+              console.log('Showing teaser content, length:', teaserLength);
+            } else {
+              console.log('Showing full content');
             }
             
             // Distribute images throughout the content if subscribed

@@ -24,6 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const checkUserRole = async (userId: string) => {
     try {
+      console.log('Checking user role for userId:', userId);
       const { data, error } = await supabase
         .from('user_roles')
         .select('role')
@@ -34,11 +35,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { isSubscriber: false, isAdmin: false };
       }
 
+      console.log('User roles data:', data);
       const roles = data?.map(r => r.role) || [];
-      return {
+      const result = {
         isSubscriber: roles.includes('subscriber'),
         isAdmin: roles.includes('admin')
       };
+      console.log('User role result:', result);
+      return result;
     } catch (error) {
       console.error('Error in checkUserRole:', error);
       return { isSubscriber: false, isAdmin: false };
@@ -88,6 +92,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log('Initial session:', session?.user?.email);
       setUser(session?.user ?? null);
       setLoading(false);
     });
@@ -99,8 +104,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setUser(session?.user ?? null);
         setLoading(false);
 
-        if (event === 'SIGNED_UP' && session?.user) {
-          console.log('New user signed up:', session.user.email);
+        if (event === 'SIGNED_IN' && session?.user) {
+          console.log('User signed in:', session.user.email);
         }
       }
     );
@@ -111,11 +116,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Check user role when user changes
   useEffect(() => {
     if (user) {
+      console.log('User changed, checking roles for:', user.email);
       checkUserRole(user.id).then(({ isSubscriber: sub, isAdmin: admin }) => {
+        console.log('Setting subscriber status:', sub, 'admin status:', admin);
         setIsSubscriber(sub);
         setIsAdmin(admin);
       });
     } else {
+      console.log('No user, clearing roles');
       setIsSubscriber(false);
       setIsAdmin(false);
     }

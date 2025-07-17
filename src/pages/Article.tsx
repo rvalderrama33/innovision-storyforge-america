@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -88,13 +87,22 @@ const Article = () => {
 
   // Function to distribute images with text wrapping throughout article content
   const distributeImagesInContent = (content, images) => {
-    if (!images || images.length <= 1) {
+    if (!content || !images || !Array.isArray(images) || images.length <= 1) {
       return content;
     }
 
     // Skip the banner image if it exists in image_urls
-    const bannerUrl = typeof article.banner_image === 'object' ? article.banner_image.url : article.banner_image;
-    const availableImages = images.filter(img => img !== bannerUrl && img !== article.headshot_image && img !== article.logo_image);
+    const bannerUrl = article?.banner_image ? 
+      (typeof article.banner_image === 'object' ? article.banner_image.url : article.banner_image) : 
+      null;
+      
+    // Filter out undefined or null values and check if the image is not the banner, headshot or logo
+    const availableImages = images.filter(img => 
+      img && 
+      img !== bannerUrl && 
+      img !== article?.headshot_image && 
+      img !== article?.logo_image
+    );
     
     if (availableImages.length === 0) {
       return content;
@@ -125,7 +133,9 @@ const Article = () => {
       // Check if we should insert an image before this paragraph
       if (imageIndex < imagePositions.length && i === imagePositions[imageIndex].position) {
         const { imageUrl, float } = imagePositions[imageIndex];
-        result.push(`<img src="${imageUrl}" alt="${article.product_name} image" class="float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm rounded-lg shadow-md w-full h-auto object-cover" style="max-height: 300px;" />`);
+        if (imageUrl) {  // Only add the image if URL is valid
+          result.push(`<img src="${imageUrl}" alt="${article.product_name || 'Product'} image" class="float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm rounded-lg shadow-md w-full h-auto object-cover" style="max-height: 300px;" />`);
+        }
         imageIndex++;
       }
       
@@ -221,8 +231,8 @@ const Article = () => {
 
   const bannerUrl = getBannerImageUrl();
   const hasBanner = !!bannerUrl;
-  const hasHeadshot = !!article.headshot_image;
-  const hasLogo = !!article.logo_image;
+  const hasHeadshot = !!article?.headshot_image;
+  const hasLogo = !!article?.logo_image;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20">

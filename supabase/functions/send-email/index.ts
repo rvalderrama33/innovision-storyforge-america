@@ -208,7 +208,7 @@ const createNotificationEmail = (customizations: EmailCustomizations, name: stri
   };
 };
 
-// Approval email template
+// Approval email template with featured upgrade option
 const createApprovalEmail = (customizations: EmailCustomizations, name: string, productName: string, slug: string) => {
   const articleUrl = `${Deno.env.get('SUPABASE_URL')?.replace('enckzbxifdrihnfcqagb.supabase.co/rest/v1', 'americainnovates.us') || 'https://americainnovates.com'}/article/${slug}`;
   
@@ -238,8 +238,52 @@ const createApprovalEmail = (customizations: EmailCustomizations, name: string, 
         <a href="${articleUrl}" 
            class="button-link"
            style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
-          View Your Article
+          View Your Published Story
         </a>
+      </div>
+      
+      <!-- Featured Story Upgrade Section -->
+      <div style="background: #f8fafc; border: 2px solid #e2e8f0; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
+        <h3 style="color: #1a202c; margin: 0 0 15px 0; font-size: 20px; text-align: center;">⭐ Upgrade to Featured Story</h3>
+        <p style="color: #4a5568; margin: 0 0 20px 0; text-align: center; font-size: 16px;">
+          Get maximum exposure for your innovation story with premium placement!
+        </p>
+        
+        <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; margin-bottom: 20px;">
+          <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 200px; text-align: center;">
+            <div style="color: #f59e0b; font-size: 24px; margin-bottom: 8px;">🏆</div>
+            <strong style="color: #1a202c;">Homepage Highlighting</strong>
+            <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 14px;">Premium placement on our homepage</p>
+          </div>
+          <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 200px; text-align: center;">
+            <div style="color: #3b82f6; font-size: 24px; margin-bottom: 8px;">📧</div>
+            <strong style="color: #1a202c;">Newsletter Feature</strong>
+            <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 14px;">Included in our weekly magazine newsletter</p>
+          </div>
+          <div style="background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); flex: 1; min-width: 200px; text-align: center;">
+            <div style="color: #10b981; font-size: 24px; margin-bottom: 8px;">⏰</div>
+            <strong style="color: #1a202c;">30 Days Featured</strong>
+            <p style="color: #6b7280; margin: 5px 0 0 0; font-size: 14px;">Extended visibility period</p>
+          </div>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 15px;">
+          <span style="background: ${customizations.primaryColor}; color: white; padding: 8px 20px; border-radius: 20px; font-size: 18px; font-weight: bold;">
+            Only $50 for 30 days
+          </span>
+        </div>
+        
+        <div style="text-align: center;">
+          <a href="${articleUrl}" 
+             class="button-link"
+             style="background: #f59e0b; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block; font-size: 16px;">
+            Upgrade to Featured Story
+          </a>
+        </div>
+        
+        <p style="color: #6b7280; margin: 15px 0 0 0; text-align: center; font-size: 12px;">
+          * Upgrade available on your article page after publication
+        </p>
       </div>
       
       ${getEmailFooter(customizations)}

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -21,7 +22,7 @@ interface BannerImageSettings {
 const Article = () => {
   const { slug } = useParams();
   const { isSubscriber, user } = useAuth();
-  const [article, setArticle] = useState(null);
+  const [article, setArticle] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -157,15 +158,18 @@ const Article = () => {
   // Helper function to get banner image style
   const getBannerImageStyle = () => {
     if (!article || !article.banner_image || typeof article.banner_image !== 'object') {
-      return { objectFit: 'cover', objectPosition: 'center' };
+      return { objectFit: 'cover', objectPosition: 'center' } as React.CSSProperties;
     }
     
     const banner = article.banner_image;
     
-    const objectFit = banner.size === 'cover' || banner.size === 'contain' ? banner.size : 'none';
+    // Use typed object fit values
+    const objectFit = banner.size === 'cover' ? 'cover' : 
+                      banner.size === 'contain' ? 'contain' : 
+                      'none';
     
     const style: React.CSSProperties = {
-      objectFit,
+      objectFit: objectFit as 'cover' | 'contain' | 'none',
       objectPosition: banner.position || 'center'
     };
     

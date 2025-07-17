@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -22,17 +23,17 @@ interface StepFiveProps {
 
 const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
   const [recommendations, setRecommendations] = useState<Recommendation[]>(
-    data.recommendations || [{ name: "", email: "", reason: "" }, { name: "", email: "", reason: "" }]
+    data.recommendations || [{ name: "", email: "", reason: "" }]
   );
   
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
-    // At least 2 recommendations with name and email filled
+    // At least 1 recommendation with name and email filled
     const validRecommendations = recommendations.filter(rec => 
       rec.name.trim() !== "" && rec.email.trim() !== ""
     );
-    const hasMinimumRecommendations = validRecommendations.length >= 2;
+    const hasMinimumRecommendations = validRecommendations.length >= 1;
     const hasNoValidationErrors = Object.keys(validationErrors).length === 0;
     const isValid = hasMinimumRecommendations && hasNoValidationErrors;
     onValidationChange(isValid);
@@ -61,7 +62,7 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
   };
 
   const removeRecommendation = (index: number) => {
-    if (recommendations.length > 2) {
+    if (recommendations.length > 1) {
       setRecommendations(recommendations.filter((_, i) => i !== index));
     }
   };
@@ -79,7 +80,7 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
           Recommend Other Innovators
         </h3>
         <p className="text-gray-600">
-          Help us discover other entrepreneurs or product innovators who have compelling stories worth sharing. <strong>Please provide at least 2 recommendations.</strong>
+          Help us discover other entrepreneurs or product innovators who have compelling stories worth sharing. <strong>Please provide at least 1 recommendation.</strong>
         </p>
       </div>
 
@@ -90,9 +91,9 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">
                   Recommendation {index + 1}
-                  {index < 2 && <span className="text-red-500 ml-1">*</span>}
+                  {index < 1 && <span className="text-red-500 ml-1">*</span>}
                 </CardTitle>
-                {recommendations.length > 2 && (
+                {recommendations.length > 1 && (
                   <Button
                     variant="outline"
                     size="sm"
@@ -108,7 +109,7 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor={`name-${index}`}>
-                    Full Name {index < 2 && <span className="text-red-500">*</span>}
+                    Full Name {index < 1 && <span className="text-red-500">*</span>}
                   </Label>
                   <Input
                     id={`name-${index}`}
@@ -129,7 +130,7 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
                   onValidationChange={(isValid, error) => handleValidationChange(`email-${index}`, isValid, error)}
                   placeholder="their.email@example.com"
                   className="text-lg py-3"
-                  required={index < 2}
+                  required={index < 1}
                 />
               </div>
               

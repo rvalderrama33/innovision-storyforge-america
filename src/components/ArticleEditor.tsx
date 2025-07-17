@@ -661,10 +661,10 @@ const ArticleEditor = () => {
                             objectFit: bannerImage?.size === 'cover' ? 'cover' : 
                                      bannerImage?.size === 'contain' ? 'contain' : 'none',
                             objectPosition: bannerImage?.position || 'center',
-                            transform: bannerImage?.size && bannerImage.size !== 'cover' && 
-                                     bannerImage.size !== 'contain' && 
-                                     bannerImage.size !== 'auto' ? 
-                                     `scale(${parseFloat(bannerImage.size) / 100})` : 'none'
+                            ...(bannerImage?.size && bannerImage.size !== 'cover' && 
+                               bannerImage.size !== 'contain' && 
+                               bannerImage.size !== 'auto' ? 
+                               { transform: `scale(${parseFloat(bannerImage.size) / 100})` } : {})
                           }}
                         />
                       </div>

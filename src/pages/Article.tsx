@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -165,7 +164,7 @@ const Article = () => {
     
     const objectFit = banner.size === 'cover' || banner.size === 'contain' ? banner.size : 'none';
     
-    const style = {
+    const style: React.CSSProperties = {
       objectFit,
       objectPosition: banner.position || 'center'
     };

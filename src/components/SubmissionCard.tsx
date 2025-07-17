@@ -1,9 +1,11 @@
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Eye, CheckCircle, XCircle, Star, Pin, Edit, Trash2 } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Star, Pin, Edit, Trash2, DollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
+import FeaturedStoryUpgrade from "./FeaturedStoryUpgrade";
 
 interface SubmissionCardProps {
   submission: any;
@@ -12,6 +14,7 @@ interface SubmissionCardProps {
   onToggleFeatured: (id: string, featured: boolean) => void;
   onTogglePinned: (id: string, pinned: boolean) => void;
   onDelete: (id: string) => void;
+  onPaymentSuccess?: () => void;
 }
 
 const getStatusVariant = (status: string) => {
@@ -23,7 +26,7 @@ const getStatusVariant = (status: string) => {
   }
 };
 
-export const SubmissionCard = ({ submission, onPreview, onUpdateStatus, onToggleFeatured, onTogglePinned, onDelete }: SubmissionCardProps) => {
+export const SubmissionCard = ({ submission, onPreview, onUpdateStatus, onToggleFeatured, onTogglePinned, onDelete, onPaymentSuccess }: SubmissionCardProps) => {
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -56,7 +59,15 @@ export const SubmissionCard = ({ submission, onPreview, onUpdateStatus, onToggle
           </div>
         </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
+        {/* Featured Story Upgrade Component */}
+        {submission.status === 'approved' && (
+          <FeaturedStoryUpgrade 
+            submission={submission} 
+            onPaymentSuccess={onPaymentSuccess}
+          />
+        )}
+
         <div className="flex gap-2 flex-wrap">
           <Button
             onClick={onPreview}

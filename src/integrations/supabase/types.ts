@@ -95,6 +95,62 @@ export type Database = {
         }
         Relationships: []
       }
+      featured_story_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          featured_end_date: string | null
+          featured_start_date: string | null
+          id: string
+          payer_email: string | null
+          payer_name: string | null
+          paypal_order_id: string | null
+          paypal_payment_id: string | null
+          status: string
+          submission_id: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          featured_end_date?: string | null
+          featured_start_date?: string | null
+          id?: string
+          payer_email?: string | null
+          payer_name?: string | null
+          paypal_order_id?: string | null
+          paypal_payment_id?: string | null
+          status?: string
+          submission_id: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          featured_end_date?: string | null
+          featured_start_date?: string | null
+          id?: string
+          payer_email?: string | null
+          payer_name?: string | null
+          paypal_order_id?: string | null
+          paypal_payment_id?: string | null
+          status?: string
+          submission_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "featured_story_payments_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       newsletter_links: {
         Row: {
           click_count: number | null
@@ -444,6 +500,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      expire_featured_stories: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       has_role: {
         Args: {
           _user_id: string

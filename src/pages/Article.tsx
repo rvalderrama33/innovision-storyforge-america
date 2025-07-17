@@ -110,9 +110,7 @@ const Article = () => {
       // Check if we should insert an image before this paragraph
       if (imageIndex < imagePositions.length && i === imagePositions[imageIndex].position) {
         const { imageUrl, float } = imagePositions[imageIndex];
-        result.push(`<div class="float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm">
-          <img src="${imageUrl}" alt="${article.product_name} image" class="rounded-lg shadow-md w-full h-auto object-cover" style="max-height: 300px;" />
-        </div>`);
+        result.push(`<img src="${imageUrl}" alt="${article.product_name} image" class="float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm rounded-lg shadow-md w-full h-auto object-cover" style="max-height: 300px;" />`);
         imageIndex++;
       }
       
@@ -259,7 +257,31 @@ const Article = () => {
           </div>
         )}
 
-        <article className="prose prose-lg prose-slate max-w-none overflow-hidden">
+        <article className="prose prose-lg prose-slate max-w-none">
+          <style jsx>{`
+            .prose img {
+              margin: 0;
+            }
+            .prose .float-left {
+              float: left;
+              margin-right: 1.5rem;
+              margin-bottom: 1rem;
+              max-width: 20rem;
+              clear: left;
+            }
+            .prose .float-right {
+              float: right;
+              margin-left: 1.5rem;
+              margin-bottom: 1rem;
+              max-width: 20rem;
+              clear: right;
+            }
+            .prose::after {
+              content: "";
+              display: table;
+              clear: both;
+            }
+          `}</style>
           {(() => {
             const isSubscribed = user && isSubscriber;
             const fullContent = article.generated_article || '';
@@ -281,7 +303,7 @@ const Article = () => {
             return (
               <>
                 <div 
-                  className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8 [&>div]:mb-6 [&_img]:clear-both"
+                  className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
                       contentWithImages?.replace(

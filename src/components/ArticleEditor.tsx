@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Save, Plus, X, ImageIcon } from 'lucide-react';
+import { ArrowLeft, Save, Plus, X, ImageIcon, Star, User, Building } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ArticleData {
@@ -38,6 +38,13 @@ interface ArticleData {
   email: string;
   city: string;
   state: string;
+  banner_image?: {
+    url: string;
+    position: string;
+    size: string;
+  };
+  headshot_image?: string;
+  logo_image?: string;
 }
 
 const ArticleEditor = () => {
@@ -61,6 +68,28 @@ const ArticleEditor = () => {
   const stages = [
     'Idea Stage', 'Prototype', 'Early Development', 'Beta Testing', 
     'Market Ready', 'Launched', 'Scaling', 'Established'
+  ];
+
+  const bannerPositions = [
+    { value: 'center', label: 'Center' },
+    { value: 'top', label: 'Top' },
+    { value: 'bottom', label: 'Bottom' },
+    { value: 'left', label: 'Left' },
+    { value: 'right', label: 'Right' },
+    { value: 'top-left', label: 'Top Left' },
+    { value: 'top-right', label: 'Top Right' },
+    { value: 'bottom-left', label: 'Bottom Left' },
+    { value: 'bottom-right', label: 'Bottom Right' }
+  ];
+
+  const bannerSizes = [
+    { value: 'cover', label: 'Cover (Fill)' },
+    { value: 'contain', label: 'Contain (Fit)' },
+    { value: 'auto', label: 'Original Size' },
+    { value: '150%', label: 'Large (150%)' },
+    { value: '125%', label: 'Medium Large (125%)' },
+    { value: '75%', label: 'Small (75%)' },
+    { value: '50%', label: 'Extra Small (50%)' }
   ];
 
   useEffect(() => {
@@ -90,7 +119,19 @@ const ArticleEditor = () => {
         .single();
 
       if (error) throw error;
-      setArticle(data);
+      
+      // Parse special image fields if they exist as JSON strings
+      const parsedData = { ...data };
+      try {
+        if (data.banner_image && typeof data.banner_image === 'string') {
+          parsedData.banner_image = JSON.parse(data.banner_image);
+        }
+      } catch (e) {
+        // If parsing fails, keep original value
+        console.warn('Failed to parse banner_image:', e);
+      }
+      
+      setArticle(parsedData);
     } catch (error) {
       console.error('Error fetching article:', error);
       toast({
@@ -108,6 +149,36 @@ const ArticleEditor = () => {
     if (article) {
       setArticle({ ...article, [field]: value });
     }
+  };
+
+  const handleSpecialImageChange = (imageType: 'banner_image' | 'headshot_image' | 'logo_image', url: string) => {
+    if (!article) return;
+
+    if (imageType === 'banner_image') {
+      setArticle({
+        ...article,
+        banner_image: {
+          url,
+          position: article.banner_image?.position || 'center',
+          size: article.banner_image?.size || 'cover'
+        }
+      });
+    } else {
+      setArticle({ ...article, [imageType]: url });
+    }
+  };
+
+  const handleBannerSettingChange = (setting: 'position' | 'size', value: string) => {
+    if (!article) return;
+    
+    setArticle({
+      ...article,
+      banner_image: {
+        url: article.banner_image?.url || '',
+        position: setting === 'position' ? value : (article.banner_image?.position || 'center'),
+        size: setting === 'size' ? value : (article.banner_image?.size || 'cover')
+      }
+    });
   };
 
   const addImageUrl = () => {
@@ -149,32 +220,45 @@ const ArticleEditor = () => {
 
     setSaving(true);
     try {
+      const updateData: any = {
+        full_name: article.full_name,
+        product_name: article.product_name,
+        description: article.description,
+        category: article.category,
+        background: article.background,
+        website: article.website,
+        social_media: article.social_media,
+        problem_solved: article.problem_solved,
+        stage: article.stage,
+        idea_origin: article.idea_origin,
+        biggest_challenge: article.biggest_challenge,
+        proudest_moment: article.proudest_moment,
+        inspiration: article.inspiration,
+        motivation: article.motivation,
+        generated_article: article.generated_article,
+        image_urls: article.image_urls,
+        source_links: article.source_links,
+        featured: article.featured,
+        email: article.email,
+        city: article.city,
+        state: article.state,
+        updated_at: new Date().toISOString()
+      };
+
+      // Handle special image fields
+      if (article.banner_image) {
+        updateData.banner_image = JSON.stringify(article.banner_image);
+      }
+      if (article.headshot_image) {
+        updateData.headshot_image = article.headshot_image;
+      }
+      if (article.logo_image) {
+        updateData.logo_image = article.logo_image;
+      }
+
       const { error } = await supabase
         .from('submissions')
-        .update({
-          full_name: article.full_name,
-          product_name: article.product_name,
-          description: article.description,
-          category: article.category,
-          background: article.background,
-          website: article.website,
-          social_media: article.social_media,
-          problem_solved: article.problem_solved,
-          stage: article.stage,
-          idea_origin: article.idea_origin,
-          biggest_challenge: article.biggest_challenge,
-          proudest_moment: article.proudest_moment,
-          inspiration: article.inspiration,
-          motivation: article.motivation,
-          generated_article: article.generated_article,
-          image_urls: article.image_urls,
-          source_links: article.source_links,
-          featured: article.featured,
-          email: article.email,
-          city: article.city,
-          state: article.state,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('id', article.id);
 
       if (error) throw error;
@@ -474,13 +558,162 @@ const ArticleEditor = () => {
           </TabsContent>
 
           <TabsContent value="media" className="space-y-6">
+            {/* Special Images Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Special Images</CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Designate specific images for banner, headshot, and logo display
+                </p>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Banner Image */}
+                <div className="space-y-4 p-4 border rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Star className="w-5 h-5 text-yellow-500" />
+                    <Label className="text-base font-medium">Banner Image</Label>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="md:col-span-1">
+                      <Label htmlFor="banner_url">Image URL</Label>
+                      <Input
+                        id="banner_url"
+                        placeholder="Enter banner image URL"
+                        value={article.banner_image?.url || ''}
+                        onChange={(e) => handleSpecialImageChange('banner_image', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="banner_position">Position</Label>
+                      <Select
+                        value={article.banner_image?.position || 'center'}
+                        onValueChange={(value) => handleBannerSettingChange('position', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select position" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {bannerPositions.map((pos) => (
+                            <SelectItem key={pos.value} value={pos.value}>
+                              {pos.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <Label htmlFor="banner_size">Size</Label>
+                      <Select
+                        value={article.banner_image?.size || 'cover'}
+                        onValueChange={(value) => handleBannerSettingChange('size', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select size" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {bannerSizes.map((size) => (
+                            <SelectItem key={size.value} value={size.value}>
+                              {size.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  {article.banner_image?.url && (
+                    <div className="mt-4">
+                      <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden relative">
+                        <img 
+                          src={article.banner_image.url} 
+                          alt="Banner preview" 
+                          className="w-full h-full"
+                          style={{
+                            objectFit: article.banner_image.size === 'cover' ? 'cover' : 
+                                     article.banner_image.size === 'contain' ? 'contain' : 'none',
+                            objectPosition: article.banner_image.position,
+                            transform: article.banner_image.size !== 'cover' && 
+                                     article.banner_image.size !== 'contain' && 
+                                     article.banner_image.size !== 'auto' ? 
+                                     `scale(${parseFloat(article.banner_image.size) / 100})` : 'none'
+                          }}
+                        />
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-2">
+                        Preview: {article.banner_image.position} position, {article.banner_image.size} size
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Headshot Image */}
+                <div className="space-y-4 p-4 border rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <User className="w-5 h-5 text-blue-500" />
+                    <Label className="text-base font-medium">Headshot Image</Label>
+                  </div>
+                  <div className="flex gap-4 items-end">
+                    <div className="flex-1">
+                      <Label htmlFor="headshot_url">Image URL</Label>
+                      <Input
+                        id="headshot_url"
+                        placeholder="Enter headshot image URL"
+                        value={article.headshot_image || ''}
+                        onChange={(e) => handleSpecialImageChange('headshot_image', e.target.value)}
+                      />
+                    </div>
+                    {article.headshot_image && (
+                      <div className="w-16 h-16 bg-gray-100 rounded-full overflow-hidden">
+                        <img 
+                          src={article.headshot_image} 
+                          alt="Headshot preview" 
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Logo Image */}
+                <div className="space-y-4 p-4 border rounded-lg">
+                  <div className="flex items-center gap-2">
+                    <Building className="w-5 h-5 text-green-500" />
+                    <Label className="text-base font-medium">Logo Image</Label>
+                  </div>
+                  <div className="flex gap-4 items-end">
+                    <div className="flex-1">
+                      <Label htmlFor="logo_url">Image URL</Label>
+                      <Input
+                        id="logo_url"
+                        placeholder="Enter logo image URL"
+                        value={article.logo_image || ''}
+                        onChange={(e) => handleSpecialImageChange('logo_image', e.target.value)}
+                      />
+                    </div>
+                    {article.logo_image && (
+                      <div className="w-16 h-16 bg-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+                        <img 
+                          src={article.logo_image} 
+                          alt="Logo preview" 
+                          className="max-w-full max-h-full object-contain"
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Regular Images and Sources */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
                     <ImageIcon className="w-5 h-5" />
-                    Images
+                    General Images
                   </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Additional images for the article content
+                  </p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="flex gap-2">

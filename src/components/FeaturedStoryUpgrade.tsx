@@ -23,12 +23,15 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
   const [paypalLoaded, setPaypalLoaded] = useState(false);
   const { toast } = useToast();
 
+  // PayPal Client ID - you'll need to replace this with your actual PayPal Client ID
+  const PAYPAL_CLIENT_ID = "YOUR_PAYPAL_CLIENT_ID_HERE";
+
   const loadPayPalScript = () => {
     if (window.paypal || paypalLoaded) return Promise.resolve();
 
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${import.meta.env.VITE_PAYPAL_CLIENT_ID}&currency=USD`;
+      script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD`;
       script.onload = () => {
         setPaypalLoaded(true);
         resolve(undefined);
@@ -39,6 +42,15 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
   };
 
   const handleUpgrade = async () => {
+    if (PAYPAL_CLIENT_ID === "YOUR_PAYPAL_CLIENT_ID_HERE") {
+      toast({
+        title: "Configuration Required",
+        description: "PayPal Client ID needs to be configured. Please contact support.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
 
     try {

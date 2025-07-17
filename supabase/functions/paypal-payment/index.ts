@@ -88,8 +88,8 @@ serve(async (req) => {
             reference_id: submissionId
           }],
           application_context: {
-            return_url: `${Deno.env.get('SITE_URL')}/payment/success`,
-            cancel_url: `${Deno.env.get('SITE_URL')}/payment/cancel`,
+            return_url: `https://americainnovates.us/payment/success`,
+            cancel_url: `https://americainnovates.us/payment/cancel`,
             brand_name: 'America Innovates Magazine',
             user_action: 'PAY_NOW'
           }
@@ -196,8 +196,9 @@ serve(async (req) => {
 });
 
 async function getPayPalAccessToken(): Promise<string> {
-  const clientId = Deno.env.get('PAYPAL_CLIENT_ID');
-  const clientSecret = Deno.env.get('PAYPAL_CLIENT_SECRET');
+  // Production PayPal Client ID and Secret
+  const clientId = "ASS7CDATty_wFE_ArsuvMaNAkVeRTu_0-AXfW6htus-edLPHmeIeyJXygyFIE9FQIGpEterVd5bid6ft";
+  const clientSecret = "ED4S73HO5XO1NX-AQy__91MEYfezffPROWtoKZMdfQzvv8dGIyk3nhmROOLXsvnfE2G5S9UYNKz3TKRh";
   
   if (!clientId || !clientSecret) {
     throw new Error('PayPal credentials not configured');
@@ -222,8 +223,6 @@ async function getPayPalAccessToken(): Promise<string> {
 }
 
 function getPayPalBaseURL(): string {
-  const isProduction = Deno.env.get('PAYPAL_ENVIRONMENT') === 'production';
-  return isProduction 
-    ? 'https://api.paypal.com' 
-    : 'https://api.sandbox.paypal.com';
+  // Using production environment as specified
+  return 'https://api.paypal.com';
 }

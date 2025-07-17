@@ -1,8 +1,10 @@
+
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut, Settings } from "lucide-react";
+import { Menu, LogOut, Settings, X } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const LogoComponent = ({ isMobile = false }: { isMobile?: boolean }) => {
   const [imageError, setImageError] = useState(false);
@@ -12,7 +14,6 @@ const LogoComponent = ({ isMobile = false }: { isMobile?: boolean }) => {
   };
 
   if (imageError) {
-    // Fallback to text logo if image fails to load
     return (
       <div className={`text-center ${isMobile ? 'py-4' : ''}`}>
         <h1 className={`font-bold text-blue-600 ${isMobile ? 'text-xl' : 'text-lg lg:text-2xl'}`}>
@@ -41,11 +42,20 @@ const LogoComponent = ({ isMobile = false }: { isMobile?: boolean }) => {
 
 const Header = () => {
   const { user, isAdmin, signOut } = useAuth();
+  const isMobile = useIsMobile();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  return (
-    <nav className="bg-white border-b border-gray-200 px-4 py-1.5 lg:px-12">
-      {/* Mobile-first header with logo prominently displayed */}
-      <div className="block md:hidden">
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setMobileMenuOpen(false);
+  };
+
+  if (isMobile) {
+    return (
+      <nav className="bg-white border-b border-gray-200 px-4 py-1.5">
         {/* Mobile Layout: Logo centered at top */}
         <div className="flex justify-center mb-3">
           <Link to="/" className="block">
@@ -53,7 +63,7 @@ const Header = () => {
           </Link>
         </div>
         
-        {/* Mobile: Auth buttons */}
+        {/* Mobile: Auth buttons and menu toggle */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
             {user ? (
@@ -76,54 +86,95 @@ const Header = () => {
               </div>
             )}
           </div>
-          <Menu className="h-6 w-6 text-gray-700" />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={toggleMobileMenu}
+            className="p-2"
+          >
+            {mobileMenuOpen ? <X className="h-6 w-6 text-gray-700" /> : <Menu className="h-6 w-6 text-gray-700" />}
+          </Button>
         </div>
-      </div>
 
-      {/* Desktop Layout */}
-      <div className="hidden md:block">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Link to="/">
-              <LogoComponent isMobile={false} />
-            </Link>
-          </div>
-          
-          <div className="flex items-center space-x-8">
-            <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
-            <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Browse Stories</Link>
-            <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
-            <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
-            {isAdmin && (
-              <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">
-                <Settings className="inline h-4 w-4 mr-1" />
-                Admin
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 bg-white">
+            <div className="flex justify-between items-center p-4 border-b">
+              <h2 className="text-lg font-semibold">Menu</h2>
+              <Button variant="ghost" size="sm" onClick={closeMobileMenu}>
+                <X className="h-6 w-6" />
+              </Button>
+            </div>
+            <div className="flex flex-col space-y-4 p-4">
+              <Link to="/" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                Magazine
               </Link>
-            )}
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-700">
-                  Welcome, {user.user_metadata?.full_name || user.email}
-                </span>
-                <Button onClick={signOut} variant="outline" size="sm">
-                  <LogOut className="h-4 w-4 mr-1" />
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <>
-                <Link to="/auth">
-                  <Button variant="outline">Sign In</Button>
+              <Link to="/stories" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                Browse Stories
+              </Link>
+              <Link to="/submit" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                Submit Story
+              </Link>
+              <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                About
+              </Link>
+              {isAdmin && (
+                <Link to="/admin" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                  <Settings className="inline h-4 w-4 mr-1" />
+                  Admin
                 </Link>
-                <Link to="/auth">
-                  <Button>Subscribe</Button>
-                </Link>
-              </>
-            )}
+              )}
+            </div>
           </div>
+        )}
+      </nav>
+    );
+  }
+
+  // Desktop Layout
+  return (
+    <nav className="bg-white border-b border-gray-200 px-4 py-1.5 lg:px-12">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center space-x-3">
+          <Link to="/">
+            <LogoComponent isMobile={false} />
+          </Link>
+        </div>
+        
+        <div className="flex items-center space-x-8">
+          <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
+          <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Browse Stories</Link>
+          <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
+          <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
+          {isAdmin && (
+            <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">
+              <Settings className="inline h-4 w-4 mr-1" />
+              Admin
+            </Link>
+          )}
+        </div>
+        
+        <div className="flex items-center space-x-4">
+          {user ? (
+            <div className="flex items-center space-x-4">
+              <span className="text-sm text-gray-700">
+                Welcome, {user.user_metadata?.full_name || user.email}
+              </span>
+              <Button onClick={signOut} variant="outline" size="sm">
+                <LogOut className="h-4 w-4 mr-1" />
+                Sign Out
+              </Button>
+            </div>
+          ) : (
+            <>
+              <Link to="/auth">
+                <Button variant="outline">Sign In</Button>
+              </Link>
+              <Link to="/auth">
+                <Button>Subscribe</Button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
     </nav>

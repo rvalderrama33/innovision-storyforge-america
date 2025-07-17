@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
@@ -53,7 +52,7 @@ serve(async (req) => {
       // Verify submission exists and is approved
       const { data: submission, error: submissionError } = await supabase
         .from('submissions')
-        .select('id, product_name, email, full_name, status, featured')
+        .select('id, product_name, email, full_name, status, featured, slug')
         .eq('id', submissionId)
         .single();
 
@@ -107,6 +106,10 @@ serve(async (req) => {
         );
       }
 
+      // Use the correct website domain for return URLs
+      const websiteDomain = 'https://americainnovates.us';
+      const articleSlug = submission.slug || submissionId;
+
       // Create PayPal order
       console.log('Creating PayPal order...');
       const paypalResponse = await fetch(`${getPayPalBaseURL()}/v2/checkout/orders`, {
@@ -126,8 +129,8 @@ serve(async (req) => {
             reference_id: submissionId
           }],
           application_context: {
-            return_url: `https://americainnovates.us/payment/success`,
-            cancel_url: `https://americainnovates.us/payment/cancel`,
+            return_url: `${websiteDomain}/article/${articleSlug}?payment=success`,
+            cancel_url: `${websiteDomain}/article/${articleSlug}?payment=cancelled`,
             brand_name: 'America Innovates Magazine',
             user_action: 'PAY_NOW'
           }

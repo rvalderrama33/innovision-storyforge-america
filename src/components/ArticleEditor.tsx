@@ -173,13 +173,16 @@ const ArticleEditor = () => {
       const currentBanner = typeof article.banner_image === 'object' 
         ? article.banner_image as BannerImageSettings 
         : null;
+      
+      const newBannerSettings: BannerImageSettings = {
+        url,
+        position: currentBanner?.position || 'center',
+        size: currentBanner?.size || 'cover'
+      };
+      
       setArticle({
         ...article,
-        banner_image: {
-          url,
-          position: currentBanner?.position || 'center',
-          size: currentBanner?.size || 'cover'
-        } as BannerImageSettings
+        banner_image: newBannerSettings
       });
     } else {
       setArticle({ ...article, [imageType]: url });
@@ -193,13 +196,15 @@ const ArticleEditor = () => {
       ? article.banner_image as BannerImageSettings 
       : { url: '', position: 'center', size: 'cover' };
     
+    const newBannerSettings: BannerImageSettings = {
+      url: currentBanner?.url || '',
+      position: setting === 'position' ? value : (currentBanner?.position || 'center'),
+      size: setting === 'size' ? value : (currentBanner?.size || 'cover')
+    };
+    
     setArticle({
       ...article,
-      banner_image: {
-        url: currentBanner?.url || '',
-        position: setting === 'position' ? value : (currentBanner?.position || 'center'),
-        size: setting === 'size' ? value : (currentBanner?.size || 'cover')
-      } as BannerImageSettings
+      banner_image: newBannerSettings
     });
   };
 

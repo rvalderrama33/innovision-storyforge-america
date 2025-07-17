@@ -371,6 +371,7 @@ export type Database = {
           approved_at: string | null
           approved_by: string | null
           background: string | null
+          banner_image: string | null
           biggest_challenge: string | null
           category: string | null
           city: string | null
@@ -380,11 +381,13 @@ export type Database = {
           featured: boolean | null
           full_name: string | null
           generated_article: string | null
+          headshot_image: string | null
           id: string
           idea_origin: string | null
           image_urls: string[] | null
           inspiration: string | null
           is_manual_submission: boolean | null
+          logo_image: string | null
           motivation: string | null
           phone_number: string | null
           pinned: boolean | null
@@ -406,6 +409,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           background?: string | null
+          banner_image?: string | null
           biggest_challenge?: string | null
           category?: string | null
           city?: string | null
@@ -415,11 +419,13 @@ export type Database = {
           featured?: boolean | null
           full_name?: string | null
           generated_article?: string | null
+          headshot_image?: string | null
           id?: string
           idea_origin?: string | null
           image_urls?: string[] | null
           inspiration?: string | null
           is_manual_submission?: boolean | null
+          logo_image?: string | null
           motivation?: string | null
           phone_number?: string | null
           pinned?: boolean | null
@@ -441,6 +447,7 @@ export type Database = {
           approved_at?: string | null
           approved_by?: string | null
           background?: string | null
+          banner_image?: string | null
           biggest_challenge?: string | null
           category?: string | null
           city?: string | null
@@ -450,11 +457,13 @@ export type Database = {
           featured?: boolean | null
           full_name?: string | null
           generated_article?: string | null
+          headshot_image?: string | null
           id?: string
           idea_origin?: string | null
           image_urls?: string[] | null
           inspiration?: string | null
           is_manual_submission?: boolean | null
+          logo_image?: string | null
           motivation?: string | null
           phone_number?: string | null
           pinned?: boolean | null

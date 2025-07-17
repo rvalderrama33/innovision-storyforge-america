@@ -14,6 +14,12 @@ import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Save, Plus, X, ImageIcon, Star, User, Building } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
+interface BannerImageSettings {
+  url: string;
+  position: string;
+  size: string;
+}
+
 interface ArticleData {
   id: string;
   full_name: string;
@@ -38,11 +44,7 @@ interface ArticleData {
   email: string;
   city: string;
   state: string;
-  banner_image?: {
-    url: string;
-    position: string;
-    size: string;
-  };
+  banner_image?: string | BannerImageSettings;
   headshot_image?: string;
   logo_image?: string;
 }
@@ -120,15 +122,31 @@ const ArticleEditor = () => {
 
       if (error) throw error;
       
-      // Parse special image fields if they exist as JSON strings
+      // Parse banner image if it exists as JSON string
       const parsedData = { ...data };
       try {
         if (data.banner_image && typeof data.banner_image === 'string') {
-          parsedData.banner_image = JSON.parse(data.banner_image);
+          const parsed = JSON.parse(data.banner_image);
+          if (typeof parsed === 'object' && parsed.url) {
+            parsedData.banner_image = parsed;
+          } else {
+            // If it's just a string URL, convert to object format
+            parsedData.banner_image = {
+              url: data.banner_image,
+              position: 'center',
+              size: 'cover'
+            };
+          }
         }
       } catch (e) {
-        // If parsing fails, keep original value
-        console.warn('Failed to parse banner_image:', e);
+        // If parsing fails, treat as URL string and convert to object
+        if (data.banner_image) {
+          parsedData.banner_image = {
+            url: data.banner_image,
+            position: 'center',
+            size: 'cover'
+          };
+        }
       }
       
       setArticle(parsedData);
@@ -155,12 +173,13 @@ const ArticleEditor = () => {
     if (!article) return;
 
     if (imageType === 'banner_image') {
+      const currentBanner = typeof article.banner_image === 'object' ? article.banner_image : null;
       setArticle({
         ...article,
         banner_image: {
           url,
-          position: article.banner_image?.position || 'center',
-          size: article.banner_image?.size || 'cover'
+          position: currentBanner?.position || 'center',
+          size: currentBanner?.size || 'cover'
         }
       });
     } else {
@@ -171,12 +190,14 @@ const ArticleEditor = () => {
   const handleBannerSettingChange = (setting: 'position' | 'size', value: string) => {
     if (!article) return;
     
+    const currentBanner = typeof article.banner_image === 'object' ? article.banner_image : { url: '', position: 'center', size: 'cover' };
+    
     setArticle({
       ...article,
       banner_image: {
-        url: article.banner_image?.url || '',
-        position: setting === 'position' ? value : (article.banner_image?.position || 'center'),
-        size: setting === 'size' ? value : (article.banner_image?.size || 'cover')
+        url: currentBanner?.url || '',
+        position: setting === 'position' ? value : (currentBanner?.position || 'center'),
+        size: setting === 'size' ? value : (currentBanner?.size || 'cover')
       }
     });
   };
@@ -245,10 +266,16 @@ const ArticleEditor = () => {
         updated_at: new Date().toISOString()
       };
 
-      // Handle special image fields
+      // Handle banner image - store as JSON if it's an object
       if (article.banner_image) {
-        updateData.banner_image = JSON.stringify(article.banner_image);
+        if (typeof article.banner_image === 'object') {
+          updateData.banner_image = JSON.stringify(article.banner_image);
+        } else {
+          updateData.banner_image = article.banner_image;
+        }
       }
+      
+      // Handle other special images
       if (article.headshot_image) {
         updateData.headshot_image = article.headshot_image;
       }
@@ -302,6 +329,9 @@ const ArticleEditor = () => {
       </div>
     );
   }
+
+  const bannerImage = typeof article.banner_image === 'object' ? article.banner_image : null;
+  const bannerUrl = bannerImage?.url || '';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -579,14 +609,14 @@ const ArticleEditor = () => {
                       <Input
                         id="banner_url"
                         placeholder="Enter banner image URL"
-                        value={article.banner_image?.url || ''}
+                        value={bannerUrl}
                         onChange={(e) => handleSpecialImageChange('banner_image', e.target.value)}
                       />
                     </div>
                     <div>
                       <Label htmlFor="banner_position">Position</Label>
                       <Select
-                        value={article.banner_image?.position || 'center'}
+                        value={bannerImage?.position || 'center'}
                         onValueChange={(value) => handleBannerSettingChange('position', value)}
                       >
                         <SelectTrigger>
@@ -604,7 +634,7 @@ const ArticleEditor = () => {
                     <div>
                       <Label htmlFor="banner_size">Size</Label>
                       <Select
-                        value={article.banner_image?.size || 'cover'}
+                        value={bannerImage?.size || 'cover'}
                         onValueChange={(value) => handleBannerSettingChange('size', value)}
                       >
                         <SelectTrigger>
@@ -620,26 +650,26 @@ const ArticleEditor = () => {
                       </Select>
                     </div>
                   </div>
-                  {article.banner_image?.url && (
+                  {bannerUrl && (
                     <div className="mt-4">
                       <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden relative">
                         <img 
-                          src={article.banner_image.url} 
+                          src={bannerUrl} 
                           alt="Banner preview" 
                           className="w-full h-full"
                           style={{
-                            objectFit: article.banner_image.size === 'cover' ? 'cover' : 
-                                     article.banner_image.size === 'contain' ? 'contain' : 'none',
-                            objectPosition: article.banner_image.position,
-                            transform: article.banner_image.size !== 'cover' && 
-                                     article.banner_image.size !== 'contain' && 
-                                     article.banner_image.size !== 'auto' ? 
-                                     `scale(${parseFloat(article.banner_image.size) / 100})` : 'none'
+                            objectFit: bannerImage?.size === 'cover' ? 'cover' : 
+                                     bannerImage?.size === 'contain' ? 'contain' : 'none',
+                            objectPosition: bannerImage?.position || 'center',
+                            transform: bannerImage?.size && bannerImage.size !== 'cover' && 
+                                     bannerImage.size !== 'contain' && 
+                                     bannerImage.size !== 'auto' ? 
+                                     `scale(${parseFloat(bannerImage.size) / 100})` : 'none'
                           }}
                         />
                       </div>
                       <p className="text-xs text-muted-foreground mt-2">
-                        Preview: {article.banner_image.position} position, {article.banner_image.size} size
+                        Preview: {bannerImage?.position || 'center'} position, {bannerImage?.size || 'cover'} size
                       </p>
                     </div>
                   )}

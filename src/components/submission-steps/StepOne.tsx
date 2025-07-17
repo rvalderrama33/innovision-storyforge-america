@@ -67,8 +67,11 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
         <h3 className="text-xl font-semibold text-gray-900 mb-2">
           Tell us about yourself
         </h3>
-        <p className="text-gray-600">
+        <p className="text-gray-600 mb-2">
           We'd love to know more about the innovator behind the idea.
+        </p>
+        <p className="text-sm text-blue-600 bg-blue-50 p-3 rounded-lg">
+          <strong>Please be brief and informal.</strong> We will use your answers to write a compelling story about you and your journey.
         </p>
       </div>
 

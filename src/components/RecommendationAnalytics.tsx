@@ -16,13 +16,13 @@ interface Recommendation {
   id: string;
   name: string;
   email: string;
-  reason: string;
+  reason: string | null;
   created_at: string;
   email_sent_at: string | null;
   subscribed_at: string | null;
   submitted_story_at: string | null;
-  recommender_name: string;
-  recommender_email: string;
+  recommender_name: string | null;
+  recommender_email: string | null;
 }
 
 const RecommendationAnalytics = () => {
@@ -47,14 +47,23 @@ const RecommendationAnalytics = () => {
   }, []);
 
   const fetchRecommendations = async () => {
+    console.log('Fetching recommendations...');
+    setLoading(true);
     try {
       const { data, error } = await supabase
         .from('recommendations')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      console.log('Recommendations fetch result:', { data, error });
+
+      if (error) {
+        console.error('Error fetching recommendations:', error);
+        throw error;
+      }
+      
       setRecommendations(data || []);
+      console.log('Set recommendations:', data?.length || 0, 'items');
     } catch (error) {
       console.error('Error fetching recommendations:', error);
       toast({
@@ -366,7 +375,7 @@ const RecommendationAnalytics = () => {
   const filteredRecommendations = recommendations.filter(rec =>
     rec.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     rec.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    rec.recommender_name.toLowerCase().includes(searchTerm.toLowerCase())
+    (rec.recommender_name && rec.recommender_name.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const stats = {
@@ -382,7 +391,14 @@ const RecommendationAnalytics = () => {
   } : { subscription: '0', submission: '0' };
 
   if (loading) {
-    return <div className="p-6">Loading recommendations...</div>;
+    return (
+      <div className="p-6 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading recommendations...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -535,7 +551,8 @@ const RecommendationAnalytics = () => {
             </DialogContent>
           </Dialog>
           
-          <Button onClick={fetchRecommendations} variant="outline">
+          <Button onClick={fetchRecommendations} variant="outline" disabled={loading}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Refresh Data
           </Button>
         </div>
@@ -603,105 +620,115 @@ const RecommendationAnalytics = () => {
 
       {/* Recommendations List */}
       <div className="space-y-4">
-        {filteredRecommendations.map((rec) => (
-          <Card key={rec.id}>
-            <CardContent className="p-4">
-              <div className="flex justify-between items-start">
-                <div className="space-y-2 flex-1">
-                  <div>
-                    <h3 className="font-semibold">{rec.name}</h3>
-                    <p className="text-sm text-muted-foreground">{rec.email}</p>
-                  </div>
-                  
-                  <div className="text-sm">
-                    <p><strong>Recommended by:</strong> {rec.recommender_name} ({rec.recommender_email})</p>
-                    <p><strong>Date:</strong> {new Date(rec.created_at).toLocaleDateString()}</p>
-                    {rec.reason && (
-                      <p><strong>Reason:</strong> {rec.reason}</p>
-                    )}
+        {filteredRecommendations.length > 0 ? (
+          filteredRecommendations.map((rec) => (
+            <Card key={rec.id}>
+              <CardContent className="p-4">
+                <div className="flex justify-between items-start">
+                  <div className="space-y-2 flex-1">
+                    <div>
+                      <h3 className="font-semibold">{rec.name}</h3>
+                      <p className="text-sm text-muted-foreground">{rec.email}</p>
+                    </div>
+                    
+                    <div className="text-sm">
+                      <p><strong>Recommended by:</strong> {rec.recommender_name || 'Unknown'} {rec.recommender_email ? `(${rec.recommender_email})` : ''}</p>
+                      <p><strong>Date:</strong> {new Date(rec.created_at).toLocaleDateString()}</p>
+                      {rec.reason && (
+                        <p><strong>Reason:</strong> {rec.reason}</p>
+                      )}
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {rec.email_sent_at && (
+                        <Badge variant="secondary">Email Sent</Badge>
+                      )}
+                      {rec.subscribed_at && (
+                        <Badge variant="default">Subscribed</Badge>
+                      )}
+                      {rec.submitted_story_at && (
+                        <Badge variant="default" className="bg-green-100 text-green-800">
+                          Submitted Story
+                        </Badge>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    {rec.email_sent_at && (
-                      <Badge variant="secondary">Email Sent</Badge>
-                    )}
-                    {rec.subscribed_at && (
-                      <Badge variant="default">Subscribed</Badge>
-                    )}
-                    {rec.submitted_story_at && (
-                      <Badge variant="default" className="bg-green-100 text-green-800">
-                        Submitted Story
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2 ml-4">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => resendRecommendation(rec)}
-                  >
-                    <RefreshCw className="h-4 w-4 mr-1" />
-                    Resend
-                  </Button>
-                  {!rec.subscribed_at && (
+                  <div className="flex flex-col gap-2 ml-4">
                     <Button
                       size="sm"
                       variant="outline"
-                      onClick={() => markAsSubscribed(rec.id)}
+                      onClick={() => resendRecommendation(rec)}
                     >
-                      Mark Subscribed
+                      <RefreshCw className="h-4 w-4 mr-1" />
+                      Resend
                     </Button>
-                  )}
-                  {!rec.submitted_story_at && (
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={() => markAsSubmittedStory(rec.id)}
-                    >
-                      Mark Submitted Story
-                    </Button>
-                  )}
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button size="sm" variant="destructive">
-                        <Trash2 className="h-4 w-4" />
+                    {!rec.subscribed_at && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => markAsSubscribed(rec.id)}
+                      >
+                        Mark Subscribed
                       </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle>Delete Recommendation</AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Are you sure you want to delete the recommendation for {rec.name}? 
-                          This action cannot be undone.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction 
-                          onClick={() => deleteRecommendation(rec.id, rec.name)}
-                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                        >
-                          Delete
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
+                    )}
+                    {!rec.submitted_story_at && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => markAsSubmittedStory(rec.id)}
+                      >
+                        Mark Submitted Story
+                      </Button>
+                    )}
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="destructive">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Recommendation</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Are you sure you want to delete the recommendation for {rec.name}? 
+                            This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction 
+                            onClick={() => deleteRecommendation(rec.id, rec.name)}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
                 </div>
+              </CardContent>
+            </Card>
+          ))
+        ) : (
+          <Card>
+            <CardContent className="p-8 text-center">
+              <div className="space-y-2">
+                <Users className="h-12 w-12 text-muted-foreground mx-auto" />
+                <p className="text-muted-foreground">
+                  {searchTerm ? "No recommendations match your search" : "No recommendations found"}
+                </p>
+                {!searchTerm && (
+                  <p className="text-sm text-muted-foreground">
+                    Create your first recommendation using the "Create Recommendation" button above.
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
-        ))}
+        )}
       </div>
-
-      {filteredRecommendations.length === 0 && (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <p className="text-muted-foreground">No recommendations found</p>
-          </CardContent>
-        </Card>
-      )}
     </div>
   );
 };

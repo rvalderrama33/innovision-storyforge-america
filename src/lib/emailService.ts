@@ -1,11 +1,15 @@
+
 import { supabase } from '@/integrations/supabase/client';
 
 interface SendEmailRequest {
-  type: 'welcome' | 'notification';
+  type: 'welcome' | 'notification' | 'approval' | 'featured' | 'recommendation';
   to: string;
   name?: string;
   subject?: string;
   message?: string;
+  productName?: string;
+  slug?: string;
+  recommenderName?: string;
 }
 
 export const sendEmail = async (emailData: SendEmailRequest) => {
@@ -51,21 +55,21 @@ export const sendNotificationEmail = async (
 
 export const sendArticleApprovalEmail = async (email: string, name: string, articleTitle: string, articleSlug: string) => {
   return sendEmail({
-    type: 'notification',
+    type: 'approval',
     to: email,
-    subject: 'Your story has been approved!',
-    message: `Congratulations! Your innovation story "${articleTitle}" has been approved and is now live on America Innovates. <br><br><div style="text-align: center; margin: 20px 0;"><a href="https://americainnovates.us/article/${articleSlug}" style="background-color: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">View Your Published Story</a></div><br>Thank you for sharing your entrepreneurial journey with our community!`,
-    name
+    name,
+    productName: articleTitle,
+    slug: articleSlug
   });
 };
 
 export const sendFeaturedStoryEmail = async (email: string, name: string, articleTitle: string, articleSlug: string) => {
   return sendEmail({
-    type: 'notification',
+    type: 'featured',
     to: email,
-    subject: 'Your story is now featured!',
-    message: `Amazing news! Your story "${articleTitle}" has been selected as a featured article on America Innovates. This means it will be prominently displayed on our homepage and reach even more readers. <br><br><div style="text-align: center; margin: 20px 0;"><a href="https://americainnovates.us/article/${articleSlug}" style="background-color: #667eea; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">See Your Featured Story</a></div><br>Congratulations on this achievement!`,
-    name
+    name,
+    productName: articleTitle,
+    slug: articleSlug
   });
 };
 

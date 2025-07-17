@@ -32,20 +32,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
       if (error) {
         console.error('Error checking user role:', error);
-        return { isSubscriber: false, isAdmin: false };
+        // If there's an error checking roles, treat authenticated users as subscribers
+        return { isSubscriber: true, isAdmin: false };
       }
 
       console.log('User roles data:', data);
       const roles = data?.map(r => r.role) || [];
+      
+      // If no roles found, treat authenticated users as subscribers by default
+      const hasSubscriberRole = roles.includes('subscriber');
+      const hasAdminRole = roles.includes('admin');
+      
       const result = {
-        isSubscriber: roles.includes('subscriber'),
-        isAdmin: roles.includes('admin')
+        isSubscriber: hasSubscriberRole || roles.length === 0, // Default to subscriber if no roles
+        isAdmin: hasAdminRole
       };
       console.log('User role result:', result);
       return result;
     } catch (error) {
       console.error('Error in checkUserRole:', error);
-      return { isSubscriber: false, isAdmin: false };
+      // On error, treat authenticated users as subscribers
+      return { isSubscriber: true, isAdmin: false };
     }
   };
 

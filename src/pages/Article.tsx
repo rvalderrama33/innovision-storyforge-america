@@ -18,13 +18,6 @@ const Article = () => {
   const [article, setArticle] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Debug logging for subscription status
-  useEffect(() => {
-    console.log('Article component - User:', user?.email);
-    console.log('Article component - IsSubscriber:', isSubscriber);
-    console.log('Article component - User ID:', user?.id);
-  }, [user, isSubscriber]);
-
   useEffect(() => {
     if (slug) {
       fetchArticle();
@@ -71,15 +64,6 @@ const Article = () => {
     image: article?.image_urls?.[0],
     type: "article"
   });
-
-  // Debug logging
-  useEffect(() => {
-    if (article) {
-      console.log('Article data:', article);
-      console.log('Article images:', article.image_urls);
-      console.log('First image URL:', article.image_urls?.[0]);
-    }
-  }, [article]);
 
   // Function to distribute images with text wrapping throughout article content
   const distributeImagesInContent = (content, images) => {
@@ -302,8 +286,8 @@ const Article = () => {
             `
           }} />
           {(() => {
+            // Simplified subscriber check - if user is logged in and isSubscriber is true, show full content
             const isSubscribed = user && isSubscriber;
-            console.log('Content rendering - User:', !!user, 'IsSubscriber:', isSubscriber, 'IsSubscribed:', isSubscribed);
             
             const fullContent = article.generated_article || '';
             
@@ -314,9 +298,6 @@ const Article = () => {
               const words = fullContent.split(' ');
               const teaserLength = Math.min(words.length, Math.floor(words.length * 0.2));
               contentToShow = words.slice(0, teaserLength).join(' ');
-              console.log('Showing teaser content, length:', teaserLength);
-            } else {
-              console.log('Showing full content');
             }
             
             // Distribute images throughout the content if subscribed

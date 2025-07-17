@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -74,7 +73,7 @@ const Article = () => {
     }
   }, [article]);
 
-  // Function to distribute images randomly throughout article content
+  // Function to distribute images with text wrapping throughout article content
   const distributeImagesInContent = (content, images) => {
     if (!images || images.length <= 1) {
       return content;
@@ -95,23 +94,29 @@ const Article = () => {
     
     for (let i = 0; i < availableImages.length; i++) {
       const position = Math.min(step * (i + 1), paragraphs.length - 1);
-      imagePositions.push({ position, imageUrl: availableImages[i] });
+      const floatDirection = i % 2 === 0 ? 'left' : 'right';
+      imagePositions.push({ 
+        position, 
+        imageUrl: availableImages[i],
+        float: floatDirection
+      });
     }
 
-    // Insert images at calculated positions
+    // Insert images at calculated positions with text wrapping
     let result = [];
     let imageIndex = 0;
     
     for (let i = 0; i < paragraphs.length; i++) {
-      result.push(paragraphs[i]);
-      
-      // Check if we should insert an image after this paragraph
+      // Check if we should insert an image before this paragraph
       if (imageIndex < imagePositions.length && i === imagePositions[imageIndex].position) {
-        result.push(`<div class="my-8 flex justify-center">
-          <img src="${imagePositions[imageIndex].imageUrl}" alt="${article.product_name} image" class="rounded-lg shadow-md max-w-full h-auto" style="max-height: 400px; object-fit: cover;" />
+        const { imageUrl, float } = imagePositions[imageIndex];
+        result.push(`<div class="float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm">
+          <img src="${imageUrl}" alt="${article.product_name} image" class="rounded-lg shadow-md w-full h-auto object-cover" style="max-height: 300px;" />
         </div>`);
         imageIndex++;
       }
+      
+      result.push(paragraphs[i]);
     }
     
     return result.join('\n\n');
@@ -254,7 +259,7 @@ const Article = () => {
           </div>
         )}
 
-        <article className="prose prose-lg prose-slate max-w-none">
+        <article className="prose prose-lg prose-slate max-w-none overflow-hidden">
           {(() => {
             const isSubscribed = user && isSubscriber;
             const fullContent = article.generated_article || '';
@@ -276,7 +281,7 @@ const Article = () => {
             return (
               <>
                 <div 
-                  className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8 [&>div]:mb-6"
+                  className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8 [&>div]:mb-6 [&_img]:clear-both"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
                       contentWithImages?.replace(

@@ -8,6 +8,10 @@ interface AuthContextType {
   loading: boolean;
   isSubscriber: boolean;
   isAdmin: boolean;
+  signIn: (email: string, password: string) => Promise<{ error: any }>;
+  signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signOut: () => Promise<void>;
+  signInWithGoogle: () => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -39,6 +43,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.error('Error in checkUserRole:', error);
       return { isSubscriber: false, isAdmin: false };
     }
+  };
+
+  const signIn = async (email: string, password: string) => {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+    return { error };
+  };
+
+  const signUp = async (email: string, password: string, fullName: string) => {
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: {
+          full_name: fullName,
+        },
+      },
+    });
+    return { error };
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+  };
+
+  const signInWithGoogle = async () => {
+    const redirectUrl = `${window.location.origin}/`;
+    
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: redirectUrl,
+      },
+    });
+    return { error };
   };
 
   useEffect(() => {
@@ -81,7 +125,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     user,
     loading,
     isSubscriber,
-    isAdmin
+    isAdmin,
+    signIn,
+    signUp,
+    signOut,
+    signInWithGoogle
   };
 
   return (

@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -22,7 +23,8 @@ const vendorCategories = [
     services: [
       "Patent and Licensing",
       "Engineering and Prototyping",
-      "Manufacturing or Product Launch"
+      "Manufacturing",
+      "Product Launch"
     ]
   },
   {
@@ -294,16 +296,36 @@ const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: S
             </div>
           ))}
           
+          {/* I don't need any help option */}
+          <div className="pt-4 border-t border-gray-200">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="no-help"
+                checked={selectedVendors.includes("I don't need any help")}
+                onCheckedChange={(checked) => {
+                  if (checked) {
+                    setSelectedVendors(["I don't need any help"]);
+                  } else {
+                    setSelectedVendors([]);
+                  }
+                }}
+              />
+              <label htmlFor="no-help" className="text-sm cursor-pointer font-medium">
+                I don't need any help
+              </label>
+            </div>
+          </div>
+          
           {selectedVendors.length === 0 && (
             <p className="text-sm text-red-600">
-              Please select at least one vendor category to continue.
+              Please select at least one option to continue.
             </p>
           )}
           
           {selectedVendors.length > 0 && (
             <div className="bg-green-50 p-3 rounded-lg">
               <p className="text-sm text-green-800">
-                <strong>Selected:</strong> {selectedVendors.length} service{selectedVendors.length > 1 ? 's' : ''}
+                <strong>Selected:</strong> {selectedVendors.includes("I don't need any help") ? "No assistance needed" : `${selectedVendors.length} service${selectedVendors.length > 1 ? 's' : ''}`}
               </p>
             </div>
           )}
@@ -354,7 +376,7 @@ const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: S
         
         {(!consent || selectedVendors.length === 0) && !isSubmitting && (
           <p className="text-sm text-red-600 mt-2">
-            {!consent && "Please provide consent to feature your story"}{!consent && selectedVendors.length === 0 && " and"} {selectedVendors.length === 0 && "select at least one vendor category"} before submitting.
+            {!consent && "Please provide consent to feature your story"}{!consent && selectedVendors.length === 0 && " and"} {selectedVendors.length === 0 && "select at least one option"} before submitting.
           </p>
         )}
       </div>

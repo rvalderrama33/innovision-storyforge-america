@@ -91,7 +91,7 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">
                   Recommendation {index + 1}
-                  {index < 1 && <span className="text-red-500 ml-1">*</span>}
+                  {index === 0 && <span className="text-red-500 ml-1">*</span>}
                 </CardTitle>
                 {recommendations.length > 1 && (
                   <Button
@@ -109,7 +109,7 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor={`name-${index}`}>
-                    Full Name {index < 1 && <span className="text-red-500">*</span>}
+                    Full Name {index === 0 && <span className="text-red-500">*</span>}
                   </Label>
                   <Input
                     id={`name-${index}`}
@@ -130,7 +130,7 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
                   onValidationChange={(isValid, error) => handleValidationChange(`email-${index}`, isValid, error)}
                   placeholder="their.email@example.com"
                   className="text-lg py-3"
-                  required={index < 1}
+                  required={index === 0}
                 />
               </div>
               

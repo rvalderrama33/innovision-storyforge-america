@@ -2,15 +2,22 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { ArrowLeft, Clock, Calendar, ExternalLink, Share2, Globe } from 'lucide-react';
+import { ArrowLeft, Clock, Calendar, ExternalLink, Share2, Globe, User, Building } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import Header from '@/components/Header';
 import SocialShare from '@/components/SocialShare';
 import SubscriptionGate from '@/components/SubscriptionGate';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSEO } from '@/hooks/useSEO';
 import DOMPurify from 'dompurify';
+
+interface BannerImageSettings {
+  url: string;
+  position: string;
+  size: string;
+}
 
 const Article = () => {
   const { slug } = useParams();
@@ -48,6 +55,20 @@ const Article = () => {
       }
 
       if (error) throw error;
+
+      // Parse banner_image if it's a JSON string
+      if (data.banner_image && typeof data.banner_image === 'string') {
+        try {
+          const parsed = JSON.parse(data.banner_image);
+          if (typeof parsed === 'object' && parsed.url) {
+            data.banner_image = parsed;
+          }
+        } catch (e) {
+          // If parsing fails, leave as string
+          console.log('Banner image is not in JSON format:', e);
+        }
+      }
+
       setArticle(data);
     } catch (error) {
       console.error('Error fetching article:', error);
@@ -61,7 +82,7 @@ const Article = () => {
     title: article ? `${article.product_name} | America Innovates Magazine` : "Article | America Innovates Magazine",
     description: article ? (article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`) : "Discover inspiring innovation stories from entrepreneurs and creators building breakthrough consumer products.",
     url: `https://americainnovates.us/article/${slug}`,
-    image: article?.image_urls?.[0],
+    image: article?.banner_image?.url || article?.image_urls?.[0],
     type: "article"
   });
 
@@ -71,8 +92,10 @@ const Article = () => {
       return content;
     }
 
-    // Skip the first image as it's used as hero image
-    const availableImages = images.slice(1);
+    // Skip the banner image if it exists in image_urls
+    const bannerUrl = typeof article.banner_image === 'object' ? article.banner_image.url : article.banner_image;
+    const availableImages = images.filter(img => img !== bannerUrl && img !== article.headshot_image && img !== article.logo_image);
+    
     if (availableImages.length === 0) {
       return content;
     }
@@ -121,6 +144,39 @@ const Article = () => {
     return `https://${url}`;
   };
 
+  // Helper function to get banner image URL
+  const getBannerImageUrl = () => {
+    if (!article) return '';
+    
+    if (article.banner_image) {
+      return typeof article.banner_image === 'object' ? article.banner_image.url : article.banner_image;
+    }
+    
+    return article.image_urls && article.image_urls.length > 0 ? article.image_urls[0] : '';
+  };
+
+  // Helper function to get banner image style
+  const getBannerImageStyle = () => {
+    if (!article || !article.banner_image || typeof article.banner_image !== 'object') {
+      return { objectFit: 'cover', objectPosition: 'center' };
+    }
+    
+    const banner = article.banner_image;
+    
+    const objectFit = banner.size === 'cover' || banner.size === 'contain' ? banner.size : 'none';
+    
+    const style = {
+      objectFit,
+      objectPosition: banner.position || 'center'
+    };
+    
+    if (banner.size && banner.size !== 'cover' && banner.size !== 'contain' && banner.size !== 'auto') {
+      style.transform = `scale(${parseFloat(banner.size) / 100})`;
+    }
+    
+    return style;
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20 flex items-center justify-center">
@@ -160,18 +216,24 @@ const Article = () => {
     hasUser: !!user
   });
 
+  const bannerUrl = getBannerImageUrl();
+  const hasBanner = !!bannerUrl;
+  const hasHeadshot = !!article.headshot_image;
+  const hasLogo = !!article.logo_image;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20">
       <Header />
       
       {/* Hero Section */}
       <div className="relative">
-        {article.image_urls && article.image_urls.length > 0 && (
+        {hasBanner ? (
           <div className="w-full h-[40vh] lg:h-[50vh] relative overflow-hidden">
             <img
-              src={article.image_urls[0]}
+              src={bannerUrl}
               alt={article.product_name || "Innovation story featured image"}
-              className="w-full h-full object-cover object-top"
+              className="w-full h-full"
+              style={getBannerImageStyle()}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-12">
@@ -183,7 +245,7 @@ const Article = () => {
                   </Button>
                 </Link>
                 <h1 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 leading-tight">
-                  {article.generated_article ? article.generated_article.split('\n')[0].replace(/^#+\s*/, '').trim() : article.full_name}
+                  {article.generated_article ? article.generated_article.split('\n')[0].replace(/^#+\s*/, '').trim() : article.product_name}
                 </h1>
                 <div className="flex flex-wrap items-center gap-4 text-white/90">
                   <div className="flex items-center gap-2">
@@ -205,9 +267,7 @@ const Article = () => {
               </div>
             </div>
           </div>
-        )}
-        
-        {(!article.image_urls || article.image_urls.length === 0) && (
+        ) : (
           <div className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent py-20 lg:py-32">
             <div className="max-w-4xl mx-auto px-6">
               <Link to="/" className="inline-block mb-6">
@@ -216,9 +276,9 @@ const Article = () => {
                   Back to Home
                 </Button>
               </Link>
-               <h1 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 leading-tight">
-                 {article.generated_article ? article.generated_article.split('\n')[0].replace(/^#+\s*/, '').trim() : article.full_name}
-               </h1>
+              <h1 className="text-4xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 leading-tight">
+                {article.generated_article ? article.generated_article.split('\n')[0].replace(/^#+\s*/, '').trim() : article.product_name}
+              </h1>
               <div className="flex flex-wrap items-center gap-4 text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Calendar className="w-4 h-4" />
@@ -243,28 +303,75 @@ const Article = () => {
 
       {/* Content Section */}
       <div className="max-w-4xl mx-auto px-6 py-12 lg:py-16">
-        {/* Prominent Website Link */}
-        {article.website && (
-          <div className="mb-12 p-6 bg-gradient-to-r from-primary/10 to-primary/5 rounded-2xl border border-primary/20">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                <Globe className="w-6 h-6 text-primary" />
+        {/* Author and Innovation Info */}
+        <div className="mb-12 flex flex-col md:flex-row gap-6 items-center md:items-start">
+          {/* Innovator/Author Section */}
+          {hasHeadshot && (
+            <div className="md:w-1/3 flex flex-col items-center text-center">
+              <Avatar className="w-32 h-32 border-4 border-background shadow-lg">
+                <AvatarImage src={article.headshot_image} alt={article.full_name} />
+                <AvatarFallback className="bg-primary/10 text-primary text-2xl">
+                  {article.full_name?.split(' ').map(n => n[0]).join('')}
+                </AvatarFallback>
+              </Avatar>
+              <h3 className="text-xl font-semibold mt-4 mb-1">{article.full_name}</h3>
+              <p className="text-muted-foreground text-sm">
+                {article.city && article.state ? `${article.city}, ${article.state}` : (article.city || article.state)}
+              </p>
+              <div className="flex gap-2 mt-3">
+                <User className="w-4 h-4 text-primary" />
+                <span className="text-sm text-muted-foreground">Innovator</span>
               </div>
+            </div>
+          )}
+          
+          {/* Product/Innovation Section */}
+          <div className={`${hasHeadshot ? 'md:w-2/3' : 'w-full'} space-y-4`}>
+            <div className="flex items-start gap-4">
+              {hasLogo && (
+                <div className="flex-shrink-0 w-16 h-16 bg-card border border-border rounded-md flex items-center justify-center overflow-hidden">
+                  <img 
+                    src={article.logo_image} 
+                    alt={`${article.product_name} logo`}
+                    className="max-w-full max-h-full object-contain"
+                  />
+                </div>
+              )}
               <div className="flex-1">
-                <h3 className="text-lg font-semibold text-foreground mb-2">Visit {article.product_name}</h3>
+                <h2 className="text-2xl font-bold text-foreground mb-2">{article.product_name}</h2>
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {article.category && (
+                    <Badge variant="outline" className="bg-primary/5">
+                      {article.category}
+                    </Badge>
+                  )}
+                  {article.stage && (
+                    <Badge variant="outline" className="bg-secondary/5">
+                      {article.stage}
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-muted-foreground">{article.description}</p>
+              </div>
+            </div>
+
+            {/* Website Link */}
+            {article.website && (
+              <div className="flex items-center gap-3 p-3 bg-card border border-border rounded-lg mt-4">
+                <Globe className="w-5 h-5 text-primary" />
                 <a
                   href={formatWebsiteUrl(article.website)}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-primary hover:text-primary/80 transition-colors font-medium text-lg group"
+                  className="text-primary hover:text-primary/80 transition-colors font-medium group"
                 >
                   <span className="group-hover:underline">{article.website.replace(/^https?:\/\//, '')}</span>
-                  <ExternalLink className="w-5 h-5" />
+                  <ExternalLink className="w-4 h-4 inline ml-1" />
                 </a>
               </div>
-            </div>
+            )}
           </div>
-        )}
+        </div>
 
         <article className="prose prose-lg prose-slate max-w-none">
           <style dangerouslySetInnerHTML={{
@@ -354,7 +461,7 @@ const Article = () => {
                 url={window.location.href}
                 title={article.product_name}
                 description={article.description || `Read about ${article.product_name} by ${article.full_name}`}
-                image={article.image_urls?.[0]}
+                image={getBannerImageUrl()}
               />
             </div>
           </div>

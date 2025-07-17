@@ -1,17 +1,20 @@
 
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { User, Session, AuthChangeEvent } from '@supabase/supabase-js';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-import { sendWelcomeEmail, subscribeToNewsletter } from '@/lib/emailService';
+import { sendWelcomeEmail } from '@/lib/emailService';
+import { subscribeToNewsletter } from '@/lib/newsletterService';
 
 interface AuthContextType {
   user: User | null;
   session: Session | null;
+  isAdmin: boolean;
+  isSubscriber: boolean;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
+  signInWithGoogle: () => Promise<{ error: any }>;
   signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -27,49 +30,94 @@ export const useAuth = () => {
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [isSubscriber, setIsSubscriber] = useState(false);
   const [loading, setLoading] = useState(true);
+  const roleCheckCache = useRef<Record<string, { admin: boolean; subscriber: boolean; timestamp: number }>>({});
 
   useEffect(() => {
-    // Get initial session
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        
+        // Only send welcome email for new signups (not sign-ins)
+        if (event === 'SIGNED_UP' && session?.user) {
+          setTimeout(async () => {
+            try {
+              await sendWelcomeEmail(
+                session.user.email!, 
+                session.user.user_metadata?.full_name || session.user.email
+              );
+              console.log('Welcome email sent successfully');
+              
+              // Subscribe user to newsletter
+              await subscribeToNewsletter(
+                session.user.email!,
+                session.user.user_metadata?.full_name
+              );
+              console.log('User automatically subscribed to newsletter');
+            } catch (error) {
+              console.error('Failed to send welcome email or subscribe to newsletter:', error);
+            }
+          }, 0);
+        }
+        
+        if (session?.user) {
+          // Check cache first (5 minute cache)
+          const cacheKey = session.user.id;
+          const cached = roleCheckCache.current[cacheKey];
+          const now = Date.now();
+          
+          if (cached && (now - cached.timestamp < 5 * 60 * 1000)) {
+            setIsAdmin(cached.admin);
+            setIsSubscriber(cached.subscriber || cached.admin);
+          } else {
+            // Check if user is admin and subscriber with debounced calls
+            setTimeout(async () => {
+              try {
+                const [adminData, subscriberData] = await Promise.all([
+                  supabase.rpc('has_role', {
+                    _user_id: session.user.id,
+                    _role: 'admin'
+                  }),
+                  supabase.rpc('has_role', {
+                    _user_id: session.user.id,
+                    _role: 'subscriber'
+                  })
+                ]);
+                const isUserAdmin = adminData.data || false;
+                const isUserSubscriber = subscriberData.data || false;
+                
+                // Cache the results
+                roleCheckCache.current[cacheKey] = {
+                  admin: isUserAdmin,
+                  subscriber: isUserSubscriber,
+                  timestamp: now
+                };
+                
+                setIsAdmin(isUserAdmin);
+                setIsSubscriber(isUserSubscriber || isUserAdmin);
+              } catch (error) {
+                console.error('Error checking user roles:', error);
+                setIsAdmin(false);
+                setIsSubscriber(false);
+              }
+            }, 100);
+          }
+        } else {
+          setIsAdmin(false);
+          setIsSubscriber(false);
+        }
+      }
+    );
+
+    // Check for existing session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event: AuthChangeEvent, session: Session | null) => {
-      console.log('Auth state changed:', event, session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      // Only send welcome email for new signups (not sign-ins)
-      if (event === 'SIGNED_UP' && session?.user) {
-        setTimeout(async () => {
-          try {
-            await sendWelcomeEmail(
-              session.user.email!, 
-              session.user.user_metadata?.full_name || session.user.email
-            );
-            console.log('Welcome email sent successfully');
-            
-            // Subscribe user to newsletter
-            await subscribeToNewsletter(
-              session.user.email!,
-              session.user.user_metadata?.full_name
-            );
-            console.log('User automatically subscribed to newsletter');
-          } catch (error) {
-            console.error('Failed to send welcome email or subscribe to newsletter:', error);
-          }
-        }, 0);
-      }
-      
-      if (session?.user) {
-        setLoading(false);
-      }
     });
 
     return () => subscription.unsubscribe();
@@ -96,28 +144,31 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return { error };
   };
 
-  const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) {
-      console.error('Error signing out:', error);
-    }
-  };
-
-  const resetPassword = async (email: string) => {
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth?mode=reset`,
+  const signInWithGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/`,
+      },
     });
     return { error };
+  };
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    window.location.href = '/';
   };
 
   const value = {
     user,
     session,
+    isAdmin,
+    isSubscriber,
     loading,
     signIn,
     signUp,
+    signInWithGoogle,
     signOut,
-    resetPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

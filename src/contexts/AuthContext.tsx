@@ -42,32 +42,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         
-        // Send welcome email only for new signups by checking if user was created recently
-        if (event === 'SIGNED_IN' && session?.user && !user) {
-          const userCreatedAt = new Date(session.user.created_at);
-          const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000);
-          
-          // Only send welcome email if user was created in the last 5 minutes
-          if (userCreatedAt > fiveMinutesAgo) {
-            setTimeout(async () => {
-              try {
-                await sendWelcomeEmail(
-                  session.user.email!, 
-                  session.user.user_metadata?.full_name || session.user.email
-                );
-                console.log('Welcome email sent successfully');
-                
-                // Subscribe user to newsletter
-                await subscribeToNewsletter(
-                  session.user.email!,
-                  session.user.user_metadata?.full_name
-                );
-                console.log('User automatically subscribed to newsletter');
-              } catch (error) {
-                console.error('Failed to send welcome email or subscribe to newsletter:', error);
-              }
-            }, 0);
-          }
+        // Only send welcome email for new signups (not sign-ins)
+        if (event === 'SIGNED_UP' && session?.user) {
+          setTimeout(async () => {
+            try {
+              await sendWelcomeEmail(
+                session.user.email!, 
+                session.user.user_metadata?.full_name || session.user.email
+              );
+              console.log('Welcome email sent successfully');
+              
+              // Subscribe user to newsletter
+              await subscribeToNewsletter(
+                session.user.email!,
+                session.user.user_metadata?.full_name
+              );
+              console.log('User automatically subscribed to newsletter');
+            } catch (error) {
+              console.error('Failed to send welcome email or subscribe to newsletter:', error);
+            }
+          }, 0);
         }
         
         if (session?.user) {
@@ -138,13 +132,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        emailRedirectTo: redirectUrl,
         data: {
           full_name: fullName,
         },

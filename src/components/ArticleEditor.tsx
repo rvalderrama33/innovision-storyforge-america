@@ -180,7 +180,7 @@ const ArticleEditor = () => {
           url,
           position: currentBanner?.position || 'center',
           size: currentBanner?.size || 'cover'
-        } as BannerImageSettings
+        }
       });
     } else {
       setArticle({ ...article, [imageType]: url });
@@ -198,7 +198,7 @@ const ArticleEditor = () => {
         url: currentBanner?.url || '',
         position: setting === 'position' ? value : (currentBanner?.position || 'center'),
         size: setting === 'size' ? value : (currentBanner?.size || 'cover')
-      } as BannerImageSettings
+      }
     });
   };
 

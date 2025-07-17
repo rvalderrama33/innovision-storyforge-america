@@ -1,3 +1,4 @@
+
 -- Function to sync all admin users as newsletter subscribers
 CREATE OR REPLACE FUNCTION sync_admin_newsletter_subscriptions()
 RETURNS void
@@ -61,7 +62,7 @@ BEGIN
 END;
 $$;
 
--- Create trigger to auto-subscribe admins when they get admin role
+-- Create trigger to auto-subscribe admins when they get admin role (no welcome email)
 CREATE OR REPLACE FUNCTION auto_subscribe_admin_to_newsletter()
 RETURNS TRIGGER
 LANGUAGE plpgsql
@@ -99,6 +100,7 @@ END;
 $$;
 
 -- Create the trigger
+DROP TRIGGER IF EXISTS on_admin_role_assigned ON public.user_roles;
 CREATE TRIGGER on_admin_role_assigned
   AFTER INSERT ON public.user_roles
   FOR EACH ROW 

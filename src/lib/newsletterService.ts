@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { sendWelcomeEmail } from './emailService';
 
 export interface NewsletterSubscriber {
   id: string;
@@ -53,7 +54,7 @@ export const subscribeToNewsletter = async (email: string, fullName?: string) =>
       if (existing.is_active) {
         throw new Error('You are already subscribed to our newsletter');
       } else {
-        // Reactivate subscription
+        // Reactivate subscription - don't send welcome email for reactivations
         const { data, error } = await supabase
           .from('newsletter_subscribers')
           .update({
@@ -84,6 +85,18 @@ export const subscribeToNewsletter = async (email: string, fullName?: string) =>
       .single();
 
     if (error) throw error;
+
+    // Only send welcome email for new subscriptions from website
+    if (data && data.subscription_source === 'website') {
+      try {
+        await sendWelcomeEmail(email, fullName);
+        console.log('Welcome email sent to:', email);
+      } catch (emailError) {
+        console.error('Failed to send welcome email:', emailError);
+        // Don't throw here - subscription should still succeed even if email fails
+      }
+    }
+
     return data;
   } catch (error) {
     console.error('Error subscribing to newsletter:', error);

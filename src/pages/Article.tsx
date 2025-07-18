@@ -204,7 +204,7 @@ const Article = () => {
       {/* Hero Section */}
       <div className="relative">
         {hasBanner ? (
-          <div className="w-full h-[40vh] lg:h-[50vh] relative overflow-hidden">
+          <div className="w-full h-[48vh] lg:h-[60vh] relative overflow-hidden">
             <img
               src={bannerUrl}
               alt={article.product_name || "Innovation story featured image"}

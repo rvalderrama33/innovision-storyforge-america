@@ -167,7 +167,7 @@ const Article = () => {
       result.push(paragraphs[i]);
     }
     
-    return result.join('\n\n');
+    return result.join('</p><p>');
   };
 
   // Helper function to ensure website URL has proper protocol

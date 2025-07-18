@@ -2,8 +2,10 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import FirecrawlApp from 'https://esm.sh/@mendable/firecrawl-js@1';
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
 const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
 const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
@@ -67,8 +69,42 @@ serve(async (req) => {
       });
     }
 
+    // Function to scrape website content if URL is provided
+    async function scrapeWebsiteContent(url: string): Promise<string> {
+      if (!firecrawlApiKey) {
+        console.log("Firecrawl API key not configured, skipping website scraping");
+        return "";
+      }
+
+      try {
+        console.log("Scraping website content from:", url);
+        const app = new FirecrawlApp({ apiKey: firecrawlApiKey });
+        
+        const scrapeResult = await app.scrapeUrl(url, {
+          formats: ['markdown']
+        });
+
+        if (scrapeResult.success && scrapeResult.data?.markdown) {
+          console.log("Successfully scraped website content, length:", scrapeResult.data.markdown.length);
+          return scrapeResult.data.markdown;
+        } else {
+          console.log("Failed to scrape website or no content found");
+          return "";
+        }
+      } catch (error) {
+        console.error("Error scraping website:", error);
+        return "";
+      }
+    }
+
     // Check if this is a manual submission and create appropriate prompt
     let prompt;
+    let websiteContent = "";
+    
+    // Scrape website content if URL is provided (for both manual and regular submissions)
+    if (formData.website && formData.website.trim() !== '') {
+      websiteContent = await scrapeWebsiteContent(formData.website);
+    }
     
     if (formData.isManualSubmission) {
       prompt = `
@@ -77,11 +113,19 @@ Write a comprehensive, in-depth feature article about: ${formData.personName}
 
 Background Information: ${formData.description}
 
+${websiteContent ? `
+ADDITIONAL WEBSITE INFORMATION:
+The following content was scraped from their website (${formData.website}):
+${websiteContent}
+
+Use this website content to gather additional insights about their business, products, services, and entrepreneurial journey.
+` : ''}
+
 ${formData.sourceLinks && formData.sourceLinks.length > 0 ? `
 IMPORTANT: Use these source links to research and gather detailed information about ${formData.personName}:
 ${formData.sourceLinks.map((link, index) => `[${index + 1}] ${link}`).join('\n')}
 
-Based on the information available from these sources, write a thorough, well-researched article that covers:
+Based on the information available from these sources${websiteContent ? ' and their website content' : ''}, write a thorough, well-researched article that covers:
 - Their entrepreneurial journey and business ventures
 - How their background (sports, entertainment, etc.) shaped their entrepreneurial mindset
 - Key business achievements and innovations they've created
@@ -103,7 +147,7 @@ Structure it as a complete magazine feature article with:
 
 IMPORTANT: Do NOT use markdown headers (# symbols) in your response. Write the article in plain text with clear section breaks but no # symbols.
 
-Make sure to prominently feature the person's name (${formData.personName}) throughout the article and write as if you have thoroughly researched their business journey using the provided sources.
+Make sure to prominently feature the person's name (${formData.personName}) throughout the article and write as if you have thoroughly researched their business journey using the provided sources${websiteContent ? ' and website information' : ''}.
       `;
     } else {
       prompt = `Write a professional magazine article about an innovative entrepreneur and their business journey. Use the following information:
@@ -114,6 +158,14 @@ ENTREPRENEUR PROFILE:
 - Background: ${formData.background || 'Not provided'}
 - Website: ${formData.website || 'Not provided'}
 - Social Media: ${formData.socialMedia || 'Not provided'}
+
+${websiteContent ? `
+ADDITIONAL WEBSITE INFORMATION:
+The following content was scraped from their website (${formData.website}):
+${websiteContent}
+
+Use this website content to gather additional insights about their business, products, services, team, and entrepreneurial story.
+` : ''}
 
 BUSINESS VENTURE DETAILS:
 - Product/Business Name: ${formData.productName || 'Not provided'}
@@ -139,6 +191,8 @@ Please write a compelling, motivational magazine article (800-1200 words) that t
 5. Key entrepreneurial challenges overcome and business lessons learned
 6. Their proudest business achievements and future entrepreneurial vision
 7. A conclusion that inspires other entrepreneurs and business leaders
+
+${websiteContent ? 'Incorporate relevant details from their website content to provide deeper insights into their business, products, and entrepreneurial approach.' : ''}
 
 Write in the style of a feature article for America Innovates Magazine, focusing on the entrepreneurial journey and business impact while highlighting leadership lessons and business innovation.
 

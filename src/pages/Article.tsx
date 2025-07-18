@@ -466,24 +466,95 @@ const Article = () => {
               distributeImagesInContent(contentToShow, article.image_urls) : 
               contentToShow;
             
-            return (
-              <>
-                <div 
-                  className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8"
-                  dangerouslySetInnerHTML={{
-                    __html: DOMPurify.sanitize(
-                      finalContent
-                        ?.replace(new RegExp(`\\b${article.full_name}\\b`, 'gi'), `<span class="font-semibold text-primary">${article.full_name}</span>`)
-                        ?.replace(/^/, '<p>')
-                        ?.replace(/$/, '</p>') || ''
-                    )
-                  }}
-                />
-                {!canViewFullContent && (
-                  <SubscriptionGate articleTitle={article.product_name} />
-                )}
-              </>
-            );
+            return (() => {
+              const availableImages = article.image_urls?.filter(img => 
+                img && 
+                img.trim() !== '' && 
+                img !== bannerUrl && 
+                img !== article?.headshot_image && 
+                img !== article?.logo_image
+              ) || [];
+              
+              if (availableImages.length === 0) {
+                return (
+                  <div 
+                    className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(
+                        finalContent?.replace(
+                          new RegExp(`\\b${article.full_name}\\b`, 'gi'),
+                          `<span class="font-semibold text-primary">${article.full_name}</span>`
+                        ).replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>') || ''
+                      )
+                    }}
+                  />
+                );
+              }
+
+              // Split content into paragraphs for image distribution
+              const paragraphs = finalContent?.split(/\n\s*\n/) || [];
+              const step = Math.max(2, Math.floor(paragraphs.length / availableImages.length));
+              
+              const contentParts = [];
+              let currentParagraphs = [];
+              let imageIndex = 0;
+              
+              for (let i = 0; i < paragraphs.length; i++) {
+                currentParagraphs.push(paragraphs[i]);
+                
+                // Insert image after every few paragraphs
+                if (imageIndex < availableImages.length && 
+                    (i > 0 && (i + 1) % step === 0 || i === paragraphs.length - 1)) {
+                  
+                  // Add the current text chunk
+                  if (currentParagraphs.length > 0) {
+                    const textContent = currentParagraphs.join('\n\n')
+                      .replace(new RegExp(`\\b${article.full_name}\\b`, 'gi'), 
+                        `<span class="font-semibold text-primary">${article.full_name}</span>`);
+                    
+                    contentParts.push(
+                      <div key={`text-${i}`} 
+                        className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8"
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(
+                            textContent.replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>')
+                          )
+                        }}
+                      />
+                    );
+                    currentParagraphs = [];
+                  }
+                  
+                  // Add image
+                  if (imageIndex < availableImages.length) {
+                    const imageUrl = availableImages[imageIndex];
+                    const float = imageIndex % 2 === 0 ? 'left' : 'right';
+                    const formattedUrl = formatImageUrl(imageUrl);
+                    const altText = getImageAltText(imageUrl, article.product_name);
+                    
+                    contentParts.push(
+                      <img 
+                        key={`image-${imageIndex}`}
+                        src={formattedUrl} 
+                        alt={altText}
+                        className={`float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm rounded-lg shadow-md w-full h-auto object-cover`}
+                        style={{ maxHeight: '300px' }}
+                      />
+                    );
+                    imageIndex++;
+                  }
+                }
+              }
+              
+              return (
+                <>
+                  {contentParts}
+                  {!canViewFullContent && (
+                    <SubscriptionGate articleTitle={article.product_name} />
+                  )}
+                </>
+              );
+            })();
           })()}
         </article>
 

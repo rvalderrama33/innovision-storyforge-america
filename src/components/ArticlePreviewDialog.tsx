@@ -7,7 +7,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle } from "lucide-react";
+import { CheckCircle, XCircle, RefreshCw } from "lucide-react";
 
 interface ArticlePreviewDialogProps {
   isOpen: boolean;
@@ -15,6 +15,7 @@ interface ArticlePreviewDialogProps {
   submission: any;
   onApprove: (submissionId: string) => void;
   onReject: (submissionId: string) => void;
+  onRegenerate: (submissionId: string) => void;
 }
 
 const ArticlePreviewDialog = ({ 
@@ -22,7 +23,8 @@ const ArticlePreviewDialog = ({
   onClose, 
   submission, 
   onApprove, 
-  onReject 
+  onReject,
+  onRegenerate 
 }: ArticlePreviewDialogProps) => {
   if (!submission) return null;
 
@@ -99,6 +101,16 @@ const ArticlePreviewDialog = ({
                 onClick={onClose}
               >
                 Close
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  onRegenerate(submission.id);
+                  onClose();
+                }}
+              >
+                <RefreshCw className="h-4 w-4 mr-1" />
+                Regenerate
               </Button>
               <Button
                 variant="destructive"

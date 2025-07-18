@@ -267,6 +267,35 @@ const AdminDashboard = () => {
     }
   };
 
+  const regenerateStory = async (submissionId: string) => {
+    try {
+      toast({
+        title: "Regenerating story",
+        description: "Please wait while we regenerate the article...",
+      });
+
+      const { data, error } = await supabase.functions.invoke('generate-article', {
+        body: { submissionId }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Story regenerated",
+        description: "The article has been regenerated successfully",
+      });
+
+      fetchSubmissions();
+    } catch (error) {
+      console.error('Error regenerating story:', error);
+      toast({
+        title: "Error",
+        description: "Failed to regenerate story",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleEditUser = (user: any) => {
     setEditingUser(user);
     setEditUserData({
@@ -869,6 +898,7 @@ const AdminDashboard = () => {
           submission={selectedSubmission}
           onApprove={(submissionId) => updateSubmissionStatus(submissionId, 'approved')}
           onReject={(submissionId) => updateSubmissionStatus(submissionId, 'rejected')}
+          onRegenerate={regenerateStory}
         />
       </div>
     </div>

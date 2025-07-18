@@ -167,7 +167,7 @@ const Article = () => {
       result.push(paragraphs[i]);
     }
     
-    return result.join('</p><p>');
+    return result.join('\n\n');
   };
 
   // Helper function to ensure website URL has proper protocol
@@ -472,10 +472,11 @@ const Article = () => {
                   className="text-muted-foreground leading-relaxed text-lg [&>h1]:text-3xl [&>h1]:font-bold [&>h1]:text-foreground [&>h1]:mb-6 [&>h1]:mt-12 [&>h2]:text-2xl [&>h2]:font-semibold [&>h2]:text-foreground [&>h2]:mb-4 [&>h2]:mt-8 [&>h3]:text-xl [&>h3]:font-medium [&>h3]:text-foreground [&>h3]:mb-3 [&>h3]:mt-6 [&>p]:mb-6 [&>p]:leading-relaxed [&>ul]:mb-6 [&>ol]:mb-6 [&>blockquote]:border-l-4 [&>blockquote]:border-primary [&>blockquote]:pl-6 [&>blockquote]:italic [&>blockquote]:text-muted-foreground [&>blockquote]:my-8"
                   dangerouslySetInnerHTML={{
                     __html: DOMPurify.sanitize(
-                      finalContent?.replace(
-                        new RegExp(`\\b${article.full_name}\\b`, 'gi'),
-                        `<span class="font-semibold text-primary">${article.full_name}</span>`
-                      ).replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>') || ''
+                      finalContent
+                        ?.replace(new RegExp(`\\b${article.full_name}\\b`, 'gi'), `<span class="font-semibold text-primary">${article.full_name}</span>`)
+                        ?.replace(/\n\n/g, '</p><p>')
+                        ?.replace(/^/, '<p>')
+                        ?.replace(/$/, '</p>') || ''
                     )
                   }}
                 />

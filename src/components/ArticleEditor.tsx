@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Save, Plus, X, ImageIcon, Star, User, Building } from 'lucide-react';
+import { ArrowLeft, Save, Plus, X, ImageIcon, Star, User, Building, Upload } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface BannerImageSettings {
@@ -60,6 +60,7 @@ const ArticleEditor = () => {
   const [saving, setSaving] = useState(false);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [newSourceLink, setNewSourceLink] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   const categories = [
     'Technology', 'Health & Wellness', 'Food & Beverage', 'Fashion', 
@@ -239,6 +240,51 @@ const ArticleEditor = () => {
     if (article) {
       const newLinks = article.source_links.filter((_, i) => i !== index);
       setArticle({ ...article, source_links: newLinks });
+    }
+  };
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !article) return;
+
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('submission-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage
+        .from('submission-images')
+        .getPublicUrl(filePath);
+
+      if (data.publicUrl) {
+        setArticle({
+          ...article,
+          image_urls: [...(article.image_urls || []), data.publicUrl]
+        });
+        
+        toast({
+          title: "Success",
+          description: "Image uploaded successfully!",
+        });
+      }
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast({
+        title: "Error",
+        description: "Failed to upload image",
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+      // Reset the input
+      event.target.value = '';
     }
   };
 
@@ -763,6 +809,37 @@ const ArticleEditor = () => {
                     <Button onClick={addImageUrl} size="sm">
                       <Plus className="w-4 h-4" />
                     </Button>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <div className="flex-1 h-px bg-border"></div>
+                    <span>or</span>
+                    <div className="flex-1 h-px bg-border"></div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <label className="flex-1">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageUpload}
+                        className="hidden"
+                      />
+                      <Button 
+                        variant="outline" 
+                        className="w-full gap-2" 
+                        disabled={uploading}
+                        type="button"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          const input = e.currentTarget.parentElement?.querySelector('input[type="file"]') as HTMLInputElement;
+                          input?.click();
+                        }}
+                      >
+                        <Upload className="w-4 h-4" />
+                        {uploading ? 'Uploading...' : 'Upload Image'}
+                      </Button>
+                    </label>
                   </div>
                   <div className="space-y-2">
                     {article.image_urls?.map((url, index) => (

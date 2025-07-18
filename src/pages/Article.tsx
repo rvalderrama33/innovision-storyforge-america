@@ -108,68 +108,6 @@ const Article = () => {
     return `${productName || 'Product'} image`;
   };
 
-  // Function to distribute images with text wrapping throughout article content
-  const distributeImagesInContent = (content, images) => {
-    if (!content || !images || !Array.isArray(images) || images.length <= 1) {
-      return content;
-    }
-
-    // Skip the banner image if it exists in image_urls
-    const bannerUrl = article?.banner_image ? 
-      (typeof article.banner_image === 'object' && article.banner_image?.url ? article.banner_image.url : article.banner_image) : 
-      null;
-      
-    // Filter out undefined or null values and check if the image is not the banner, headshot or logo
-    const availableImages = images.filter(img => 
-      img && 
-      img !== bannerUrl && 
-      img !== article?.headshot_image && 
-      img !== article?.logo_image
-    );
-    
-    if (availableImages.length === 0) {
-      return content;
-    }
-
-    // Split content into paragraphs
-    const paragraphs = content.split('\n\n');
-    
-    // Calculate positions to insert images (roughly every 3-4 paragraphs)
-    const imagePositions = [];
-    const step = Math.max(3, Math.floor(paragraphs.length / availableImages.length));
-    
-    for (let i = 0; i < availableImages.length; i++) {
-      const position = Math.min(step * (i + 1), paragraphs.length - 1);
-      const floatDirection = i % 2 === 0 ? 'left' : 'right';
-      imagePositions.push({ 
-        position, 
-        imageUrl: availableImages[i],
-        float: floatDirection
-      });
-    }
-
-    // Insert images at calculated positions with text wrapping
-    let result = [];
-    let imageIndex = 0;
-    
-    for (let i = 0; i < paragraphs.length; i++) {
-      // Check if we should insert an image before this paragraph
-      if (imageIndex < imagePositions.length && i === imagePositions[imageIndex].position) {
-        const { imageUrl, float } = imagePositions[imageIndex];
-        if (imageUrl) {  // Only add the image if URL is valid
-          const formattedUrl = formatImageUrl(imageUrl);
-          const altText = getImageAltText(imageUrl, article.product_name);
-          result.push(`</p><img src="${formattedUrl}" alt="${altText}" class="float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm rounded-lg shadow-md w-full h-auto object-cover" style="max-height: 300px;" /><p>`);
-        }
-        imageIndex++;
-      }
-      
-      result.push(paragraphs[i]);
-    }
-    
-    return result.join('</p><p>');
-  };
-
   // Helper function to ensure website URL has proper protocol
   const formatWebsiteUrl = (url) => {
     if (!url) return url;
@@ -461,10 +399,8 @@ const Article = () => {
               contentToShow = words.slice(0, teaserLength).join(' ');
             }
             
-            // Only distribute images if user can view full content
-            const finalContent = canViewFullContent && article.image_urls && article.image_urls.length > 1 ? 
-              distributeImagesInContent(contentToShow, article.image_urls) : 
-              contentToShow;
+            // Use the content as-is, images will be handled in the React rendering
+            const finalContent = contentToShow;
             
             return (() => {
               const availableImages = article.image_urls?.filter(img => 

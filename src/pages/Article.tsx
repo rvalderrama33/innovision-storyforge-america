@@ -159,7 +159,7 @@ const Article = () => {
         if (imageUrl) {  // Only add the image if URL is valid
           const formattedUrl = formatImageUrl(imageUrl);
           const altText = getImageAltText(imageUrl, article.product_name);
-          result.push(`<img src="${formattedUrl}" alt="${altText}" class="float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm rounded-lg shadow-md w-full h-auto object-cover" style="max-height: 300px;" />`);
+          result.push(`</p><img src="${formattedUrl}" alt="${altText}" class="float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm rounded-lg shadow-md w-full h-auto object-cover" style="max-height: 300px;" /><p>`);
         }
         imageIndex++;
       }
@@ -167,7 +167,7 @@ const Article = () => {
       result.push(paragraphs[i]);
     }
     
-    return result.join('\n\n');
+    return result.join('</p><p>');
   };
 
   // Helper function to ensure website URL has proper protocol
@@ -474,7 +474,6 @@ const Article = () => {
                     __html: DOMPurify.sanitize(
                       finalContent
                         ?.replace(new RegExp(`\\b${article.full_name}\\b`, 'gi'), `<span class="font-semibold text-primary">${article.full_name}</span>`)
-                        ?.replace(/\n\n/g, '</p><p>')
                         ?.replace(/^/, '<p>')
                         ?.replace(/$/, '</p>') || ''
                     )

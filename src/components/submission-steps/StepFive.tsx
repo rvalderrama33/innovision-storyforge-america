@@ -29,13 +29,9 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {
-    // At least 1 recommendation with name and email filled
-    const validRecommendations = recommendations.filter(rec => 
-      rec.name.trim() !== "" && rec.email.trim() !== ""
-    );
-    const hasMinimumRecommendations = validRecommendations.length >= 1;
+    // Recommendations are now optional
     const hasNoValidationErrors = Object.keys(validationErrors).length === 0;
-    const isValid = hasMinimumRecommendations && hasNoValidationErrors;
+    const isValid = hasNoValidationErrors;
     onValidationChange(isValid);
     return isValid;
   };
@@ -80,7 +76,7 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
           Recommend Other Innovators
         </h3>
         <p className="text-gray-600">
-          Help us discover other entrepreneurs or product innovators who have compelling stories worth sharing. <strong>Please provide at least 1 recommendation.</strong>
+          Help us discover other entrepreneurs or product innovators who have compelling stories worth sharing. <strong>This section is optional.</strong>
         </p>
       </div>
 
@@ -91,7 +87,6 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
               <div className="flex items-center justify-between">
                 <CardTitle className="text-lg">
                   Recommendation {index + 1}
-                  {index === 0 && <span className="text-red-500 ml-1">*</span>}
                 </CardTitle>
                 {recommendations.length > 1 && (
                   <Button
@@ -109,7 +104,7 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor={`name-${index}`}>
-                    Full Name {index === 0 && <span className="text-red-500">*</span>}
+                    Full Name
                   </Label>
                   <Input
                     id={`name-${index}`}
@@ -130,7 +125,7 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
                   onValidationChange={(isValid, error) => handleValidationChange(`email-${index}`, isValid, error)}
                   placeholder="their.email@example.com"
                   className="text-lg py-3"
-                  required={index === 0}
+                  required={false}
                 />
               </div>
               

@@ -242,6 +242,28 @@ const createApprovalEmail = (customizations: EmailCustomizations, name: string, 
         </a>
       </div>
       
+      <!-- Share Your Story Section -->
+      <div style="background: #f0fdf4; border: 2px solid #22c55e; border-radius: 12px; padding: 25px; margin-bottom: 30px;">
+        <h3 style="color: #15803d; margin: 0 0 15px 0; font-size: 20px; text-align: center;">📢 Help Us Spread Your Innovation Story!</h3>
+        <p style="color: #166534; margin: 0 0 20px 0; text-align: center; font-size: 16px; font-weight: 600;">
+          🎉 We're SO excited about your story and we know others will be too! 
+        </p>
+        <p style="color: #374151; margin: 0 0 20px 0; text-align: center; font-size: 15px; line-height: 1.6;">
+          <strong>Please share your published article with ALL your friends, family, colleagues, and social media networks!</strong> 
+          Your entrepreneurial journey deserves to be celebrated and can inspire countless others to pursue their own innovations.
+        </p>
+        <div style="text-align: center; margin-bottom: 15px;">
+          <p style="color: #374151; margin: 0; font-size: 14px;">
+            📱 Post on Facebook, LinkedIn, Twitter, Instagram<br/>
+            📧 Email to your network • 💬 Share in your groups<br/>
+            🗣️ Tell everyone about your feature!
+          </p>
+        </div>
+        <p style="color: #059669; margin: 0; text-align: center; font-size: 14px; font-weight: 600;">
+          The more people who read your story, the greater impact you'll have! 🚀
+        </p>
+      </div>
+      
       
       ${getEmailFooter(customizations)}
     `)

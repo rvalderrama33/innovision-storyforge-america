@@ -123,7 +123,7 @@ const ArticleEditor = () => {
       if (error) throw error;
       
       // Parse banner image if it exists as JSON string
-      const parsedData = { ...data };
+      const parsedData = { ...data } as ArticleData;
       try {
         if (data.banner_image && typeof data.banner_image === 'string') {
           try {

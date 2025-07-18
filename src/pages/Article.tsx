@@ -94,18 +94,12 @@ const Article = () => {
     return url;
   };
 
-  // Helper function to get clean filename for alt text
+  // Helper function to get clean alt text for images
   const getImageAltText = (url: string, productName: string): string => {
     if (!url) return productName || 'Product image';
     
-    // Extract filename from URL for more descriptive alt text
-    const parts = url.split('/');
-    const filename = parts[parts.length - 1];
-    
-    // Remove file extension and clean up the filename
-    const cleanName = filename.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' ');
-    
-    return `${productName || 'Product'} - ${cleanName}`;
+    // Return simple, clean alt text instead of messy filenames
+    return `${productName || 'Product'} image`;
   };
 
   // Function to distribute images with text wrapping throughout article content

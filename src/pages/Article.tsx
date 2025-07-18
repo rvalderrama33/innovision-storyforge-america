@@ -98,7 +98,13 @@ const Article = () => {
   const getImageAltText = (url: string, productName: string): string => {
     if (!url) return productName || 'Product image';
     
-    // Return simple, clean alt text instead of messy filenames
+    // Check if this is an uploaded image (from Supabase storage)
+    if (url.includes('supabase.co/storage/v1/object/public/submission-images/')) {
+      // For uploaded images, use a simple descriptive alt text
+      return `${productName || 'Product'} image`;
+    }
+    
+    // For external URL images, return simple clean alt text without messy filenames
     return `${productName || 'Product'} image`;
   };
 

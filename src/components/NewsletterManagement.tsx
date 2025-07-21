@@ -359,41 +359,56 @@ const NewsletterManagement = () => {
                         )}
                       </div>
                     </div>
-                    <div className="flex gap-2">
-                      {newsletter.status === 'draft' && (
-                        <>
-                          <div className="flex gap-2 items-center">
-                            <Input
-                              placeholder="test@example.com"
-                              value={testEmail}
-                              onChange={(e) => setTestEmail(e.target.value)}
-                              className="w-40"
-                            />
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleSendNewsletter(newsletter, true)}
-                              disabled={sendingNewsletter === newsletter.id}
-                            >
-                              <Eye className="w-4 h-4 mr-1" />
-                              Test
-                            </Button>
-                          </div>
-                          <Button
-                            size="sm"
-                            onClick={() => handleSendNewsletter(newsletter, false)}
-                            disabled={sendingNewsletter === newsletter.id}
-                          >
-                            {sendingNewsletter === newsletter.id ? (
-                              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
-                            ) : (
-                              <Send className="w-4 h-4 mr-1" />
-                            )}
-                            Send to All
-                          </Button>
-                        </>
-                      )}
-                    </div>
+                     <div className="flex gap-2">
+                       {newsletter.status === 'draft' && (
+                         <>
+                           <div className="flex gap-2 items-center">
+                             <Input
+                               placeholder="test@example.com"
+                               value={testEmail}
+                               onChange={(e) => setTestEmail(e.target.value)}
+                               className="w-40"
+                             />
+                             <Button
+                               variant="outline"
+                               size="sm"
+                               onClick={() => handleSendNewsletter(newsletter, true)}
+                               disabled={sendingNewsletter === newsletter.id}
+                             >
+                               <Eye className="w-4 h-4 mr-1" />
+                               Test
+                             </Button>
+                           </div>
+                           <Button
+                             size="sm"
+                             onClick={() => handleSendNewsletter(newsletter, false)}
+                             disabled={sendingNewsletter === newsletter.id}
+                           >
+                             {sendingNewsletter === newsletter.id ? (
+                               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-1" />
+                             ) : (
+                               <Send className="w-4 h-4 mr-1" />
+                             )}
+                             Send to All
+                           </Button>
+                         </>
+                       )}
+                       {newsletter.status === 'sent' && (
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           onClick={() => handleSendNewsletter(newsletter, false)}
+                           disabled={sendingNewsletter === newsletter.id}
+                         >
+                           {sendingNewsletter === newsletter.id ? (
+                             <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin mr-1" />
+                           ) : (
+                             <Send className="w-4 h-4 mr-1" />
+                           )}
+                           Resend to All
+                         </Button>
+                       )}
+                     </div>
                   </div>
                 </div>
               ))

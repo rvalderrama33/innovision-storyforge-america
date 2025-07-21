@@ -124,7 +124,7 @@ const handler = async (req: Request): Promise<Response> => {
     const errors: string[] = [];
 
     // Send emails in batches to avoid rate limiting
-    const batchSize = 5; // Reduce batch size to avoid rate limits
+    const batchSize = 3; // Very small batches to avoid rate limits
     for (let i = 0; i < recipients.length; i += batchSize) {
       const batch = recipients.slice(i, i + batchSize);
       
@@ -174,7 +174,7 @@ const handler = async (req: Request): Promise<Response> => {
       // Longer delay between batches to respect rate limits
       if (i + batchSize < recipients.length) {
         console.log(`Waiting before next batch...`);
-        await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
+        await new Promise(resolve => setTimeout(resolve, 5000)); // 5 second delay
       }
     }
 

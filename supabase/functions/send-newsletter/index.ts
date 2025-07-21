@@ -32,6 +32,7 @@ const handler = async (req: Request): Promise<Response> => {
     );
 
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+    console.log(`Resend API Key exists: ${!!Deno.env.get("RESEND_API_KEY")}`);
     
     const { newsletterId, testEmail }: SendNewsletterRequest = await req.json();
 
@@ -165,6 +166,7 @@ const handler = async (req: Request): Promise<Response> => {
           errorCount++;
           errors.push(`${subscriber.email}: ${error.message}`);
           console.error(`Failed to send email to ${subscriber.email}:`, error);
+          console.error(`Full error details:`, error);
         }
       }));
 
@@ -197,6 +199,7 @@ const handler = async (req: Request): Promise<Response> => {
     };
 
     console.log('Newsletter send completed:', response);
+    console.log('Detailed errors:', errors);
 
     return new Response(JSON.stringify(response), {
       status: 200,

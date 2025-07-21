@@ -219,8 +219,8 @@ export const getNewsletterAnalytics = async (newsletterId?: string) => {
       .from('email_analytics')
       .select(`
         *,
-        newsletter:newsletters(title, subject),
-        subscriber:newsletter_subscribers(email, full_name)
+        newsletters!inner(id, title, subject, sent_at, recipient_count, open_count, click_count),
+        newsletter_subscribers(id, email, full_name)
       `);
 
     if (newsletterId) {
@@ -229,8 +229,20 @@ export const getNewsletterAnalytics = async (newsletterId?: string) => {
 
     const { data, error } = await query.order('created_at', { ascending: false });
 
-    if (error) throw error;
-    return data || [];
+    if (error) {
+      console.error('Analytics query error:', error);
+      throw error;
+    }
+    
+    // Transform the data to match the expected structure
+    const transformedData = data?.map(item => ({
+      ...item,
+      newsletter: item.newsletters,
+      subscriber: item.newsletter_subscribers
+    })) || [];
+    
+    console.log('Transformed analytics data:', transformedData);
+    return transformedData;
   } catch (error) {
     console.error('Error fetching newsletter analytics:', error);
     throw error;

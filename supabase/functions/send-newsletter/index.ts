@@ -150,7 +150,8 @@ const handler = async (req: Request): Promise<Response> => {
           console.log(`Email response for ${subscriber.email}:`, emailResponse);
 
           if (emailResponse.error) {
-            throw new Error(emailResponse.error.message);
+            console.error(`Resend API error for ${subscriber.email}:`, emailResponse.error);
+            throw new Error(`Resend API error: ${emailResponse.error.message}`);
           }
 
           // Track sent event

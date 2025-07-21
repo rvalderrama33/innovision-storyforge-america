@@ -48,9 +48,8 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error(`Newsletter not found: ${newsletterError?.message}`);
     }
 
-    if (newsletter.status === 'sent') {
-      throw new Error('Newsletter has already been sent');
-    }
+    // Note: We allow resending of sent newsletters for admin purposes
+    console.log(`Newsletter status: ${newsletter.status}`);
 
     // Get subscribers
     let recipients: any[] = [];

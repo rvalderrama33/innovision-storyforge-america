@@ -138,12 +138,16 @@ const handler = async (req: Request): Promise<Response> => {
 
           personalizedContent += trackingPixel + unsubscribeFooter;
 
+          console.log(`Attempting to send email to: ${subscriber.email}`);
+          
           const emailResponse = await resend.emails.send({
-            from: "America Innovates Magazine <newsletter@americainnovates.us>",
+            from: "America Innovates Magazine <onboarding@resend.dev>",
             to: [subscriber.email],
             subject: newsletter.subject,
             html: personalizedContent,
           });
+          
+          console.log(`Email response for ${subscriber.email}:`, emailResponse);
 
           if (emailResponse.error) {
             throw new Error(emailResponse.error.message);

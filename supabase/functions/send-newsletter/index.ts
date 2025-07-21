@@ -141,7 +141,7 @@ const handler = async (req: Request): Promise<Response> => {
           console.log(`Attempting to send email to: ${subscriber.email}`);
           
           const emailResponse = await resend.emails.send({
-            from: "America Innovates <admin@americainnovates.us>",
+            from: "America Innovates <ricardo@myproduct.today>",
             to: [subscriber.email],
             subject: newsletter.subject,
             html: personalizedContent,

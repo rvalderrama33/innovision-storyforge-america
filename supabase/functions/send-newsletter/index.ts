@@ -124,7 +124,7 @@ const handler = async (req: Request): Promise<Response> => {
     const errors: string[] = [];
 
     // Send emails in batches to avoid rate limiting
-    const batchSize = 10;
+    const batchSize = 5; // Reduce batch size to avoid rate limits
     for (let i = 0; i < recipients.length; i += batchSize) {
       const batch = recipients.slice(i, i + batchSize);
       
@@ -141,7 +141,7 @@ const handler = async (req: Request): Promise<Response> => {
           console.log(`Attempting to send email to: ${subscriber.email}`);
           
           const emailResponse = await resend.emails.send({
-            from: "America Innovates <ricardo@myproduct.today>",
+            from: "America Innovates <admin@americainnovates.us>",
             to: [subscriber.email],
             subject: newsletter.subject,
             html: personalizedContent,
@@ -171,9 +171,10 @@ const handler = async (req: Request): Promise<Response> => {
         }
       }));
 
-      // Small delay between batches
+      // Longer delay between batches to respect rate limits
       if (i + batchSize < recipients.length) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        console.log(`Waiting before next batch...`);
+        await new Promise(resolve => setTimeout(resolve, 3000)); // 3 second delay
       }
     }
 

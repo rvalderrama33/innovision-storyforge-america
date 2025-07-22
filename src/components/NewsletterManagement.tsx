@@ -41,13 +41,21 @@ const NewsletterManagement = () => {
   const [testEmail, setTestEmail] = useState("");
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (user) {
+      loadData();
+    }
+  }, [user]);
 
   const loadData = async () => {
     try {
       setIsLoading(true);
       console.log('Loading newsletter management data...');
+      
+      // Check if user is authenticated before making requests
+      if (!user) {
+        console.log('User not authenticated, skipping data load');
+        return;
+      }
       
       const [newslettersData, subscribersData, unsubscribedData, statsData] = await Promise.all([
         getNewsletters(),

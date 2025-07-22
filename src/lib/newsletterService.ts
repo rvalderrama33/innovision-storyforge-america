@@ -219,8 +219,8 @@ export const getNewsletterAnalytics = async (newsletterId?: string) => {
       .from('email_analytics')
       .select(`
         *,
-        newsletters!inner(id, title, subject, sent_at, recipient_count, open_count, click_count),
-        newsletter_subscribers(id, email, full_name)
+        newsletters!email_analytics_newsletter_id_fkey(id, title, subject, sent_at, recipient_count, open_count, click_count),
+        newsletter_subscribers!email_analytics_subscriber_id_fkey(id, email, full_name)
       `);
 
     if (newsletterId) {
@@ -233,6 +233,8 @@ export const getNewsletterAnalytics = async (newsletterId?: string) => {
       console.error('Analytics query error:', error);
       throw error;
     }
+    
+    console.log('Raw analytics data:', data);
     
     // Transform the data to match the expected structure
     const transformedData = data?.map(item => ({

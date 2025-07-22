@@ -125,6 +125,23 @@ export const unsubscribeFromNewsletter = async (email: string) => {
   }
 };
 
+// Get unsubscribed users
+export const getUnsubscribedUsers = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('newsletter_subscribers')
+      .select('*')
+      .eq('is_active', false)
+      .order('unsubscribed_at', { ascending: false });
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    console.error('Error fetching unsubscribed users:', error);
+    throw error;
+  }
+};
+
 // Get all subscribers (admin only)
 export const getNewsletterSubscribers = async () => {
   try {

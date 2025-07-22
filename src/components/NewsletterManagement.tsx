@@ -5,23 +5,26 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { 
   getNewsletters, 
   createNewsletter, 
   updateNewsletter, 
   getNewsletterSubscribers,
+  getUnsubscribedUsers,
   getSubscriptionStats,
   testWeeklyNewsletter,
   type Newsletter 
 } from "@/lib/newsletterService";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
-import { Plus, Send, Eye, Users, Mail, TrendingUp, BarChart3, TestTube } from "lucide-react";
+import { Plus, Send, Eye, Users, Mail, TrendingUp, BarChart3, TestTube, UserX } from "lucide-react";
 
 const NewsletterManagement = () => {
   const [newsletters, setNewsletters] = useState<Newsletter[]>([]);
   const [subscribers, setSubscribers] = useState<any[]>([]);
+  const [unsubscribedUsers, setUnsubscribedUsers] = useState<any[]>([]);
   const [stats, setStats] = useState({ totalSubscribers: 0, newThisMonth: 0, unsubscribesThisMonth: 0 });
   const [isLoading, setIsLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
@@ -46,20 +49,23 @@ const NewsletterManagement = () => {
       setIsLoading(true);
       console.log('Loading newsletter management data...');
       
-      const [newslettersData, subscribersData, statsData] = await Promise.all([
+      const [newslettersData, subscribersData, unsubscribedData, statsData] = await Promise.all([
         getNewsletters(),
         getNewsletterSubscribers(),
+        getUnsubscribedUsers(),
         getSubscriptionStats()
       ]);
       
       console.log('Data loaded successfully:', {
         newsletters: newslettersData.length,
         subscribers: subscribersData.length,
+        unsubscribed: unsubscribedData.length,
         stats: statsData
       });
       
       setNewsletters(newslettersData as Newsletter[]);
       setSubscribers(subscribersData);
+      setUnsubscribedUsers(unsubscribedData);
       setStats(statsData);
     } catch (error: any) {
       console.error('Error loading data:', error);
@@ -417,33 +423,79 @@ const NewsletterManagement = () => {
         </CardContent>
       </Card>
 
-      {/* Recent Subscribers */}
+      {/* Subscribers Tabs */}
       <Card>
         <CardHeader>
-          <CardTitle>Recent Subscribers</CardTitle>
+          <CardTitle>Newsletter Subscribers</CardTitle>
           <CardDescription>
-            Latest newsletter subscriptions
+            Manage active subscribers and view unsubscribed users
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="space-y-2">
-            {subscribers.slice(0, 10).map((subscriber) => (
-              <div key={subscriber.id} className="flex justify-between items-center py-2 border-b">
-                <div>
-                  <div className="font-medium">{subscriber.full_name || 'Anonymous'}</div>
-                  <div className="text-sm text-muted-foreground">{subscriber.email}</div>
-                </div>
-                <div className="text-sm text-muted-foreground">
-                  {new Date(subscriber.subscribed_at).toLocaleDateString()}
-                </div>
+          <Tabs defaultValue="active" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="active" className="flex items-center gap-2">
+                <Users className="w-4 h-4" />
+                Active Subscribers ({subscribers.length})
+              </TabsTrigger>
+              <TabsTrigger value="unsubscribed" className="flex items-center gap-2">
+                <UserX className="w-4 h-4" />
+                Unsubscribed ({unsubscribedUsers.length})
+              </TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="active" className="mt-6">
+              <div className="space-y-2">
+                {subscribers.slice(0, 20).map((subscriber) => (
+                  <div key={subscriber.id} className="flex justify-between items-center py-2 border-b">
+                    <div>
+                      <div className="font-medium">{subscriber.full_name || 'Anonymous'}</div>
+                      <div className="text-sm text-muted-foreground">{subscriber.email}</div>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Subscribed: {new Date(subscriber.subscribed_at).toLocaleDateString()}
+                    </div>
+                  </div>
+                ))}
+                {subscribers.length === 0 && (
+                  <p className="text-center text-muted-foreground py-4">
+                    No active subscribers yet
+                  </p>
+                )}
+                {subscribers.length > 20 && (
+                  <div className="text-center text-sm text-muted-foreground pt-4">
+                    Showing 20 of {subscribers.length} subscribers
+                  </div>
+                )}
               </div>
-            ))}
-            {subscribers.length === 0 && (
-              <p className="text-center text-muted-foreground py-4">
-                No subscribers yet
-              </p>
-            )}
-          </div>
+            </TabsContent>
+            
+            <TabsContent value="unsubscribed" className="mt-6">
+              <div className="space-y-2">
+                {unsubscribedUsers.slice(0, 20).map((user) => (
+                  <div key={user.id} className="flex justify-between items-center py-2 border-b">
+                    <div>
+                      <div className="font-medium">{user.full_name || 'Anonymous'}</div>
+                      <div className="text-sm text-muted-foreground">{user.email}</div>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Unsubscribed: {user.unsubscribed_at ? new Date(user.unsubscribed_at).toLocaleDateString() : 'Unknown'}
+                    </div>
+                  </div>
+                ))}
+                {unsubscribedUsers.length === 0 && (
+                  <p className="text-center text-muted-foreground py-4">
+                    No unsubscribed users
+                  </p>
+                )}
+                {unsubscribedUsers.length > 20 && (
+                  <div className="text-center text-sm text-muted-foreground pt-4">
+                    Showing 20 of {unsubscribedUsers.length} unsubscribed users
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
     </div>

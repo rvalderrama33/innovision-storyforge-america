@@ -285,7 +285,11 @@ const Article = () => {
           {hasHeadshot && (
             <div className="md:w-1/3 flex flex-col items-center text-center">
               <Avatar className="w-32 h-32 border-4 border-background shadow-lg">
-                <AvatarImage src={article.headshot_image} alt={article.full_name} />
+                <AvatarImage 
+                  src={article.headshot_image} 
+                  alt={article.full_name}
+                  className="object-cover"
+                />
                 <AvatarFallback className="bg-primary/10 text-primary text-2xl">
                   {article.full_name?.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>

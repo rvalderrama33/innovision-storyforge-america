@@ -17,6 +17,20 @@ const Index = () => {
       <Header />
       <Hero />
       <FeaturedArticles />
+      
+      {/* Google AdSense Ad Unit */}
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <ins className="adsbygoogle"
+             style={{display:'block'}}
+             data-ad-client="ca-pub-3665365079867533"
+             data-ad-slot="5115934537"
+             data-ad-format="auto"
+             data-full-width-responsive="true"></ins>
+        <script dangerouslySetInnerHTML={{
+          __html: `(adsbygoogle = window.adsbygoogle || []).push({});`
+        }} />
+      </div>
+      
       <Newsletter />
     </div>
   );

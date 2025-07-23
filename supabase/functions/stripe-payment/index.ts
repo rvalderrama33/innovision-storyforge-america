@@ -147,8 +147,8 @@ serve(async (req) => {
           },
         ],
         mode: 'payment',
-        success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${req.headers.get("origin")}/payment-cancelled`,
+        success_url: `https://americainnovates.us/payment-success?session_id={CHECKOUT_SESSION_ID}`,
+        cancel_url: `https://americainnovates.us/payment-cancelled`,
         metadata: {
           submission_id: submission_id,
           amount: amount.toString(),

@@ -119,6 +119,25 @@ const handler = async (req: Request): Promise<Response> => {
       </div>
     `;
 
+    // Generate plain text version of newsletter
+    const generateTextVersion = (htmlContent: string) => {
+      // Simple HTML to text conversion
+      return htmlContent
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>/gi, '\n\n')
+        .replace(/<\/div>/gi, '\n')
+        .replace(/<\/h[1-6]>/gi, '\n\n')
+        .replace(/<[^>]*>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&#39;/g, "'")
+        .replace(/\n\s*\n\s*\n/g, '\n\n')
+        .trim();
+    };
+
     let successCount = 0;
     let errorCount = 0;
     const errors: string[] = [];
@@ -138,6 +157,9 @@ const handler = async (req: Request): Promise<Response> => {
 
           personalizedContent += trackingPixel + unsubscribeFooter;
 
+          // Generate plain text version
+          const textContent = generateTextVersion(personalizedContent) + `\n\n---\nTo unsubscribe: ${unsubscribeUrl}?email=${encodeURIComponent(subscriber.email)}`;
+
           console.log(`Attempting to send email to: ${subscriber.email}`);
           
           const emailResponse = await resend.emails.send({
@@ -145,6 +167,7 @@ const handler = async (req: Request): Promise<Response> => {
             to: [subscriber.email],
             subject: newsletter.subject,
             html: personalizedContent,
+            text: textContent,
             headers: {
               'List-Unsubscribe': `<${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/functions/v1/unsubscribe?email=${encodeURIComponent(subscriber.email)}>`,
               'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'

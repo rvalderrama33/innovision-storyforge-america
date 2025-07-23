@@ -191,7 +191,7 @@ serve(async (req) => {
         `;
 
         const emailResult = await resend.emails.send({
-          from: `${branding.company_name} <noreply@resend.dev>`,
+          from: `${branding.company_name} <admin@americainnovates.us>`,
           to: [submission.email],
           subject: `🎉 Your Story is Approved! Upgrade to Featured for Maximum Exposure`,
           html: emailHtml,

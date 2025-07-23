@@ -18,7 +18,7 @@ export interface Newsletter {
   content: string;
   html_content?: string;
   subject: string;
-  status: 'draft' | 'scheduled' | 'sent';
+  status: string; // Changed from union type to string to match database
   scheduled_at?: string;
   sent_at?: string;
   created_by?: string;

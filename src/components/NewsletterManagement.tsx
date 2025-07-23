@@ -54,29 +54,54 @@ const NewsletterManagement = () => {
       // Check if user is authenticated before making requests
       if (!user) {
         console.log('User not authenticated, skipping data load');
+        setIsLoading(false);
         return;
       }
       
-      const [newslettersData, subscribersData, unsubscribedData, statsData] = await Promise.all([
-        getNewsletters(),
-        getNewsletterSubscribers(),
-        getUnsubscribedUsers(),
-        getSubscriptionStats()
-      ]);
+      console.log('User authenticated, loading data for:', user.email);
       
-      console.log('Data loaded successfully:', {
-        newsletters: newslettersData.length,
-        subscribers: subscribersData.length,
-        unsubscribed: unsubscribedData.length,
-        stats: statsData
-      });
+      // Load data with individual error handling
+      let newslettersData: Newsletter[] = [];
+      let subscribersData: any[] = [];
+      let unsubscribedData: any[] = [];
+      let statsData = { totalSubscribers: 0, newThisMonth: 0, unsubscribesThisMonth: 0 };
       
-      setNewsletters(newslettersData as Newsletter[]);
+      try {
+        newslettersData = await getNewsletters();
+        console.log('Newsletters loaded:', newslettersData.length);
+      } catch (error) {
+        console.error('Error loading newsletters:', error);
+      }
+      
+      try {
+        subscribersData = await getNewsletterSubscribers();
+        console.log('Subscribers loaded:', subscribersData.length);
+      } catch (error) {
+        console.error('Error loading subscribers:', error);
+      }
+      
+      try {
+        unsubscribedData = await getUnsubscribedUsers();
+        console.log('Unsubscribed users loaded:', unsubscribedData.length);
+      } catch (error) {
+        console.error('Error loading unsubscribed users:', error);
+      }
+      
+      try {
+        statsData = await getSubscriptionStats();
+        console.log('Stats loaded:', statsData);
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+      
+      setNewsletters(newslettersData);
       setSubscribers(subscribersData);
       setUnsubscribedUsers(unsubscribedData);
       setStats(statsData);
+      
+      console.log('All data set successfully');
     } catch (error: any) {
-      console.error('Error loading data:', error);
+      console.error('Unexpected error in loadData:', error);
       toast({
         title: "Error",
         description: `Failed to load newsletter data: ${error.message}`,

@@ -108,6 +108,8 @@ export type Database = {
           paypal_order_id: string | null
           paypal_payment_id: string | null
           status: string
+          stripe_payment_id: string | null
+          stripe_session_id: string | null
           submission_id: string
           updated_at: string
         }
@@ -123,6 +125,8 @@ export type Database = {
           paypal_order_id?: string | null
           paypal_payment_id?: string | null
           status?: string
+          stripe_payment_id?: string | null
+          stripe_session_id?: string | null
           submission_id: string
           updated_at?: string
         }
@@ -138,6 +142,8 @@ export type Database = {
           paypal_order_id?: string | null
           paypal_payment_id?: string | null
           status?: string
+          stripe_payment_id?: string | null
+          stripe_session_id?: string | null
           submission_id?: string
           updated_at?: string
         }

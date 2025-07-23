@@ -7,68 +7,88 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
-interface StripeOrderRequest {
-  action: 'create-order';
-  submission_id: string;
-  amount?: number;
-}
-
-interface StripeCaptureRequest {
-  action: 'capture-order';
-  session_id: string;
-}
-
-const logStep = (step: string, details?: any) => {
-  const detailsStr = details ? ` - ${JSON.stringify(details)}` : '';
-  console.log(`[STRIPE-PAYMENT] ${step}${detailsStr}`);
-};
-
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    logStep("Function started");
-
+    console.log("[STRIPE-PAYMENT] Starting function");
+    
+    // Get environment variables
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
-    if (!stripeKey) {
-      logStep("ERROR - No Stripe key found");
-      throw new Error("STRIPE_SECRET_KEY is not set in environment variables");
-    }
-    
-    // Log the key type for debugging (only first few characters for security)
-    logStep("Stripe key found", { keyType: stripeKey.substring(0, 3), keyLength: stripeKey.length });
-    
-    if (!stripeKey.startsWith('sk_')) {
-      logStep("ERROR - Wrong key type", { keyType: stripeKey.substring(0, 3) });
-      throw new Error("STRIPE_SECRET_KEY must be a secret key (starts with sk_), not a publishable key (pk_)");
-    }
-
-    logStep("Stripe key validated successfully");
-
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
-    
-    if (!supabaseUrl || !supabaseServiceKey) {
-      logStep("ERROR - Missing Supabase config", { hasUrl: !!supabaseUrl, hasServiceKey: !!supabaseServiceKey });
-      throw new Error("Supabase configuration missing");
+
+    console.log("[STRIPE-PAYMENT] Environment check:", {
+      hasStripeKey: !!stripeKey,
+      hasSupabaseUrl: !!supabaseUrl,
+      hasServiceKey: !!supabaseServiceKey,
+      stripeKeyType: stripeKey?.substring(0, 3)
+    });
+
+    if (!stripeKey) {
+      console.error("[STRIPE-PAYMENT] Missing STRIPE_SECRET_KEY");
+      return new Response(JSON.stringify({ error: "STRIPE_SECRET_KEY not configured" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
     }
 
-    logStep("Supabase config validated");
+    if (!stripeKey.startsWith('sk_')) {
+      console.error("[STRIPE-PAYMENT] Wrong key type:", stripeKey.substring(0, 3));
+      return new Response(JSON.stringify({ error: "STRIPE_SECRET_KEY must be a secret key (starts with sk_)" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
 
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("[STRIPE-PAYMENT] Missing Supabase config");
+      return new Response(JSON.stringify({ error: "Supabase configuration missing" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 500,
+      });
+    }
+
+    // Parse request body
+    let body;
+    try {
+      body = await req.json();
+      console.log("[STRIPE-PAYMENT] Request body:", body);
+    } catch (error) {
+      console.error("[STRIPE-PAYMENT] Invalid JSON:", error);
+      return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    const { action, submission_id, amount = 5000, session_id } = body;
+
+    if (!action) {
+      return new Response(JSON.stringify({ error: "Missing action parameter" }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
+    }
+
+    // Initialize clients
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
-    logStep("Clients initialized successfully");
-
-    const body = await req.json();
-    const { action } = body;
-
-    logStep("Processing action", { action, bodyKeys: Object.keys(body) });
+    console.log("[STRIPE-PAYMENT] Clients initialized");
 
     if (action === 'create-order') {
-      const { submission_id, amount = 5000 } = body as StripeOrderRequest;
+      if (!submission_id) {
+        return new Response(JSON.stringify({ error: "Missing submission_id for create-order" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
+
+      console.log("[STRIPE-PAYMENT] Creating order for submission:", submission_id);
 
       // Verify submission exists and is approved
       const { data: submission, error: submissionError } = await supabase
@@ -77,33 +97,25 @@ serve(async (req) => {
         .eq('id', submission_id)
         .single();
 
+      console.log("[STRIPE-PAYMENT] Submission query result:", { submission, submissionError });
+
       if (submissionError || !submission) {
-        throw new Error(`Submission not found: ${submissionError?.message}`);
+        return new Response(JSON.stringify({ error: `Submission not found: ${submissionError?.message || 'Unknown error'}` }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 404,
+        });
       }
 
       if (submission.status !== 'approved') {
-        throw new Error('Submission must be approved before featuring');
+        return new Response(JSON.stringify({ error: 'Submission must be approved before featuring' }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
       }
-
-      if (submission.featured) {
-        throw new Error('Submission is already featured');
-      }
-
-      // Check for existing pending or completed payments
-      const { data: existingPayment } = await supabase
-        .from('featured_story_payments')
-        .select('id, status')
-        .eq('submission_id', submission_id)
-        .in('status', ['pending', 'completed'])
-        .single();
-
-      if (existingPayment) {
-        throw new Error(`Payment already exists with status: ${existingPayment.status}`);
-      }
-
-      logStep("Creating Stripe checkout session", { submission_id, amount });
 
       // Create Stripe checkout session
+      console.log("[STRIPE-PAYMENT] Creating Stripe session");
+      
       const session = await stripe.checkout.sessions.create({
         payment_method_types: ['card'],
         line_items: [
@@ -111,7 +123,7 @@ serve(async (req) => {
             price_data: {
               currency: 'usd',
               product_data: {
-                name: `Featured Story: ${submission.product_name}`,
+                name: `Featured Story: ${submission.product_name || 'Story'}`,
                 description: 'Feature your story for 30 days',
               },
               unit_amount: amount,
@@ -128,7 +140,7 @@ serve(async (req) => {
         },
       });
 
-      logStep("Stripe session created", { sessionId: session.id });
+      console.log("[STRIPE-PAYMENT] Stripe session created:", session.id);
 
       // Store payment record in database
       const { error: paymentError } = await supabase
@@ -142,11 +154,14 @@ serve(async (req) => {
         });
 
       if (paymentError) {
-        logStep("Database error", { error: paymentError });
-        throw new Error(`Failed to create payment record: ${paymentError.message}`);
+        console.error("[STRIPE-PAYMENT] Database error:", paymentError);
+        return new Response(JSON.stringify({ error: `Failed to create payment record: ${paymentError.message}` }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        });
       }
 
-      logStep("Payment record created successfully");
+      console.log("[STRIPE-PAYMENT] Payment record created successfully");
 
       return new Response(JSON.stringify({ 
         url: session.url,
@@ -157,23 +172,34 @@ serve(async (req) => {
       });
 
     } else if (action === 'capture-order') {
-      const { session_id } = body as StripeCaptureRequest;
+      if (!session_id) {
+        return new Response(JSON.stringify({ error: "Missing session_id for capture-order" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
 
-      logStep("Retrieving Stripe session", { session_id });
+      console.log("[STRIPE-PAYMENT] Capturing order for session:", session_id);
 
       // Retrieve the session from Stripe
       const session = await stripe.checkout.sessions.retrieve(session_id);
 
       if (session.payment_status !== 'paid') {
-        throw new Error(`Payment not completed. Status: ${session.payment_status}`);
+        return new Response(JSON.stringify({ error: `Payment not completed. Status: ${session.payment_status}` }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
       }
 
-      const submission_id = session.metadata?.submission_id;
-      if (!submission_id) {
-        throw new Error('Submission ID not found in session metadata');
+      const submission_id_from_session = session.metadata?.submission_id;
+      if (!submission_id_from_session) {
+        return new Response(JSON.stringify({ error: 'Submission ID not found in session metadata' }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
       }
 
-      logStep("Payment verified, updating database", { submission_id, payment_status: session.payment_status });
+      console.log("[STRIPE-PAYMENT] Payment verified, updating database");
 
       // Update payment status to completed
       const { error: updateError } = await supabase
@@ -187,20 +213,28 @@ serve(async (req) => {
         .eq('stripe_session_id', session_id);
 
       if (updateError) {
-        throw new Error(`Failed to update payment: ${updateError.message}`);
+        console.error("[STRIPE-PAYMENT] Update error:", updateError);
+        return new Response(JSON.stringify({ error: `Failed to update payment: ${updateError.message}` }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        });
       }
 
       // Update submission to featured
       const { error: submissionUpdateError } = await supabase
         .from('submissions')
         .update({ featured: true })
-        .eq('id', submission_id);
+        .eq('id', submission_id_from_session);
 
       if (submissionUpdateError) {
-        throw new Error(`Failed to update submission: ${submissionUpdateError.message}`);
+        console.error("[STRIPE-PAYMENT] Submission update error:", submissionUpdateError);
+        return new Response(JSON.stringify({ error: `Failed to update submission: ${submissionUpdateError.message}` }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 500,
+        });
       }
 
-      logStep("Successfully completed payment and featured submission");
+      console.log("[STRIPE-PAYMENT] Successfully completed payment and featured submission");
 
       return new Response(JSON.stringify({ 
         success: true,
@@ -211,17 +245,20 @@ serve(async (req) => {
       });
 
     } else {
-      throw new Error(`Unknown action: ${action}`);
+      return new Response(JSON.stringify({ error: `Unknown action: ${action}` }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 400,
+      });
     }
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : 'No stack trace';
     
-    logStep("CRITICAL ERROR", { 
-      message: errorMessage, 
+    console.error("[STRIPE-PAYMENT] CRITICAL ERROR:", {
+      message: errorMessage,
       stack: errorStack,
-      errorType: error.constructor.name 
+      errorType: error?.constructor?.name
     });
     
     return new Response(JSON.stringify({ 

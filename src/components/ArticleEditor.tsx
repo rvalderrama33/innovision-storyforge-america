@@ -75,7 +75,7 @@ const ArticleEditor = () => {
 
   const bannerPositions = [
     { value: 'center', label: 'Center' },
-    { value: 'top center', label: 'Top & Center' },
+    { value: 'center top', label: 'Top & Center' },
     { value: 'center bottom', label: 'Center & Bottom' },
     { value: 'top', label: 'Top' },
     { value: 'bottom', label: 'Bottom' },

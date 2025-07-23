@@ -35,6 +35,13 @@ serve(async (req) => {
     if (!stripeKey) {
       throw new Error("STRIPE_SECRET_KEY is not set");
     }
+    
+    // Log the key type for debugging (only first few characters for security)
+    logStep("Stripe key type", { keyType: stripeKey.substring(0, 3) });
+    
+    if (!stripeKey.startsWith('sk_')) {
+      throw new Error("STRIPE_SECRET_KEY must be a secret key (starts with sk_), not a publishable key (pk_)");
+    }
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");

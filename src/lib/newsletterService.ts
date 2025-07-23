@@ -232,39 +232,69 @@ export const updateNewsletter = async (id: string, updates: Partial<Newsletter>)
 // Get newsletter analytics
 export const getNewsletterAnalytics = async (newsletterId?: string) => {
   try {
+    console.log('Fetching newsletter analytics...');
     let query = supabase
       .from('email_analytics')
-      .select(`
-        *,
-        newsletters!email_analytics_newsletter_id_fkey(id, title, subject, sent_at, recipient_count, open_count, click_count),
-        newsletter_subscribers!email_analytics_subscriber_id_fkey(id, email, full_name)
-      `);
+      .select('*');
 
     if (newsletterId) {
       query = query.eq('newsletter_id', newsletterId);
     }
 
-    const { data, error } = await query.order('created_at', { ascending: false });
+    const { data: analyticsData, error: analyticsError } = await query.order('created_at', { ascending: false });
 
-    if (error) {
-      console.error('Analytics query error:', error);
-      throw error;
+    if (analyticsError) {
+      console.error('Analytics query error:', analyticsError);
+      throw analyticsError;
     }
     
-    console.log('Raw analytics data:', data);
+    console.log('Raw analytics data:', analyticsData);
+    
+    if (!analyticsData || analyticsData.length === 0) {
+      console.log('No analytics data found');
+      return [];
+    }
+    
+    // Get unique newsletter and subscriber IDs to fetch their data
+    const newsletterIds = [...new Set(analyticsData.map(a => a.newsletter_id).filter(Boolean))];
+    const subscriberIds = [...new Set(analyticsData.map(a => a.subscriber_id).filter(Boolean))];
+    
+    console.log('Newsletter IDs:', newsletterIds);
+    console.log('Subscriber IDs:', subscriberIds);
+    
+    // Fetch newsletters and subscribers data
+    const [newslettersData, subscribersData] = await Promise.all([
+      newsletterIds.length > 0 ? supabase
+        .from('newsletters')
+        .select('id, title, subject, sent_at, recipient_count, open_count, click_count')
+        .in('id', newsletterIds)
+        .then(res => res.data || []) : [],
+      subscriberIds.length > 0 ? supabase
+        .from('newsletter_subscribers')
+        .select('id, email, full_name')
+        .in('id', subscriberIds)
+        .then(res => res.data || []) : []
+    ]);
+    
+    console.log('Fetched newsletters:', newslettersData);
+    console.log('Fetched subscribers:', subscribersData);
+    
+    // Create lookup maps
+    const newsletterMap = new Map(newslettersData.map((n: any) => [n.id, n] as [string, any]));
+    const subscriberMap = new Map(subscribersData.map((s: any) => [s.id, s] as [string, any]));
     
     // Transform the data to match the expected structure
-    const transformedData = data?.map(item => ({
+    const transformedData = analyticsData.map(item => ({
       ...item,
-      newsletter: item.newsletters,
-      subscriber: item.newsletter_subscribers
-    })) || [];
+      newsletter: item.newsletter_id ? newsletterMap.get(item.newsletter_id) || null : null,
+      subscriber: item.subscriber_id ? subscriberMap.get(item.subscriber_id) || null : null
+    }));
     
     console.log('Transformed analytics data:', transformedData);
     return transformedData;
   } catch (error) {
     console.error('Error fetching newsletter analytics:', error);
-    throw error;
+    return []; // Return empty array instead of throwing
   }
 };
 

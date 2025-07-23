@@ -59,13 +59,27 @@ const PayPalTest = () => {
         createOrder: async () => {
           console.log('Creating PayPal test order for $1');
           
+          // For test transactions, we need to use a real approved submission
+          // Let's get an approved submission to use for testing
+          const { data: submissions } = await supabase
+            .from('submissions')
+            .select('id')
+            .eq('status', 'approved')
+            .eq('featured', false)
+            .limit(1);
+
+          if (!submissions || submissions.length === 0) {
+            throw new Error('No approved submissions available for testing. Please approve a submission first.');
+          }
+
+          const testSubmissionId = submissions[0].id;
+          
           const { data, error } = await supabase.functions.invoke('paypal-payment', {
             body: {
               action: 'create-order',
-              submissionId: 'test-transaction-' + Date.now(),
+              submissionId: testSubmissionId,
               amount: 100, // $1.00 in cents
-              currency: 'USD',
-              isTest: true
+              currency: 'USD'
             }
           });
 
@@ -89,12 +103,21 @@ const PayPalTest = () => {
         onApprove: async (data: any) => {
           console.log('PayPal test payment approved:', data);
           
+          // Get the same submission ID used for creating the order
+          const { data: submissions } = await supabase
+            .from('submissions')
+            .select('id')
+            .eq('status', 'approved')
+            .eq('featured', false)
+            .limit(1);
+          
+          const testSubmissionId = submissions?.[0]?.id;
+          
           const { data: captureData, error } = await supabase.functions.invoke('paypal-payment', {
             body: {
               action: 'capture-order',
               orderID: data.orderID,
-              submissionId: 'test-transaction-' + Date.now(),
-              isTest: true
+              submissionId: testSubmissionId
             }
           });
 

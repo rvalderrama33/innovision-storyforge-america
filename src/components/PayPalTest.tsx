@@ -59,45 +59,62 @@ const PayPalTest = () => {
         createOrder: async () => {
           console.log('Creating PayPal test order for $1');
           
-          // For test transactions, we need to use a real approved submission
-          // Let's get an approved submission to use for testing
-          const { data: submissions } = await supabase
-            .from('submissions')
-            .select('id')
-            .eq('status', 'approved')
-            .eq('featured', false)
-            .limit(1);
+          try {
+            // For test transactions, we need to use a real approved submission
+            // Let's get an approved submission to use for testing
+            console.log('Fetching approved submissions...');
+            const { data: submissions, error: submissionError } = await supabase
+              .from('submissions')
+              .select('id, product_name, status, featured')
+              .eq('status', 'approved')
+              .eq('featured', false)
+              .limit(1);
 
-          if (!submissions || submissions.length === 0) {
-            throw new Error('No approved submissions available for testing. Please approve a submission first.');
-          }
+            console.log('Submissions query result:', { submissions, submissionError });
 
-          const testSubmissionId = submissions[0].id;
-          
-          const { data, error } = await supabase.functions.invoke('paypal-payment', {
-            body: {
-              action: 'create-order',
-              submissionId: testSubmissionId,
-              amount: 100, // $1.00 in cents
-              currency: 'USD'
+            if (submissionError) {
+              console.error('Error fetching submissions:', submissionError);
+              throw new Error(`Database error: ${submissionError.message}`);
             }
-          });
 
-          console.log('PayPal test order response:', { data, error });
+            if (!submissions || submissions.length === 0) {
+              console.error('No approved submissions found');
+              throw new Error('No approved submissions available for testing. Please approve a submission first.');
+            }
 
-          if (error) {
-            console.error('Error creating PayPal test order:', error);
+            const testSubmissionId = submissions[0].id;
+            console.log('Using submission ID for test:', testSubmissionId);
+            
+            const { data, error } = await supabase.functions.invoke('paypal-payment', {
+              body: {
+                action: 'create-order',
+                submissionId: testSubmissionId,
+                amount: 100, // $1.00 in cents
+                currency: 'USD'
+              }
+            });
+
+            console.log('PayPal test order response:', { data, error });
+
+            if (error) {
+              console.error('Error creating PayPal test order:', error);
+              setTestResult('error');
+              throw new Error(`Failed to create test payment order: ${error.message}`);
+            }
+
+            if (!data || !data.orderID) {
+              console.error('No order ID received for test:', data);
+              setTestResult('error');
+              throw new Error('Failed to create test payment order - no order ID received');
+            }
+
+            console.log('Test order created successfully:', data.orderID);
+            return data.orderID;
+          } catch (err) {
+            console.error('CreateOrder error:', err);
             setTestResult('error');
-            throw new Error(`Failed to create test payment order: ${error.message}`);
+            throw err;
           }
-
-          if (!data || !data.orderID) {
-            console.error('No order ID received for test:', data);
-            setTestResult('error');
-            throw new Error('Failed to create test payment order - no order ID received');
-          }
-
-          return data.orderID;
         },
 
         onApprove: async (data: any) => {

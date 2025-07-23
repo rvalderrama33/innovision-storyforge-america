@@ -260,13 +260,16 @@ serve(async (req) => {
 });
 
 async function getPayPalAccessToken(): Promise<string> {
-  // Production PayPal Client ID and Secret
-  const clientId = "ASS7CDATty_wFE_ArsuvMaNAkVeRTu_0-AXfW6htus-edLPHmeIeyJXygyFIE9FQIGpEterVd5bid6ft";
-  const clientSecret = "ED4S73HO5XO1NX-AQy__91MEYfezffPROWtoKZMdfQzvv8dGIyk3nhmROOLXsvnfE2G5S9UYNKz3TKRh";
+  // Get PayPal credentials from Supabase secrets
+  const clientId = Deno.env.get('PAYPAL_CLIENT_ID');
+  const clientSecret = Deno.env.get('PAYPAL_CLIENT_SECRET');
   
   if (!clientId || !clientSecret) {
+    console.error('PayPal credentials not found in environment');
     throw new Error('PayPal credentials not configured');
   }
+
+  console.log('Using PayPal Client ID:', clientId.substring(0, 10) + '...');
 
   const response = await fetch(`${getPayPalBaseURL()}/v1/oauth2/token`, {
     method: 'POST',
@@ -281,9 +284,10 @@ async function getPayPalAccessToken(): Promise<string> {
   
   if (!response.ok) {
     console.error('PayPal token error:', data);
-    throw new Error('Failed to get PayPal access token');
+    throw new Error(`Failed to get PayPal access token: ${data.error_description || data.error}`);
   }
 
+  console.log('PayPal access token obtained successfully');
   return data.access_token;
 }
 

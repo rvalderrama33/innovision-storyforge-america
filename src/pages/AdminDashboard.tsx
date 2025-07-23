@@ -323,6 +323,36 @@ const AdminDashboard = () => {
     }
   };
 
+  const sendUpgradeEmailToArticle = async (submissionId: string, submissionData: any) => {
+    try {
+      toast({
+        title: "Sending upgrade email",
+        description: `Sending featured story upgrade email to ${submissionData.email}...`,
+      });
+
+      const { data, error } = await supabase.functions.invoke('send-featured-story-promotion', {
+        body: { 
+          trigger: 'manual_single',
+          submission_id: submissionId
+        }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Upgrade email sent",
+        description: `Featured story upgrade email sent to ${submissionData.email}`,
+      });
+    } catch (error) {
+      console.error('Error sending upgrade email:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send upgrade email",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleEditUser = (user: any) => {
     setEditingUser(user);
     setEditUserData({
@@ -569,6 +599,7 @@ const AdminDashboard = () => {
                         onToggleFeatured={toggleFeatured}
                         onTogglePinned={togglePinned}
                         onDelete={deleteSubmission}
+                        onSendUpgradeEmail={sendUpgradeEmailToArticle}
                       />
                     ))}
                   </div>
@@ -588,6 +619,7 @@ const AdminDashboard = () => {
                         onToggleFeatured={toggleFeatured}
                         onTogglePinned={togglePinned}
                         onDelete={deleteSubmission}
+                        onSendUpgradeEmail={sendUpgradeEmailToArticle}
                       />
                     ))}
                   </div>
@@ -607,6 +639,7 @@ const AdminDashboard = () => {
                         onToggleFeatured={toggleFeatured}
                         onTogglePinned={togglePinned}
                         onDelete={deleteSubmission}
+                        onSendUpgradeEmail={sendUpgradeEmailToArticle}
                       />
                     ))}
                   </div>
@@ -626,6 +659,7 @@ const AdminDashboard = () => {
                         onToggleFeatured={toggleFeatured}
                         onTogglePinned={togglePinned}
                         onDelete={deleteSubmission}
+                        onSendUpgradeEmail={sendUpgradeEmailToArticle}
                       />
                     ))}
                   </div>
@@ -645,6 +679,7 @@ const AdminDashboard = () => {
                         onToggleFeatured={toggleFeatured}
                         onTogglePinned={togglePinned}
                         onDelete={deleteSubmission}
+                        onSendUpgradeEmail={sendUpgradeEmailToArticle}
                       />
                     ))}
                   </div>
@@ -669,6 +704,7 @@ const AdminDashboard = () => {
                             onToggleFeatured={toggleFeatured}
                             onTogglePinned={togglePinned}
                             onDelete={deleteSubmission}
+                            onSendUpgradeEmail={sendUpgradeEmailToArticle}
                           />
                         ))}
                       </CardContent>

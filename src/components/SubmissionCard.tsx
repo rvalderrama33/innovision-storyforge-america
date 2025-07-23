@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Eye, CheckCircle, XCircle, Star, Pin, Edit, Trash2 } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Star, Pin, Edit, Trash2, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface SubmissionCardProps {
@@ -13,6 +13,7 @@ interface SubmissionCardProps {
   onToggleFeatured: (id: string, featured: boolean) => void;
   onTogglePinned: (id: string, pinned: boolean) => void;
   onDelete: (id: string) => void;
+  onSendUpgradeEmail?: (submissionId: string, submissionData: any) => void;
   onPaymentSuccess?: () => void;
 }
 
@@ -25,7 +26,7 @@ const getStatusVariant = (status: string) => {
   }
 };
 
-export const SubmissionCard = ({ submission, onPreview, onUpdateStatus, onToggleFeatured, onTogglePinned, onDelete }: SubmissionCardProps) => {
+export const SubmissionCard = ({ submission, onPreview, onUpdateStatus, onToggleFeatured, onTogglePinned, onDelete, onSendUpgradeEmail }: SubmissionCardProps) => {
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -107,6 +108,17 @@ export const SubmissionCard = ({ submission, onPreview, onUpdateStatus, onToggle
             <Pin className="w-4 h-4 mr-2" />
             {submission.pinned ? 'Unpin' : 'Pin'}
           </Button>
+          
+          {submission.status === 'approved' && !submission.featured && submission.email && onSendUpgradeEmail && (
+            <Button
+              onClick={() => onSendUpgradeEmail(submission.id, submission)}
+              size="sm"
+              variant="outline"
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Send Upgrade Email
+            </Button>
+          )}
           
           <Link to={`/admin/edit/${submission.id}`}>
             <Button

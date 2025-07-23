@@ -17,6 +17,9 @@ serve(async (req) => {
   try {
     console.log("Starting featured story promotion email job...");
 
+    const { trigger, submission_id } = await req.json();
+    console.log("Request data:", { trigger, submission_id });
+
     // Create Supabase client with service role for admin access
     const supabase = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
@@ -35,22 +38,54 @@ serve(async (req) => {
       accent_color: "#764ba2"
     };
 
-    // Find submissions approved exactly 24 hours ago that haven't been promoted yet
-    const twentyFourHoursAgo = new Date();
-    twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+    let submissions;
     
-    const { data: submissions, error: fetchError } = await supabase
-      .from("submissions")
-      .select("*")
-      .eq("status", "approved")
-      .eq("featured", false)
-      .gte("approved_at", twentyFourHoursAgo.toISOString())
-      .lt("approved_at", new Date(twentyFourHoursAgo.getTime() + 3600000).toISOString()) // +1 hour window
-      .not("email", "is", null);
+    if (trigger === 'manual_single' && submission_id) {
+      // Send email to a specific submission
+      console.log("Sending promotion email to specific submission:", submission_id);
+      
+      const { data: singleSubmission, error: fetchError } = await supabase
+        .from("submissions")
+        .select("*")
+        .eq("id", submission_id)
+        .eq("status", "approved")
+        .not("email", "is", null)
+        .single();
 
-    if (fetchError) {
-      console.error("Error fetching submissions:", fetchError);
-      throw fetchError;
+      if (fetchError) {
+        console.error("Error fetching single submission:", fetchError);
+        throw new Error(`Failed to fetch submission: ${fetchError.message}`);
+      }
+
+      if (!singleSubmission) {
+        console.log("No eligible submission found for the given ID");
+        return new Response(
+          JSON.stringify({ message: "No eligible submission found for the given ID" }),
+          { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
+      }
+
+      submissions = [singleSubmission];
+    } else {
+      // Find submissions approved exactly 24 hours ago that haven't been promoted yet
+      const twentyFourHoursAgo = new Date();
+      twentyFourHoursAgo.setHours(twentyFourHoursAgo.getHours() - 24);
+      
+      const { data: autoSubmissions, error: fetchError } = await supabase
+        .from("submissions")
+        .select("*")
+        .eq("status", "approved")
+        .eq("featured", false)
+        .gte("approved_at", twentyFourHoursAgo.toISOString())
+        .lt("approved_at", new Date(twentyFourHoursAgo.getTime() + 3600000).toISOString()) // +1 hour window
+        .not("email", "is", null);
+
+      if (fetchError) {
+        console.error("Error fetching submissions:", fetchError);
+        throw fetchError;
+      }
+
+      submissions = autoSubmissions;
     }
 
     if (!submissions || submissions.length === 0) {

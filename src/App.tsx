@@ -18,6 +18,8 @@ import EmailPreview from "./pages/EmailPreview";
 import TestOpenAI from "./pages/TestOpenAI";
 import PayPalTest from "./pages/PayPalTest";
 import StripeTestPage from "./pages/StripeTest";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCancelled from "./pages/PaymentCancelled";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -47,6 +49,8 @@ const App = () => (
             <Route path="/email-preview" element={<EmailPreview />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             
             
             <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />

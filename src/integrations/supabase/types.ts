@@ -538,6 +538,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      trigger_featured_story_promotion: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       trigger_weekly_newsletter: {
         Args: Record<PropertyKey, never>
         Returns: string

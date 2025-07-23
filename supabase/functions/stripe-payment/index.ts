@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@14.21.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+import { Resend } from "npm:resend@2.0.0";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -234,7 +235,73 @@ serve(async (req) => {
         });
       }
 
+      // Get submission details for admin notification
+      const { data: submissionDetails } = await supabase
+        .from('submissions')
+        .select('product_name, full_name, email, slug')
+        .eq('id', submission_id_from_session)
+        .single();
+
       console.log("[STRIPE-PAYMENT] Successfully completed payment and featured submission");
+
+      // Send admin notification email
+      try {
+        const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+        
+        const adminNotificationEmail = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <title>Featured Story Upgrade - Admin Notification</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f5f5f5;">
+          <div style="max-width: 600px; margin: 0 auto; background-color: white; border-radius: 8px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
+            <h1 style="color: #1f2937; margin: 0 0 20px; font-size: 24px;">🎉 Featured Story Upgrade Completed</h1>
+            
+            <div style="background: #f3f4f6; border-radius: 8px; padding: 20px; margin: 20px 0;">
+              <h3 style="color: #1f2937; margin: 0 0 15px;">Story Details:</h3>
+              <p style="margin: 5px 0;"><strong>Product:</strong> ${submissionDetails?.product_name || 'Unknown'}</p>
+              <p style="margin: 5px 0;"><strong>Author:</strong> ${submissionDetails?.full_name || 'Unknown'}</p>
+              <p style="margin: 5px 0;"><strong>Email:</strong> ${submissionDetails?.email || 'Unknown'}</p>
+              <p style="margin: 5px 0;"><strong>Story Slug:</strong> ${submissionDetails?.slug || submission_id_from_session}</p>
+            </div>
+
+            <div style="background: #ecfdf5; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #10b981;">
+              <h3 style="color: #1f2937; margin: 0 0 15px;">Payment Information:</h3>
+              <p style="margin: 5px 0;"><strong>Amount:</strong> $50.00 USD</p>
+              <p style="margin: 5px 0;"><strong>Payment ID:</strong> ${session.payment_intent}</p>
+              <p style="margin: 5px 0;"><strong>Session ID:</strong> ${session_id}</p>
+              <p style="margin: 5px 0;"><strong>Status:</strong> ✅ Completed</p>
+            </div>
+
+            <div style="background: #fef3c7; border-radius: 8px; padding: 20px; margin: 20px 0; border-left: 4px solid #f59e0b;">
+              <h3 style="color: #1f2937; margin: 0 0 15px;">Featured Status:</h3>
+              <p style="margin: 5px 0;">• Story is now featured on the front page</p>
+              <p style="margin: 5px 0;">• Featured for 30 days</p>
+              <p style="margin: 5px 0;">• Will be included in next newsletter</p>
+            </div>
+
+            <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+              This notification was sent automatically when a featured story upgrade payment was completed.
+            </p>
+          </div>
+        </body>
+        </html>
+        `;
+
+        await resend.emails.send({
+          from: "America Innovates <noreply@resend.dev>",
+          to: ["ricardo@myproduct.today"],
+          subject: `🎉 Featured Story Upgrade: ${submissionDetails?.product_name || 'Story'}`,
+          html: adminNotificationEmail,
+        });
+
+        console.log("[STRIPE-PAYMENT] Admin notification email sent successfully");
+      } catch (emailError) {
+        console.error("[STRIPE-PAYMENT] Failed to send admin notification:", emailError);
+        // Don't fail the main process if email fails
+      }
 
       return new Response(JSON.stringify({ 
         success: true,

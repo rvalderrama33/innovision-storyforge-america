@@ -93,8 +93,9 @@ serve(async (req) => {
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
     console.log("[STRIPE-PAYMENT] Clients initialized");
+    console.log("[STRIPE-PAYMENT] Processing action:", action, "for submission:", submission_id);
 
-    if (action === 'create-order') {
+    if (action === 'create-order' || action === 'upgrade-to-featured') {
       if (!submission_id) {
         return new Response(JSON.stringify({ error: "Missing submission_id for create-order" }), {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -177,6 +178,12 @@ serve(async (req) => {
 
       console.log("[STRIPE-PAYMENT] Payment record created successfully");
 
+      // For GET requests (email links), redirect to Stripe checkout
+      if (req.method === "GET") {
+        return Response.redirect(session.url!, 302);
+      }
+
+      // For POST requests (API calls), return JSON
       return new Response(JSON.stringify({ 
         url: session.url,
         session_id: session.id 

@@ -14,6 +14,8 @@ const StripeTest = () => {
     setTestResult(null);
 
     try {
+      console.log("Starting Stripe test payment...");
+      
       // Get an approved submission for testing
       const { data: submissions, error: fetchError } = await supabase
         .from('submissions')
@@ -22,17 +24,23 @@ const StripeTest = () => {
         .eq('featured', false)
         .limit(1);
 
+      console.log("Submissions query result:", { submissions, fetchError });
+
       if (fetchError) {
+        console.error("Fetch error:", fetchError);
         throw new Error(`Failed to fetch submissions: ${fetchError.message}`);
       }
 
       if (!submissions || submissions.length === 0) {
+        console.error("No submissions found");
         throw new Error('No approved submissions available for testing');
       }
 
       const testSubmission = submissions[0];
+      console.log("Using test submission:", testSubmission);
 
       // Create a test order for $1
+      console.log("Calling stripe-payment function...");
       const { data, error } = await supabase.functions.invoke('stripe-payment', {
         body: {
           action: 'create-order',
@@ -41,16 +49,21 @@ const StripeTest = () => {
         }
       });
 
+      console.log("Stripe function response:", { data, error });
+
       if (error) {
+        console.error("Stripe function error details:", error);
         throw new Error(`Stripe function error: ${error.message}`);
       }
 
       if (data.error) {
+        console.error("Stripe function returned error:", data.error);
         throw new Error(data.error);
       }
 
       // Open Stripe checkout in a new tab
       if (data.url) {
+        console.log("Opening Stripe checkout URL:", data.url);
         window.open(data.url, '_blank');
         setTestResult(`✅ Test checkout created! Session ID: ${data.session_id}`);
         toast({
@@ -58,11 +71,13 @@ const StripeTest = () => {
           description: "Stripe checkout opened in new tab. Complete the test payment with test card 4242 4242 4242 4242.",
         });
       } else {
+        console.error("No checkout URL received:", data);
         throw new Error('No checkout URL received');
       }
 
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+      console.error("Test payment error:", error);
       setTestResult(`❌ Error: ${errorMessage}`);
       toast({
         title: "Test Failed",

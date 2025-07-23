@@ -12,37 +12,12 @@ interface FeaturedStoryUpgradeProps {
   onPaymentSuccess?: () => void;
 }
 
-declare global {
-  interface Window {
-    paypal: any;
-  }
-}
-
 const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpgradeProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [paypalLoaded, setPaypalLoaded] = useState(false);
   const { toast } = useToast();
 
-  // PayPal Client ID for production
-  const PAYPAL_CLIENT_ID = "ASS7CDATty_wFE_ArsuvMaNAkVeRTu_0-AXfW6htus-edLPHmeIeyJXygyFIE9FQIGpEterVd5bid6ft";
-
-  const loadPayPalScript = () => {
-    if (window.paypal || paypalLoaded) return Promise.resolve();
-
-    return new Promise((resolve, reject) => {
-      const script = document.createElement('script');
-      script.src = `https://www.paypal.com/sdk/js?client-id=${PAYPAL_CLIENT_ID}&currency=USD`;
-      script.onload = () => {
-        setPaypalLoaded(true);
-        resolve(undefined);
-      };
-      script.onerror = reject;
-      document.head.appendChild(script);
-    });
-  };
-
   const handleUpgrade = async () => {
-    console.log('Starting PayPal upgrade process for submission:', submission);
+    console.log('Starting Stripe upgrade process for submission:', submission);
     
     if (!submission || !submission.id) {
       console.error('No submission or submission ID provided:', submission);
@@ -57,102 +32,40 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
     setIsLoading(true);
 
     try {
-      await loadPayPalScript();
+      // Create Stripe checkout session
+      const { data, error } = await supabase.functions.invoke('stripe-payment', {
+        body: {
+          action: 'create-order',
+          submission_id: submission.id,
+          amount: 5000 // $50.00 in cents
+        }
+      });
 
-      if (!window.paypal) {
-        throw new Error('PayPal SDK failed to load');
+      console.log('Stripe create order response:', { data, error });
+
+      if (error) {
+        console.error('Error creating Stripe checkout:', error);
+        throw new Error(`Failed to create checkout: ${error.message}`);
       }
 
-      // Create PayPal buttons
-      window.paypal.Buttons({
-        createOrder: async () => {
-          console.log('Creating PayPal order for submission ID:', submission.id);
-          
-          const { data, error } = await supabase.functions.invoke('paypal-payment', {
-            body: {
-              action: 'create-order',
-              submissionId: submission.id,
-              amount: 5000, // $50.00 in cents
-              currency: 'USD'
-            }
-          });
+      if (data.error) {
+        throw new Error(data.error);
+      }
 
-          console.log('PayPal create order response:', { data, error });
-
-          if (error) {
-            console.error('Error creating PayPal order:', error);
-            throw new Error(`Failed to create payment order: ${error.message}`);
-          }
-
-          if (!data || !data.orderID) {
-            console.error('No order ID received:', data);
-            throw new Error('Failed to create payment order - no order ID received');
-          }
-
-          return data.orderID;
-        },
-
-        onApprove: async (data: any) => {
-          console.log('PayPal payment approved:', data);
-          
-          const { data: captureData, error } = await supabase.functions.invoke('paypal-payment', {
-            body: {
-              action: 'capture-order',
-              orderID: data.orderID,
-              submissionId: submission.id
-            }
-          });
-
-          console.log('PayPal capture response:', { captureData, error });
-
-          if (error) {
-            console.error('Error capturing PayPal payment:', error);
-            toast({
-              title: "Payment Failed",
-              description: `There was an error processing your payment: ${error.message}`,
-              variant: "destructive"
-            });
-            return;
-          }
-
-          toast({
-            title: "Payment Successful!",
-            description: "Your story has been upgraded to featured status for 30 days.",
-            variant: "default"
-          });
-
-          if (onPaymentSuccess) {
-            onPaymentSuccess();
-          }
-        },
-
-        onError: (err: any) => {
-          console.error('PayPal error:', err);
-          toast({
-            title: "Payment Error",
-            description: "There was an error with the payment process. Please try again.",
-            variant: "destructive"
-          });
-        },
-
-        onCancel: () => {
-          console.log('PayPal payment cancelled');
-          toast({
-            title: "Payment Cancelled",
-            description: "Payment was cancelled. You can try again anytime.",
-            variant: "default"
-          });
-        }
-      }).render('#paypal-button-container');
+      // Redirect to Stripe checkout
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        throw new Error('No checkout URL received');
+      }
 
     } catch (error) {
-      console.error('Error setting up PayPal:', error);
+      console.error('Error setting up Stripe:', error);
       toast({
         title: "Setup Error",
         description: `Failed to initialize payment system: ${error.message}`,
         variant: "destructive"
       });
-    } finally {
       setIsLoading(false);
     }
   };
@@ -217,17 +130,13 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
             </Badge>
           </div>
 
-          {!paypalLoaded ? (
-            <Button 
-              onClick={handleUpgrade}
-              disabled={isLoading}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
-              {isLoading ? 'Loading Payment...' : 'Upgrade to Featured'}
-            </Button>
-          ) : (
-            <div id="paypal-button-container" className="w-full"></div>
-          )}
+          <Button 
+            onClick={handleUpgrade}
+            disabled={isLoading}
+            className="w-full bg-blue-600 hover:bg-blue-700"
+          >
+            {isLoading ? 'Creating Checkout...' : 'Upgrade to Featured'}
+          </Button>
         </div>
       </CardContent>
     </Card>

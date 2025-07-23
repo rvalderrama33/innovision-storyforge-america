@@ -8,9 +8,11 @@ CREATE TABLE public.featured_story_payments (
   -- Reference to the submission
   submission_id UUID NOT NULL REFERENCES public.submissions(id) ON DELETE CASCADE,
   
-  -- PayPal payment details
+  -- Payment details (supports both PayPal and Stripe)
   paypal_order_id TEXT,
   paypal_payment_id TEXT,
+  stripe_session_id TEXT,
+  stripe_payment_id TEXT,
   
   -- Payment information
   amount INTEGER NOT NULL DEFAULT 5000, -- $50.00 in cents
@@ -48,6 +50,7 @@ USING (true);
 -- Create indexes
 CREATE INDEX idx_featured_payments_submission ON public.featured_story_payments(submission_id);
 CREATE INDEX idx_featured_payments_paypal_order ON public.featured_story_payments(paypal_order_id);
+CREATE INDEX idx_featured_payments_stripe_session ON public.featured_story_payments(stripe_session_id);
 CREATE INDEX idx_featured_payments_status ON public.featured_story_payments(status);
 
 -- Add trigger for updated_at

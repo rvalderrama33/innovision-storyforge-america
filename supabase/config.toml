@@ -71,3 +71,6 @@ verify_jwt = false
 
 [functions.article-meta]
 verify_jwt = false
+
+[functions.stripe-payment]
+verify_jwt = false

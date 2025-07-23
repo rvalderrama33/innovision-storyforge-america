@@ -145,6 +145,10 @@ const handler = async (req: Request): Promise<Response> => {
             to: [subscriber.email],
             subject: newsletter.subject,
             html: personalizedContent,
+            headers: {
+              'List-Unsubscribe': `<${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/functions/v1/unsubscribe?email=${encodeURIComponent(subscriber.email)}>`,
+              'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
+            }
           });
           
           console.log(`Email response for ${subscriber.email}:`, emailResponse);

@@ -408,6 +408,10 @@ const handler = async (req: Request): Promise<Response> => {
       to: [to],
       subject: emailData.subject,
       html: emailData.html,
+      headers: {
+        'List-Unsubscribe': `<${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/functions/v1/unsubscribe?email=${encodeURIComponent(to)}>`,
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
+      }
     });
 
     console.log("Resend API response:", emailResponse);

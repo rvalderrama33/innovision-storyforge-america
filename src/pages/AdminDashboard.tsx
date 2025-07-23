@@ -296,6 +296,33 @@ const AdminDashboard = () => {
     }
   };
 
+  const triggerFeaturedStoryPromotions = async () => {
+    try {
+      toast({
+        title: "Sending promotion emails",
+        description: "Checking for stories that need promotion emails...",
+      });
+
+      const { data, error } = await supabase.functions.invoke('send-featured-story-promotion', {
+        body: { trigger: 'manual' }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Promotion emails sent",
+        description: data.message || "Featured story promotion emails have been processed",
+      });
+    } catch (error) {
+      console.error('Error sending promotion emails:', error);
+      toast({
+        title: "Error",
+        description: "Failed to send promotion emails",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleEditUser = (user: any) => {
     setEditingUser(user);
     setEditUserData({
@@ -882,6 +909,20 @@ const AdminDashboard = () => {
                         <div>• Provider: Resend</div>
                         <div>• Status: ✅ Active</div>
                       </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h4 className="font-medium">Manual Actions:</h4>
+                      <Button 
+                        onClick={triggerFeaturedStoryPromotions}
+                        className="w-full"
+                        variant="outline"
+                      >
+                        Send Featured Story Promotions
+                      </Button>
+                      <p className="text-xs text-muted-foreground">
+                        Manually trigger promotional emails for stories approved 24 hours ago
+                      </p>
                     </div>
                   </CardContent>
                 </Card>

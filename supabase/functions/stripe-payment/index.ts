@@ -33,30 +33,39 @@ serve(async (req) => {
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY");
     if (!stripeKey) {
-      throw new Error("STRIPE_SECRET_KEY is not set");
+      logStep("ERROR - No Stripe key found");
+      throw new Error("STRIPE_SECRET_KEY is not set in environment variables");
     }
     
     // Log the key type for debugging (only first few characters for security)
-    logStep("Stripe key type", { keyType: stripeKey.substring(0, 3) });
+    logStep("Stripe key found", { keyType: stripeKey.substring(0, 3), keyLength: stripeKey.length });
     
     if (!stripeKey.startsWith('sk_')) {
+      logStep("ERROR - Wrong key type", { keyType: stripeKey.substring(0, 3) });
       throw new Error("STRIPE_SECRET_KEY must be a secret key (starts with sk_), not a publishable key (pk_)");
     }
+
+    logStep("Stripe key validated successfully");
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL");
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     
     if (!supabaseUrl || !supabaseServiceKey) {
+      logStep("ERROR - Missing Supabase config", { hasUrl: !!supabaseUrl, hasServiceKey: !!supabaseServiceKey });
       throw new Error("Supabase configuration missing");
     }
+
+    logStep("Supabase config validated");
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     const stripe = new Stripe(stripeKey, { apiVersion: "2023-10-16" });
 
+    logStep("Clients initialized successfully");
+
     const body = await req.json();
     const { action } = body;
 
-    logStep("Processing action", { action });
+    logStep("Processing action", { action, bodyKeys: Object.keys(body) });
 
     if (action === 'create-order') {
       const { submission_id, amount = 5000 } = body as StripeOrderRequest;
@@ -207,9 +216,18 @@ serve(async (req) => {
 
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    logStep("ERROR", { message: errorMessage });
+    const errorStack = error instanceof Error ? error.stack : 'No stack trace';
     
-    return new Response(JSON.stringify({ error: errorMessage }), {
+    logStep("CRITICAL ERROR", { 
+      message: errorMessage, 
+      stack: errorStack,
+      errorType: error.constructor.name 
+    });
+    
+    return new Response(JSON.stringify({ 
+      error: errorMessage,
+      details: "Check edge function logs for more information"
+    }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 500,
     });

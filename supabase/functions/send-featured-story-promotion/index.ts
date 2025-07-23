@@ -103,7 +103,7 @@ serve(async (req) => {
     // Send promotion email to each submission author
     for (const submission of submissions) {
       try {
-        const upgradeUrl = `${Deno.env.get("SUPABASE_URL")?.replace("/rest/v1", "") || "https://enckzbxifdrihnfcqagb.supabase.co"}/functions/v1/stripe-payment?submission_id=${submission.id}&action=upgrade-to-featured`;
+        const upgradeUrl = `${Deno.env.get("SUPABASE_URL")?.replace("/rest/v1", "") || "https://enckzbxifdrihnfcqagb.supabase.co"}/functions/v1/stripe-payment?submission_id=${submission.id}&action=create-order`;
 
         const emailHtml = `
         <!DOCTYPE html>

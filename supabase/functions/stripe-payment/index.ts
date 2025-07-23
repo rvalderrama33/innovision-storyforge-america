@@ -53,20 +53,33 @@ serve(async (req) => {
       });
     }
 
-    // Parse request body
-    let body;
-    try {
-      body = await req.json();
-      console.log("[STRIPE-PAYMENT] Request body:", body);
-    } catch (error) {
-      console.error("[STRIPE-PAYMENT] Invalid JSON:", error);
-      return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-        status: 400,
-      });
+    // Handle GET requests from email links
+    let action, submission_id, amount = 5000, session_id;
+    
+    if (req.method === "GET") {
+      const url = new URL(req.url);
+      action = url.searchParams.get("action");
+      submission_id = url.searchParams.get("submission_id");
+      session_id = url.searchParams.get("session_id");
+      const amountParam = url.searchParams.get("amount");
+      if (amountParam) amount = parseInt(amountParam);
+      
+      console.log("[STRIPE-PAYMENT] GET request params:", { action, submission_id, amount, session_id });
+    } else {
+      // Handle POST requests with JSON body
+      let body;
+      try {
+        body = await req.json();
+        console.log("[STRIPE-PAYMENT] Request body:", body);
+        ({ action, submission_id, amount = 5000, session_id } = body);
+      } catch (error) {
+        console.error("[STRIPE-PAYMENT] Invalid JSON:", error);
+        return new Response(JSON.stringify({ error: "Invalid JSON in request body" }), {
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+          status: 400,
+        });
+      }
     }
-
-    const { action, submission_id, amount = 5000, session_id } = body;
 
     if (!action) {
       return new Response(JSON.stringify({ error: "Missing action parameter" }), {

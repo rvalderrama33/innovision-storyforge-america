@@ -16,6 +16,7 @@ import ArticleEditor from "./components/ArticleEditor";
 import Stories from "./pages/Stories";
 import EmailPreview from "./pages/EmailPreview";
 import TestOpenAI from "./pages/TestOpenAI";
+import PayPalTest from "./pages/PayPalTest";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
@@ -49,6 +50,7 @@ const App = () => (
             
             <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />
             <Route path="/test-openai" element={<TestOpenAI />} />
+            <Route path="/paypal-test" element={<PayPalTest />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

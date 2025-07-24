@@ -74,3 +74,6 @@ verify_jwt = false
 
 [functions.stripe-payment]
 verify_jwt = false
+
+[functions.send-recommendation-notification]
+verify_jwt = false

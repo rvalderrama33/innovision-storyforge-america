@@ -32,7 +32,8 @@ const Recommend = () => {
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase
+      // First insert the recommendation
+      const { error: insertError } = await supabase
         .from("recommendations")
         .insert([
           {
@@ -44,7 +45,27 @@ const Recommend = () => {
           },
         ]);
 
-      if (error) throw error;
+      if (insertError) throw insertError;
+
+      // Send notification email
+      const { error: emailError } = await supabase.functions.invoke('send-recommendation-notification', {
+        body: {
+          recommendedPerson: {
+            name: formData.name,
+            email: formData.email,
+            reason: formData.reason,
+          },
+          recommender: {
+            name: formData.recommenderName,
+            email: formData.recommenderEmail,
+          },
+        },
+      });
+
+      if (emailError) {
+        console.error("Error sending email:", emailError);
+        // Don't fail the whole operation if email fails
+      }
 
       toast({
         title: "Recommendation submitted!",
@@ -188,24 +209,26 @@ const Recommend = () => {
                 
                 <div className="grid md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="recommenderName">Your Name</Label>
+                    <Label htmlFor="recommenderName">Your Name *</Label>
                     <Input
                       id="recommenderName"
                       name="recommenderName"
                       value={formData.recommenderName}
                       onChange={handleInputChange}
-                      placeholder="Your name (optional)"
+                      required
+                      placeholder="Your full name"
                     />
                   </div>
                   <div>
-                    <Label htmlFor="recommenderEmail">Your Email</Label>
+                    <Label htmlFor="recommenderEmail">Your Email *</Label>
                     <Input
                       id="recommenderEmail"
                       name="recommenderEmail"
                       type="email"
                       value={formData.recommenderEmail}
                       onChange={handleInputChange}
-                      placeholder="your.email@example.com (optional)"
+                      required
+                      placeholder="your.email@example.com"
                     />
                   </div>
                 </div>

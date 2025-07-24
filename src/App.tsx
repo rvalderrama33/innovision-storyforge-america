@@ -16,6 +16,7 @@ import ArticleEditor from "./components/ArticleEditor";
 import Stories from "./pages/Stories";
 import EmailPreview from "./pages/EmailPreview";
 import TestOpenAI from "./pages/TestOpenAI";
+import Recommend from "./pages/Recommend";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCancelled from "./pages/PaymentCancelled";
 import NotFound from "./pages/NotFound";
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/article/:slug" element={<Article />} />
             <Route path="/admin/edit/:id" element={<ArticleEditor />} />
             <Route path="/stories" element={<Stories />} />
+            <Route path="/recommend" element={<Recommend />} />
             <Route path="/email-preview" element={<EmailPreview />} />
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />

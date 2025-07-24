@@ -115,6 +115,9 @@ const Header = () => {
               <Link to="/submit" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                 Submit Story
               </Link>
+              <Link to="/recommend" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                Recommend Someone
+              </Link>
               <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                 About
               </Link>
@@ -145,6 +148,7 @@ const Header = () => {
           <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
           <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Browse Stories</Link>
           <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
+          <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Recommend Someone</Link>
           <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
           {isAdmin && (
             <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">

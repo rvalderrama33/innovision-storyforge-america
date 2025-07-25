@@ -17,7 +17,7 @@ const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '',
   // This component only handles the sharing functionality
 
   const shareLinks = {
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
     twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(`${title} - ${description ? description.substring(0, 100) + '...' : 'Read this inspiring innovation story'}`)}`,
     linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(description || '')}`,
     email: `mailto:?subject=${encodeURIComponent(`${title} - America Innovates Magazine`)}&body=${encodeURIComponent(`I thought you'd find this article interesting:\n\n${title}\n\n${description}\n\nRead more: ${url}`)}`

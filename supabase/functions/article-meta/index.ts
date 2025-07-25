@@ -56,7 +56,12 @@ serve(async (req) => {
       // Serve HTML with proper meta tags for crawlers
       const articleTitle = `${article.product_name} | America Innovates Magazine`
       const articleDescription = article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`
-      const articleImage = article.image_urls?.[0] || 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png'
+      
+      // Use headshot first, then first image from urls, then fallback to logo
+      const articleImage = article.headshot_image || 
+                          (article.image_urls && article.image_urls.length > 0 ? article.image_urls[0] : null) ||
+                          'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png'
+      
       const articleUrl = `https://americainnovates.us/article/${slug}`
       
       const html = `<!DOCTYPE html>

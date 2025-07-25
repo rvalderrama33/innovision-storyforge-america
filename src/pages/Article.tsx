@@ -507,10 +507,10 @@ const Article = () => {
                 <p className="text-muted-foreground text-sm">Help others discover this inspiring innovation</p>
               </div>
               <SocialShare 
-                url={window.location.href}
+                url={`https://americainnovates.us/article/${slug}`}
                 title={article.product_name}
                 description={article.description || `Read about ${article.product_name} by ${article.full_name}`}
-                image={getBannerImageUrl()}
+                image={article.headshot_image || (article.image_urls && article.image_urls.length > 0 ? article.image_urls[0] : null) || getBannerImageUrl()}
               />
             </div>
           </div>

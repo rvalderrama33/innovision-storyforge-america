@@ -105,7 +105,7 @@ serve(async (req) => {
     <meta property="og:site_name" content="America Innovates Magazine">
     <meta property="article:author" content="${escapeHtml(article.full_name)}">
     <meta property="article:published_time" content="${article.created_at}">
-    <meta property="fb:app_id" content="">
+    <meta property="fb:app_id" content="placeholder"">
     
     <!-- Twitter Card tags -->
     <meta name="twitter:card" content="summary_large_image">

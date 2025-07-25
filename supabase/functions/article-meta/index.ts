@@ -48,10 +48,13 @@ serve(async (req) => {
     
     // Check if request is from a social media crawler
     const userAgent = req.headers.get('user-agent') || ''
-    const isCrawler = /facebookexternalhit|twitterbot|linkedinbot|pinterest|slackbot|whatsapp/i.test(userAgent)
+    const isCrawler = /facebookexternalhit|twitterbot|linkedinbot|pinterest|slackbot|whatsapp|telegrambot/i.test(userAgent)
     
-    console.log('User agent:', userAgent)
-    console.log('Is crawler:', isCrawler)
+    console.log('Processing request:')
+    console.log('- URL:', req.url)
+    console.log('- User agent:', userAgent)
+    console.log('- Is crawler:', isCrawler)
+    console.log('- Headers:', Object.fromEntries(req.headers.entries()))
     
     if (isCrawler) {
       // Serve HTML with proper meta tags for crawlers

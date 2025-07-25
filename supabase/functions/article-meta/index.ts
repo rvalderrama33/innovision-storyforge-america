@@ -46,39 +46,44 @@ serve(async (req) => {
     
     console.log('Found article:', article.product_name)
     
-    // Check if request is from a social media crawler
+    // Check if request is from a social media crawler or preview generator
     const userAgent = req.headers.get('user-agent') || ''
-    const isCrawler = /facebookexternalhit|twitterbot|linkedinbot|pinterest|slackbot|whatsapp|telegrambot/i.test(userAgent)
+    const isCrawler = /facebookexternalhit|twitterbot|linkedinbot|pinterest|slackbot|whatsapp|telegrambot|discordbot/i.test(userAgent)
     
     console.log('Processing request:')
     console.log('- URL:', req.url)
     console.log('- User agent:', userAgent)
     console.log('- Is crawler:', isCrawler)
-    console.log('- Headers:', Object.fromEntries(req.headers.entries()))
     
-    if (isCrawler) {
-      // Serve HTML with proper meta tags for crawlers
-      const articleTitle = `${article.product_name} | America Innovates Magazine`
-      const articleDescription = article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`
-      
-      // Use headshot first, then first image from urls, then fallback to logo
-      let articleImage = 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png'
-      
-      if (article.headshot_image) {
-        articleImage = article.headshot_image
-      } else if (article.image_urls && Array.isArray(article.image_urls) && article.image_urls.length > 0) {
-        articleImage = article.image_urls[0]
-      }
-      
-      console.log('Selected article image:', articleImage)
-      
-      const articleUrl = `https://americainnovates.us/article/${slug}`
-      
-      // Escape HTML attributes and JSON values
-      const escapeHtml = (str: string) => str.replace(/"/g, '&quot;').replace(/'/g, '&#39;')
-      const escapeJson = (str: string) => JSON.stringify(str).slice(1, -1) // Remove quotes from JSON.stringify
-      
-      const html = `<!DOCTYPE html>
+    // Always serve meta HTML for better social sharing
+    const articleTitle = `${article.product_name} | America Innovates Magazine`
+    const articleDescription = article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`
+    
+    // Use headshot first, then first image from urls, then fallback to logo
+    let articleImage = 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png'
+    
+    if (article.headshot_image) {
+      articleImage = article.headshot_image
+      console.log('Using headshot image:', articleImage)
+    } else if (article.image_urls && Array.isArray(article.image_urls) && article.image_urls.length > 0) {
+      articleImage = article.image_urls[0]
+      console.log('Using first gallery image:', articleImage)
+    } else {
+      console.log('Using fallback logo image:', articleImage)
+    }
+    
+    // Ensure the image URL is absolute
+    if (articleImage && !articleImage.startsWith('http')) {
+      articleImage = `https://americainnovates.us${articleImage.startsWith('/') ? '' : '/'}${articleImage}`
+    }
+    
+    const articleUrl = `https://americainnovates.us/article/${slug}`
+    
+    // Escape HTML attributes and JSON values
+    const escapeHtml = (str: string) => str?.replace(/"/g, '&quot;').replace(/'/g, '&#39;') || ''
+    const escapeJson = (str: string) => JSON.stringify(str || '').slice(1, -1)
+    
+    const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -86,26 +91,34 @@ serve(async (req) => {
     <title>${escapeHtml(articleTitle)}</title>
     <meta name="description" content="${escapeHtml(articleDescription)}">
     
-    <!-- Open Graph tags for social sharing -->
+    <!-- Open Graph tags for Facebook, LinkedIn, etc. -->
     <meta property="og:title" content="${escapeHtml(articleTitle)}">
     <meta property="og:description" content="${escapeHtml(articleDescription)}">
     <meta property="og:image" content="${articleImage}">
+    <meta property="og:image:secure_url" content="${articleImage}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:alt" content="${escapeHtml(article.product_name)} by ${escapeHtml(article.full_name)}">
     <meta property="og:url" content="${articleUrl}">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="America Innovates Magazine">
+    <meta property="article:author" content="${escapeHtml(article.full_name)}">
+    <meta property="article:published_time" content="${article.created_at}">
+    <meta property="fb:app_id" content="">
     
     <!-- Twitter Card tags -->
     <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@AmericaInnovate">
+    <meta name="twitter:creator" content="@AmericaInnovate">
     <meta name="twitter:title" content="${escapeHtml(articleTitle)}">
     <meta name="twitter:description" content="${escapeHtml(articleDescription)}">
     <meta name="twitter:image" content="${articleImage}">
-    <meta name="twitter:site" content="@AmericaInnovate">
+    <meta name="twitter:image:alt" content="${escapeHtml(article.product_name)} by ${escapeHtml(article.full_name)}">
     
-    <!-- LinkedIn specific tags -->
-    <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:image:alt" content="${escapeHtml(article.product_name)} - ${escapeHtml(article.full_name)}">
+    <!-- Additional meta tags for better sharing -->
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="${escapeHtml(article.full_name)}">
     
     <!-- Canonical URL -->
     <link rel="canonical" href="${articleUrl}">
@@ -134,31 +147,31 @@ serve(async (req) => {
       "datePublished": "${article.created_at}"
     }
     </script>
+    
+    <!-- Auto-redirect for browsers (not crawlers) -->
+    <script>
+      // Only redirect if not a crawler
+      if (!/facebookexternalhit|twitterbot|linkedinbot|pinterest|slackbot|whatsapp|telegrambot|discordbot/i.test(navigator.userAgent)) {
+        window.location.href = '${articleUrl}';
+      }
+    </script>
 </head>
 <body>
     <h1>${escapeHtml(article.product_name)}</h1>
     <p>By ${escapeHtml(article.full_name)}</p>
     <p>${escapeHtml(articleDescription)}</p>
+    <img src="${articleImage}" alt="${escapeHtml(article.product_name)}" style="max-width: 100%; height: auto;">
     <p><a href="${articleUrl}">Read the full article</a></p>
 </body>
 </html>`
-      
-      return new Response(html, {
-        headers: {
-          'Content-Type': 'text/html',
-          ...corsHeaders
-        }
-      })
-    } else {
-      // For regular browsers, redirect to the SPA
-      return new Response(null, {
-        status: 302,
-        headers: {
-          'Location': `https://americainnovates.us/article/${slug}`,
-          ...corsHeaders
-        }
-      })
-    }
+    
+    return new Response(html, {
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'public, max-age=300',
+        ...corsHeaders
+      }
+    })
     
   } catch (error) {
     console.error('Error in article-meta function:', error)

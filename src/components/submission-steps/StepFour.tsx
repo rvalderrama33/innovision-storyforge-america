@@ -74,6 +74,22 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
   const handleFileUpload = async (key: string, files: FileList | null) => {
     if (!files) return;
     
+    // Check if we would exceed the 3 image limit for multi-image categories
+    const currentImages = Array.isArray(formData[key as keyof typeof formData]) 
+      ? (formData[key as keyof typeof formData] as any[]) 
+      : [];
+    const newFileCount = Array.from(files).length;
+    const totalCount = currentImages.length + newFileCount;
+    
+    if (key.includes("Images") && totalCount > 3) {
+      toast({
+        title: "Upload limit exceeded",
+        description: `Maximum 3 images allowed per category. You can upload ${Math.max(0, 3 - currentImages.length)} more image(s).`,
+        variant: "destructive",
+      });
+      return;
+    }
+    
     setUploadingFiles(prev => ({ ...prev, [key]: true }));
     
     try {
@@ -102,7 +118,7 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
       
       setFormData(prev => ({
         ...prev,
-        [key]: key.includes("Images") ? fileArray : fileArray[0],
+        [key]: key.includes("Images") ? [...currentImages, ...fileArray] : fileArray[0],
         imageUrls: [...prev.imageUrls, ...uploadedUrls]
       }));
       
@@ -210,7 +226,8 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
           • Professional quality with good lighting<br />
           • Clean backgrounds work best for product shots<br />
           • Show your product in use for lifestyle photos<br />
-          • Multiple angles help tell the complete story
+          • Multiple angles help tell the complete story<br />
+          • Maximum 3 images per category (except headshot)
         </p>
       </div>
     </div>

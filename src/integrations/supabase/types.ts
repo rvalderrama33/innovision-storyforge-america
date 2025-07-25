@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_lockouts: {
+        Row: {
+          created_at: string | null
+          email: string
+          failed_attempts: number | null
+          id: string
+          last_attempt: string | null
+          locked_until: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          failed_attempts?: number | null
+          id?: string
+          last_attempt?: string | null
+          locked_until?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          failed_attempts?: number | null
+          id?: string
+          last_attempt?: string | null
+          locked_until?: string | null
+        }
+        Relationships: []
+      }
       admin_actions: {
         Row: {
           action_type: string
@@ -559,6 +586,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      handle_failed_login: {
+        Args: { _email: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _user_id: string
@@ -591,6 +622,14 @@ export type Database = {
               _user_agent?: string
             }
         Returns: undefined
+      }
+      reset_login_attempts: {
+        Args: { _email: string }
+        Returns: undefined
+      }
+      revoke_admin_role: {
+        Args: { _target_user_id: string }
+        Returns: boolean
       }
       sync_admin_newsletter_subscriptions: {
         Args: Record<PropertyKey, never>

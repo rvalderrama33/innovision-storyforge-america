@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import RecommendationAnalytics from "@/components/RecommendationAnalytics";
 import SubmissionReports from "@/components/SubmissionReports";
 import { SubmissionCard } from "@/components/SubmissionCard";
+import SecurityMonitor from "@/components/SecurityMonitor";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -512,7 +513,7 @@ const AdminDashboard = () => {
         </div>
 
         <Tabs defaultValue="submissions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-9">
+          <TabsList className="grid w-full grid-cols-10">
             <TabsTrigger value="submissions" className="flex items-center gap-2">
               <FileText className="w-4 h-4" />
               Submissions
@@ -544,6 +545,10 @@ const AdminDashboard = () => {
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Users
+            </TabsTrigger>
+            <TabsTrigger value="security" className="flex items-center gap-2">
+              <Shield className="w-4 h-4" />
+              Security
             </TabsTrigger>
             <TabsTrigger value="emails" className="flex items-center gap-2">
               <Mail className="w-4 h-4" />
@@ -910,6 +915,10 @@ const AdminDashboard = () => {
                 )}
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="security" className="space-y-6">
+            <SecurityMonitor />
           </TabsContent>
 
           <TabsContent value="emails" className="space-y-6">

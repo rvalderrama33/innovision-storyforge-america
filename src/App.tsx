@@ -5,6 +5,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { initializeCSRF } from "@/lib/csrf";
+import { initializeSessionSecurity, monitorSession } from "@/lib/sessionSecurity";
+import { useEffect } from "react";
 import Index from "./pages/Index";
 import MobileIndex from "./pages/MobileIndex";
 import Submit from "./pages/Submit";
@@ -28,10 +31,22 @@ import ProtectedRoute from "./components/ProtectedRoute";
 
 const queryClient = new QueryClient();
 
+const SecurityInitializer = ({ children }: { children: React.ReactNode }) => {
+  useEffect(() => {
+    // Initialize security features
+    initializeCSRF();
+    initializeSessionSecurity();
+    monitorSession();
+  }, []);
+
+  return <>{children}</>;
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
+        <SecurityInitializer>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -59,6 +74,7 @@ const App = () => (
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
+        </SecurityInitializer>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

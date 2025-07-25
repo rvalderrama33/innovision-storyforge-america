@@ -68,10 +68,39 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return { error: { message: emailValidation.error } };
       }
 
+      // Check for account lockout before attempting sign in
+      const { data: lockoutData, error: lockoutError } = await supabase.rpc('handle_failed_login', {
+        _email: email.toLowerCase().trim()
+      });
+
+      if (lockoutError) {
+        console.error('Lockout check error:', lockoutError);
+      }
+
+      if (lockoutData === false) {
+        return { error: { message: 'Account temporarily locked due to multiple failed login attempts. Please try again in 30 minutes.' } };
+      }
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.toLowerCase().trim(),
         password,
       });
+
+      if (error) {
+        // Handle failed login attempt
+        await supabase.rpc('handle_failed_login', {
+          _email: email.toLowerCase().trim()
+        });
+        return { error };
+      }
+
+      if (data.user) {
+        // Reset login attempts on successful login
+        await supabase.rpc('reset_login_attempts', {
+          _email: email.toLowerCase().trim()
+        });
+      }
+
       return { error };
     } catch (error) {
       return { error };

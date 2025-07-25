@@ -13,28 +13,35 @@ import AdminManualSubmission from "@/components/AdminManualSubmission";
 import NewsletterManagement from "@/components/NewsletterManagement";
 import NewsletterAnalytics from "@/components/NewsletterAnalytics";
 import { sendArticleApprovalEmail, sendFeaturedStoryEmail } from "@/lib/emailService";
-import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus, Edit, Trash2, Shield, ShieldOff, BarChart3, Database } from "lucide-react";
+import { Eye, CheckCircle, XCircle, Star, Pin, Mail, Users, FileText, TrendingUp, Plus, Edit, Trash2, Shield, ShieldOff, BarChart3, Database, Home, Menu } from "lucide-react";
 import ArticlePreviewDialog from "@/components/ArticlePreviewDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import RecommendationAnalytics from "@/components/RecommendationAnalytics";
 import SubmissionReports from "@/components/SubmissionReports";
 import { SubmissionCard } from "@/components/SubmissionCard";
 import SecurityMonitor from "@/components/SecurityMonitor";
+import { AdminSidebar } from "@/components/AdminSidebar";
+import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
   const { toast } = useToast();
+  const location = useLocation();
+  
+  // Extract current tab from URL path
+  const currentTab = location.pathname === '/admin' ? 'overview' : location.pathname.split('/admin/')[1] || 'overview';
 
   useSEO({
     title: "Admin Dashboard | America Innovates Magazine",
     description: "Admin dashboard for managing submissions, newsletters, and analytics at America Innovates Magazine.",
     url: "https://americainnovates.us/admin"
   });
+  
   const [submissions, setSubmissions] = useState<any[]>([]);
   const [users, setUsers] = useState<any[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -496,83 +503,60 @@ const AdminDashboard = () => {
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20 p-6">
-      <div className="max-w-7xl mx-auto">
-        <div className="mb-8 flex items-center justify-between">
-          <div>
-            <h1 className="text-4xl font-bold text-foreground mb-2">Admin Dashboard</h1>
-            <p className="text-muted-foreground text-lg">Manage submissions and communications</p>
+  const renderTabContent = () => {
+    switch (currentTab) {
+      case 'overview':
+        return (
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <FileText className="w-5 h-5" />
+                    Total Submissions
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">{submissions.length}</div>
+                  <p className="text-muted-foreground">All time</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <CheckCircle className="w-5 h-5" />
+                    Approved Articles
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">
+                    {submissions.filter(s => s.status === 'approved').length}
+                  </div>
+                  <p className="text-muted-foreground">Published stories</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Star className="w-5 h-5" />
+                    Featured Stories
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-3xl font-bold">
+                    {submissions.filter(s => s.featured).length}
+                  </div>
+                  <p className="text-muted-foreground">Highlighted articles</p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
-          <Link 
-            to="/" 
-            className="inline-flex items-center px-4 py-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-          >
-            ← Back to Home
-          </Link>
-        </div>
-
-        <Tabs defaultValue="submissions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-10">
-            <TabsTrigger value="submissions" className="flex items-center gap-2">
-              <FileText className="w-4 h-4" />
-              Submissions
-            </TabsTrigger>
-            <TabsTrigger value="reports" className="flex items-center gap-2">
-              <Database className="w-4 h-4" />
-              Reports
-            </TabsTrigger>
-            <TabsTrigger value="create" className="flex items-center gap-2">
-              <Plus className="w-4 h-4" />
-              Create Article
-            </TabsTrigger>
-            <TabsTrigger value="newsletter" className="flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              Newsletter
-            </TabsTrigger>
-            <TabsTrigger value="newsletter-analytics" className="flex items-center gap-2">
-              <BarChart3 className="w-4 h-4" />
-              Newsletter Analytics
-            </TabsTrigger>
-            <TabsTrigger value="analytics" className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4" />
-              Analytics
-            </TabsTrigger>
-            <TabsTrigger value="recommendations" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Recommendations
-            </TabsTrigger>
-            <TabsTrigger value="users" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Users
-            </TabsTrigger>
-            <TabsTrigger value="security" className="flex items-center gap-2">
-              <Shield className="w-4 h-4" />
-              Security
-            </TabsTrigger>
-            <TabsTrigger value="emails" className="flex items-center gap-2">
-              <Mail className="w-4 h-4" />
-              Email Center
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="reports" className="space-y-6">
-            <SubmissionReports />
-          </TabsContent>
-
-          <TabsContent value="newsletter" className="space-y-6">
-            <NewsletterManagement />
-          </TabsContent>
-
-          <TabsContent value="newsletter-analytics" className="space-y-6">
-            <NewsletterAnalytics />
-          </TabsContent>
-
-          <TabsContent value="create" className="space-y-6">
-            <AdminManualSubmission onSubmissionCreated={fetchSubmissions} />
-          </TabsContent>
-
-          <TabsContent value="submissions" className="space-y-6">
+        );
+      case 'submissions':
+        return (
+          <div className="space-y-6">
             {submissions.length === 0 ? (
               <Card>
                 <CardContent className="p-8 text-center">
@@ -718,276 +702,258 @@ const AdminDashboard = () => {
                 </TabsContent>
               </Tabs>
             )}
-          </TabsContent>
-
-          <TabsContent value="analytics" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <FileText className="w-5 h-5" />
-                    Total Submissions
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">{submissions.length}</div>
-                  <p className="text-muted-foreground">All time</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5" />
-                    Approved Articles
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">
-                    {submissions.filter(s => s.status === 'approved').length}
-                  </div>
-                  <p className="text-muted-foreground">Published stories</p>
-                </CardContent>
-              </Card>
-              
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Star className="w-5 h-5" />
-                    Featured Stories
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold">
-                    {submissions.filter(s => s.featured).length}
-                  </div>
-                  <p className="text-muted-foreground">Highlighted articles</p>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="recommendations" className="space-y-6">
-            <RecommendationAnalytics />
-          </TabsContent>
-
-          <TabsContent value="users" className="space-y-6">
+          </div>
+        );
+      case 'reports':
+        return <SubmissionReports />;
+      case 'create':
+        return <AdminManualSubmission onSubmissionCreated={fetchSubmissions} />;
+      case 'newsletter':
+        return <NewsletterManagement />;
+      case 'newsletter-analytics':
+        return <NewsletterAnalytics />;
+      case 'analytics':
+        return (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <Card>
               <CardHeader>
-                <CardTitle className="flex items-center justify-between">
-                  <span>User Management</span>
-                  <Badge variant="secondary">{users.length} Users</Badge>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="w-5 h-5" />
+                  Total Submissions
                 </CardTitle>
-                <CardDescription>
-                  Manage user accounts and roles
-                </CardDescription>
               </CardHeader>
               <CardContent>
-                {users.length === 0 ? (
-                  <p className="text-muted-foreground text-center py-8">No users found.</p>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>User</TableHead>
-                        <TableHead>Role</TableHead>
-                        <TableHead>Joined</TableHead>
-                        <TableHead className="text-right">Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {users.map((user) => {
-                        const isAdmin = user.user_roles?.some((role: any) => role.role === 'admin');
-                        return (
-                          <TableRow key={user.id}>
-                            <TableCell>
-                              <div>
-                                <div className="font-medium">{user.full_name || 'Unknown User'}</div>
-                                <div className="text-sm text-muted-foreground">{user.email}</div>
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="flex gap-1">
-                                {user.user_roles?.map((role: any) => (
-                                  <Badge key={role.role} variant={role.role === 'admin' ? 'default' : 'secondary'}>
-                                    {role.role}
-                                  </Badge>
-                                ))}
-                                {(!user.user_roles || user.user_roles.length === 0) && (
-                                  <Badge variant="outline">subscriber</Badge>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>
-                              <div className="text-sm">
-                                {new Date(user.created_at).toLocaleDateString()}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-right">
-                              <div className="flex gap-2 justify-end">
-                                <Dialog open={editingUser?.id === user.id} onOpenChange={(open) => !open && setEditingUser(null)}>
-                                  <DialogTrigger asChild>
-                                    <Button
-                                      variant="outline"
-                                      size="sm"
-                                      onClick={() => handleEditUser(user)}
-                                    >
-                                      <Edit className="w-4 h-4" />
-                                    </Button>
-                                  </DialogTrigger>
-                                  <DialogContent>
-                                    <DialogHeader>
-                                      <DialogTitle>Edit User</DialogTitle>
-                                      <DialogDescription>
-                                        Update user profile information
-                                      </DialogDescription>
-                                    </DialogHeader>
-                                    <div className="space-y-4">
-                                      <div>
-                                        <Label htmlFor="full_name">Full Name</Label>
-                                        <Input
-                                          id="full_name"
-                                          value={editUserData.full_name}
-                                          onChange={(e) => setEditUserData(prev => ({ ...prev, full_name: e.target.value }))}
-                                        />
-                                      </div>
-                                      <div>
-                                        <Label htmlFor="email">Email</Label>
-                                        <Input
-                                          id="email"
-                                          type="email"
-                                          value={editUserData.email}
-                                          onChange={(e) => setEditUserData(prev => ({ ...prev, email: e.target.value }))}
-                                        />
-                                      </div>
-                                    </div>
-                                    <DialogFooter>
-                                      <Button variant="outline" onClick={() => setEditingUser(null)}>
-                                        Cancel
-                                      </Button>
-                                      <Button onClick={updateUser}>
-                                        Update User
-                                      </Button>
-                                    </DialogFooter>
-                                  </DialogContent>
-                                </Dialog>
-
-                                <Button
-                                  variant={isAdmin ? "secondary" : "outline"}
-                                  size="sm"
-                                  onClick={() => toggleUserRole(user.id, user.user_roles)}
-                                >
-                                  {isAdmin ? <ShieldOff className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
-                                </Button>
-
-                                <AlertDialog>
-                                  <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" size="sm">
-                                      <Trash2 className="w-4 h-4" />
-                                    </Button>
-                                  </AlertDialogTrigger>
-                                  <AlertDialogContent>
-                                    <AlertDialogHeader>
-                                      <AlertDialogTitle>Delete User</AlertDialogTitle>
-                                      <AlertDialogDescription>
-                                        Are you sure you want to delete {user.full_name || user.email}? 
-                                        This action cannot be undone and will remove all user data.
-                                      </AlertDialogDescription>
-                                    </AlertDialogHeader>
-                                    <AlertDialogFooter>
-                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                                      <AlertDialogAction
-                                        onClick={() => deleteUser(user.id)}
-                                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-                                      >
-                                        Delete User
-                                      </AlertDialogAction>
-                                    </AlertDialogFooter>
-                                  </AlertDialogContent>
-                                </AlertDialog>
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        );
-                      })}
-                    </TableBody>
-                  </Table>
-                )}
+                <div className="text-3xl font-bold">{submissions.length}</div>
+                <p className="text-muted-foreground">All time</p>
               </CardContent>
             </Card>
-          </TabsContent>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" />
+                  Approved Articles
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">
+                  {submissions.filter(s => s.status === 'approved').length}
+                </div>
+                <p className="text-muted-foreground">Published stories</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Star className="w-5 h-5" />
+                  Featured Stories
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold">
+                  {submissions.filter(s => s.featured).length}
+                </div>
+                <p className="text-muted-foreground">Highlighted articles</p>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      case 'recommendations':
+        return <RecommendationAnalytics />;
+      case 'security':
+        return <SecurityMonitor />;
+      case 'emails':
+        return (
+          <div className="space-y-6">
+            <EmailTemplateCustomizer />
+            <EmailNotificationForm />
+          </div>
+        );
+      case 'users':
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <span>User Management</span>
+                <Badge variant="secondary">{users.length} Users</Badge>
+              </CardTitle>
+              <CardDescription>
+                Manage user accounts and roles
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {users.length === 0 ? (
+                <p className="text-muted-foreground text-center py-8">No users found.</p>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>User</TableHead>
+                      <TableHead>Role</TableHead>
+                      <TableHead>Joined</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {users.map((user) => {
+                      const isAdmin = user.user_roles?.some((role: any) => role.role === 'admin');
+                      return (
+                        <TableRow key={user.id}>
+                          <TableCell>
+                            <div>
+                              <div className="font-medium">{user.full_name || 'Unknown User'}</div>
+                              <div className="text-sm text-muted-foreground">{user.email}</div>
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="flex gap-1">
+                              {user.user_roles?.map((role: any) => (
+                                <Badge key={role.role} variant={role.role === 'admin' ? 'default' : 'secondary'}>
+                                  {role.role}
+                                </Badge>
+                              ))}
+                              {(!user.user_roles || user.user_roles.length === 0) && (
+                                <Badge variant="outline">subscriber</Badge>
+                              )}
+                            </div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="text-sm">
+                              {new Date(user.created_at).toLocaleDateString()}
+                            </div>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex gap-2 justify-end">
+                              <Dialog open={editingUser?.id === user.id} onOpenChange={(open) => !open && setEditingUser(null)}>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => handleEditUser(user)}
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent>
+                                  <DialogHeader>
+                                    <DialogTitle>Edit User</DialogTitle>
+                                    <DialogDescription>
+                                      Update user profile information
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div className="space-y-4">
+                                    <div>
+                                      <Label htmlFor="full_name">Full Name</Label>
+                                      <Input
+                                        id="full_name"
+                                        value={editUserData.full_name}
+                                        onChange={(e) => setEditUserData(prev => ({ ...prev, full_name: e.target.value }))}
+                                      />
+                                    </div>
+                                    <div>
+                                      <Label htmlFor="email">Email</Label>
+                                      <Input
+                                        id="email"
+                                        type="email"
+                                        value={editUserData.email}
+                                        onChange={(e) => setEditUserData(prev => ({ ...prev, email: e.target.value }))}
+                                      />
+                                    </div>
+                                  </div>
+                                  <DialogFooter>
+                                    <Button variant="outline" onClick={() => setEditingUser(null)}>
+                                      Cancel
+                                    </Button>
+                                    <Button onClick={updateUser}>
+                                      Update User
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
 
-          <TabsContent value="security" className="space-y-6">
-            <SecurityMonitor />
-          </TabsContent>
+                              <Button
+                                variant={isAdmin ? "secondary" : "outline"}
+                                size="sm"
+                                onClick={() => toggleUserRole(user.id, user.user_roles)}
+                              >
+                                {isAdmin ? <ShieldOff className="w-4 h-4" /> : <Shield className="w-4 h-4" />}
+                              </Button>
 
-          <TabsContent value="emails" className="space-y-6">
-            <div className="grid grid-cols-1 gap-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <EmailNotificationForm />
-                
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <Mail className="w-5 h-5" />
-                      Email Automation
-                    </CardTitle>
-                    <CardDescription>
-                      Automated emails are sent for key events
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <h4 className="font-medium">Automated Triggers:</h4>
-                      <div className="space-y-1 text-sm text-muted-foreground">
-                        <div>✅ Welcome Email - New user signups</div>
-                        <div>✅ Article Approval - When articles are approved</div>
-                        <div>✅ Featured Story - When stories are featured</div>
-                        <div>📧 Manual Notifications - Custom sending</div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <h4 className="font-medium">Email Settings:</h4>
-                      <div className="space-y-1 text-sm text-muted-foreground">
-                        <div>• From: America Innovates &lt;noreply@resend.dev&gt;</div>
-                        <div>• Provider: Resend</div>
-                        <div>• Status: ✅ Active</div>
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-2">
-                      <h4 className="font-medium">Manual Actions:</h4>
-                      <Button 
-                        onClick={triggerFeaturedStoryPromotions}
-                        className="w-full"
-                        variant="outline"
-                      >
-                        Send Featured Story Promotions
-                      </Button>
-                      <p className="text-xs text-muted-foreground">
-                        Manually trigger promotional emails for stories approved 24 hours ago
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-              
-              <EmailTemplateCustomizer />
-            </div>
-          </TabsContent>
-        </Tabs>
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="destructive" size="sm">
+                                    <Trash2 className="w-4 h-4" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Delete User</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to delete this user? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => deleteUser(user.id)}>
+                                      Delete
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        );
+      default:
+        return <div>Page not found</div>;
+    }
+  };
+
+  return (
+    <SidebarProvider defaultOpen={false}>
+      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 to-blue-50/20">
+        <AdminSidebar />
         
+        <SidebarInset className="flex-1">
+          <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
+            <SidebarTrigger className="md:hidden" />
+            <div className="flex flex-1 items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+                <p className="text-sm text-muted-foreground hidden sm:block">Manage submissions and communications</p>
+              </div>
+              <Link 
+                to="/" 
+                className="inline-flex items-center px-3 py-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              >
+                ← Home
+              </Link>
+            </div>
+          </header>
+
+          <main className="flex-1 p-6">
+            {renderTabContent()}
+          </main>
+        </SidebarInset>
+
         <ArticlePreviewDialog
           isOpen={previewDialogOpen}
           onClose={() => setPreviewDialogOpen(false)}
           submission={selectedSubmission}
-          onApprove={(submissionId) => updateSubmissionStatus(submissionId, 'approved')}
-          onReject={(submissionId) => updateSubmissionStatus(submissionId, 'rejected')}
+          onApprove={(id) => updateSubmissionStatus(id, 'approved')}
+          onReject={(id) => updateSubmissionStatus(id, 'rejected')}
           onRegenerate={regenerateStory}
         />
       </div>
-    </div>
+    </SidebarProvider>
   );
 };
 

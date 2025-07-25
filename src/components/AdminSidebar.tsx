@@ -38,7 +38,6 @@ const adminMenuItems = [
 ];
 
 export function AdminSidebar() {
-  const { open } = useSidebar();
   const location = useLocation();
   const currentPath = location.pathname;
 
@@ -56,7 +55,7 @@ export function AdminSidebar() {
   };
 
   return (
-    <Sidebar className="w-64">
+    <Sidebar className="w-64" collapsible="none">
       <SidebarHeader className="border-b border-border/50">
         <div className="flex items-center gap-2 px-4 py-3">
           <Shield className="h-6 w-6 text-primary" />

@@ -82,7 +82,7 @@ export function AdminSidebar() {
                       className={getNavClass(item.url, item.exact)}
                     >
                       <item.icon className="h-5 w-5 flex-shrink-0" />
-                      {open && <span className="truncate">{item.title}</span>}
+                      <span className="truncate">{item.title}</span>
                     </NavLink>
                   </SidebarMenuButton>
                 </SidebarMenuItem>

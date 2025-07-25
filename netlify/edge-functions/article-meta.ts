@@ -1,6 +1,4 @@
-import { Context } from "https://edge.netlify.com/v1/index.ts";
-
-export default async (request: Request, context: Context) => {
+export default async (request: Request) => {
   console.log('🚀 Edge Function triggered!', request.url);
   const url = new URL(request.url);
   console.log('🔍 URL pathname:', url.pathname);

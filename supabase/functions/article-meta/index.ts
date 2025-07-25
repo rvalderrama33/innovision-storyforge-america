@@ -59,35 +59,50 @@ serve(async (req) => {
       const articleDescription = article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`
       
       // Use headshot first, then first image from urls, then fallback to logo
-      const articleImage = article.headshot_image || 
-                          (article.image_urls && article.image_urls.length > 0 ? article.image_urls[0] : null) ||
-                          'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png'
+      let articleImage = 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png'
+      
+      if (article.headshot_image) {
+        articleImage = article.headshot_image
+      } else if (article.image_urls && Array.isArray(article.image_urls) && article.image_urls.length > 0) {
+        articleImage = article.image_urls[0]
+      }
+      
+      console.log('Selected article image:', articleImage)
       
       const articleUrl = `https://americainnovates.us/article/${slug}`
+      
+      // Escape HTML attributes and JSON values
+      const escapeHtml = (str: string) => str.replace(/"/g, '&quot;').replace(/'/g, '&#39;')
+      const escapeJson = (str: string) => JSON.stringify(str).slice(1, -1) // Remove quotes from JSON.stringify
       
       const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${articleTitle}</title>
-    <meta name="description" content="${articleDescription}">
+    <title>${escapeHtml(articleTitle)}</title>
+    <meta name="description" content="${escapeHtml(articleDescription)}">
     
     <!-- Open Graph tags for social sharing -->
-    <meta property="og:title" content="${articleTitle}">
-    <meta property="og:description" content="${articleDescription}">
+    <meta property="og:title" content="${escapeHtml(articleTitle)}">
+    <meta property="og:description" content="${escapeHtml(articleDescription)}">
     <meta property="og:image" content="${articleImage}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:url" content="${articleUrl}">
     <meta property="og:type" content="article">
-    <meta property="fb:app_id" content="1234567890">
+    <meta property="og:site_name" content="America Innovates Magazine">
     
     <!-- Twitter Card tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${articleTitle}">
-    <meta name="twitter:description" content="${articleDescription}">
+    <meta name="twitter:title" content="${escapeHtml(articleTitle)}">
+    <meta name="twitter:description" content="${escapeHtml(articleDescription)}">
     <meta name="twitter:image" content="${articleImage}">
+    <meta name="twitter:site" content="@AmericaInnovate">
+    
+    <!-- LinkedIn specific tags -->
+    <meta property="og:image:type" content="image/jpeg">
+    <meta property="og:image:alt" content="${escapeHtml(article.product_name)} - ${escapeHtml(article.full_name)}">
     
     <!-- Canonical URL -->
     <link rel="canonical" href="${articleUrl}">
@@ -97,12 +112,12 @@ serve(async (req) => {
     {
       "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "${article.product_name}",
-      "description": "${articleDescription}",
+      "headline": "${escapeJson(article.product_name)}",
+      "description": "${escapeJson(articleDescription)}",
       "image": "${articleImage}",
       "author": {
         "@type": "Person",
-        "name": "${article.full_name}"
+        "name": "${escapeJson(article.full_name)}"
       },
       "publisher": {
         "@type": "Organization",
@@ -112,14 +127,15 @@ serve(async (req) => {
           "url": "https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png"
         }
       },
-      "url": "${articleUrl}"
+      "url": "${articleUrl}",
+      "datePublished": "${article.created_at}"
     }
     </script>
 </head>
 <body>
-    <h1>${article.product_name}</h1>
-    <p>By ${article.full_name}</p>
-    <p>${articleDescription}</p>
+    <h1>${escapeHtml(article.product_name)}</h1>
+    <p>By ${escapeHtml(article.full_name)}</p>
+    <p>${escapeHtml(articleDescription)}</p>
     <p><a href="${articleUrl}">Read the full article</a></p>
 </body>
 </html>`
@@ -135,7 +151,7 @@ serve(async (req) => {
       return new Response(null, {
         status: 302,
         headers: {
-          'Location': `https://americainnovates.us/#/article/${slug}`,
+          'Location': `https://americainnovates.us/article/${slug}`,
           ...corsHeaders
         }
       })

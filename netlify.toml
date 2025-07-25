@@ -2,15 +2,7 @@
   publish = "dist"
   command = "npm run build"
 
-# Redirect article requests to meta function for social crawlers
-[[redirects]]
-  from = "/article/*"
-  to = "https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/article-meta/article/:splat"
-  status = 200
-  force = true
-  headers = {X-From = "Netlify"}
-
-# Catch-all redirect for SPA (lower priority)
+# SPA catch-all redirect
 [[redirects]]
   from = "/*"
   to = "/index.html"

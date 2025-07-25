@@ -18,7 +18,7 @@ const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '',
     // Check if this is an article URL and use the meta function URL for social crawlers
     if (url.includes('/article/')) {
       const slug = url.split('/article/')[1];
-      return `https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/article-meta?slug=${slug}`;
+      return `https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/article-meta/article/${slug}`;
     }
     return url;
   };

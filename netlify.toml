@@ -1,0 +1,14 @@
+[build]
+  publish = "dist"
+  command = "npm run build"
+
+[[redirects]]
+  from = "/article/*"
+  to = "https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/article-meta/article/:splat"
+  status = 200
+  conditions = {User-Agent = "facebookexternalhit/*,Twitterbot/*,LinkedInBot/*,pinterest/*,slackbot/*,WhatsApp/*"}
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

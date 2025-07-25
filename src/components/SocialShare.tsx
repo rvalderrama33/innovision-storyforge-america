@@ -13,17 +13,8 @@ interface SocialShareProps {
 const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '', image }) => {
   const { toast } = useToast();
 
-  // Use the article-meta Edge Function URL for better social sharing
-  const getShareableUrl = () => {
-    // Check if this is an article URL and use the meta function URL for social crawlers
-    if (url.includes('/article/')) {
-      const slug = url.split('/article/')[1];
-      return `https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/article-meta/article/${slug}`;
-    }
-    return url;
-  };
-
-  const shareableUrl = getShareableUrl();
+  // Always use the website URL for sharing - the article-meta function handles the meta tags server-side
+  const shareableUrl = url;
 
   const shareLinks = {
     facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareableUrl)}`,

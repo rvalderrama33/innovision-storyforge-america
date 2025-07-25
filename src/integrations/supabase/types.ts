@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_actions: {
+        Row: {
+          action_type: string
+          admin_user_id: string
+          created_at: string
+          description: string
+          id: string
+          ip_address: string | null
+          target_resource: string | null
+          target_user_id: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_user_id: string
+          created_at?: string
+          description: string
+          id?: string
+          ip_address?: string | null
+          target_resource?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_user_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          ip_address?: string | null
+          target_resource?: string | null
+          target_user_id?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       email_analytics: {
         Row: {
           created_at: string
@@ -515,6 +551,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      assign_admin_role: {
+        Args: { _target_user_id: string }
+        Returns: boolean
+      }
       expire_featured_stories: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -534,6 +574,24 @@ export type Database = {
         Args: { newsletter_id: string }
         Returns: undefined
       }
+      log_admin_action: {
+        Args:
+          | {
+              _action_type: string
+              _target_user_id?: string
+              _target_resource?: string
+              _description?: string
+            }
+          | {
+              _action_type: string
+              _target_user_id?: string
+              _target_resource?: string
+              _description?: string
+              _ip_address?: string
+              _user_agent?: string
+            }
+        Returns: undefined
+      }
       sync_admin_newsletter_subscriptions: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -548,7 +606,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "subscriber"
+      app_role: "admin" | "subscriber" | "super_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -676,7 +734,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "subscriber"],
+      app_role: ["admin", "subscriber", "super_admin"],
     },
   },
 } as const

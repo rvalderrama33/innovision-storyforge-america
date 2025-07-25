@@ -2,7 +2,7 @@
   publish = "dist"
   command = "npm run build"
 
-# Edge Functions configuration
+# Edge Functions configuration - must come before redirects
 [[edge_functions]]
   function = "article-meta"
   path = "/article/*"

@@ -1,16 +1,20 @@
 import { Context } from "https://edge.netlify.com/v1/index.ts";
 
 export default async (request: Request, context: Context) => {
+  console.log('🚀 Edge Function triggered!', request.url);
   const url = new URL(request.url);
+  console.log('🔍 URL pathname:', url.pathname);
+  console.log('🔍 Path segments:', url.pathname.split('/'));
   
   // Extract slug from URL path like /article/slug-here
   const pathSegments = url.pathname.split('/');
   if (pathSegments.length < 3 || pathSegments[1] !== 'article') {
+    console.log('❌ Invalid article URL path:', url.pathname);
     return new Response('Invalid article URL', { status: 400 });
   }
   
   const slug = pathSegments[2];
-  console.log('Processing article request for slug:', slug);
+  console.log('✅ Processing article request for slug:', slug);
   
   try {
     // Fetch article data from Supabase
@@ -161,6 +165,4 @@ export default async (request: Request, context: Context) => {
   }
 };
 
-export const config = {
-  path: "/article/*"
-};
+// Configuration is handled in netlify.toml

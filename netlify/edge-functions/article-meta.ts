@@ -165,4 +165,6 @@ export default async (request: Request, context: Context) => {
   }
 };
 
-// Configuration is handled in netlify.toml
+export const config = {
+  path: "/article/*"
+};

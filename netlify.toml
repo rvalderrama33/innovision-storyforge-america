@@ -2,10 +2,7 @@
   publish = "dist"
   command = "npm run build"
 
-# Edge Functions configuration - must come before redirects
-[[edge_functions]]
-  function = "article-meta"
-  path = "/article/*"
+# Using inline config in the Edge Function file instead
 
 # SPA catch-all redirect
 [[redirects]]

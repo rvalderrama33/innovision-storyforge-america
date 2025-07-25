@@ -56,15 +56,13 @@ export function AdminSidebar() {
   };
 
   return (
-    <Sidebar className={open ? "w-64" : "w-14"} collapsible="icon">
+    <Sidebar className="w-64">
       <SidebarHeader className="border-b border-border/50">
         <div className="flex items-center gap-2 px-4 py-3">
           <Shield className="h-6 w-6 text-primary" />
-          {open && (
-            <span className="font-semibold text-lg text-foreground">
-              Admin Panel
-            </span>
-          )}
+          <span className="font-semibold text-lg text-foreground">
+            Admin Panel
+          </span>
         </div>
       </SidebarHeader>
 

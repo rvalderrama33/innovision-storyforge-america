@@ -16,12 +16,13 @@ serve(async (req) => {
     const url = new URL(req.url)
     const pathSegments = url.pathname.split('/')
     
-    // Extract slug from URL path like /article/slug-here
-    if (pathSegments.length < 3 || pathSegments[1] !== 'article') {
+    // Extract slug from URL path like /functions/v1/article-meta/article/slug-here
+    // pathSegments: ['', 'functions', 'v1', 'article-meta', 'article', 'slug']
+    if (pathSegments.length < 6 || pathSegments[4] !== 'article') {
       return new Response('Invalid article URL', { status: 400 })
     }
     
-    const slug = pathSegments[2]
+    const slug = pathSegments[5]
     console.log('Processing article request for slug:', slug)
     
     // Initialize Supabase client

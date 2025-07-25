@@ -13,17 +13,46 @@ interface SocialShareProps {
 const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '', image }) => {
   const { toast } = useToast();
 
-  // Meta tags are now managed globally by the useSEO hook
-  // This component only handles the sharing functionality
+  // Use the article-meta Edge Function URL for better social sharing
+  const getShareableUrl = () => {
+    // Check if this is an article URL and use the meta function URL for social crawlers
+    if (url.includes('/article/')) {
+      const slug = url.split('/article/')[1];
+      return `https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/article-meta?slug=${slug}`;
+    }
+    return url;
+  };
+
+  const shareableUrl = getShareableUrl();
 
   const shareLinks = {
-    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`,
-    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(`${title} - ${description ? description.substring(0, 100) + '...' : 'Read this inspiring innovation story'}`)}`,
-    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(description || '')}`,
+    facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareableUrl)}`,
+    twitter: `https://twitter.com/intent/tweet?url=${encodeURIComponent(shareableUrl)}&text=${encodeURIComponent(`${title} - ${description ? description.substring(0, 100) + '...' : 'Read this inspiring innovation story'}`)}`,
+    linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareableUrl)}&title=${encodeURIComponent(title)}&summary=${encodeURIComponent(description || '')}`,
     email: `mailto:?subject=${encodeURIComponent(`${title} - America Innovates Magazine`)}&body=${encodeURIComponent(`I thought you'd find this article interesting:\n\n${title}\n\n${description}\n\nRead more: ${url}`)}`
   };
 
-  const handleShare = (platform: string) => {
+  const handleShare = async (platform: string) => {
+    if (platform === 'native') {
+      // Use native Web Share API if available
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title,
+            text: description,
+            url: url // Use original URL for native sharing
+          });
+          return;
+        } catch (error) {
+          if (error.name !== 'AbortError') {
+            console.error('Error sharing:', error);
+          }
+          return;
+        }
+      }
+      return;
+    }
+
     if (platform === 'copy') {
       navigator.clipboard.writeText(url).then(() => {
         toast({
@@ -66,6 +95,19 @@ const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '',
       </div>
       
       <div className="flex flex-wrap gap-3">
+        {/* Native Share Button (shows on mobile devices with Web Share API) */}
+        {navigator.share && (
+          <Button
+            variant="default"
+            size="sm"
+            onClick={() => handleShare('native')}
+            className="flex items-center gap-2"
+          >
+            <Share2 className="h-4 w-4" />
+            Share
+          </Button>
+        )}
+        
         <Button
           variant="outline"
           size="sm"

@@ -2,12 +2,14 @@
   publish = "dist"
   command = "npm run build"
 
+# Redirect social media crawlers to meta function
 [[redirects]]
-  from = "/article/*"
-  to = "https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/article-meta/article/:splat"
+  from = "/article/:slug"
+  to = "https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/article-meta/article/:slug"
   status = 200
-  conditions = {User-Agent = "facebookexternalhit/*,Twitterbot/*,LinkedInBot/*,pinterest/*,slackbot/*,WhatsApp/*"}
+  conditions = {User-Agent = "facebookexternalhit/*,Twitterbot/*,LinkedInBot/*,pinterest/*,slackbot/*,WhatsApp/*,TelegramBot/*"}
 
+# Catch-all redirect for SPA
 [[redirects]]
   from = "/*"
   to = "/index.html"

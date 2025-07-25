@@ -15,55 +15,76 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
     // Update document title
     document.title = title;
 
-    // Update or create meta tags
-    const updateMetaTag = (name: string, content: string, property = false) => {
-      const selector = property ? `meta[property="${name}"]` : `meta[name="${name}"]`;
-      let meta = document.querySelector(selector) as HTMLMetaElement;
+    // More aggressive meta tag replacement - remove and recreate to ensure freshness
+    const removeExistingMetaTags = () => {
+      const selectors = [
+        'meta[name="description"]',
+        'meta[property^="og:"]',
+        'meta[name^="twitter:"]',
+        'meta[property="fb:app_id"]'
+      ];
       
-      if (!meta) {
-        meta = document.createElement("meta");
-        if (property) {
-          meta.setAttribute("property", name);
-        } else {
-          meta.setAttribute("name", name);
-        }
-        document.head.appendChild(meta);
-        console.log(`Created new meta tag: ${property ? 'property' : 'name'}="${name}" content="${content}"`);
-      } else {
-        console.log(`Updated existing meta tag: ${property ? 'property' : 'name'}="${name}" content="${content}"`);
-      }
-      // Always update the content, even if tag exists
-      meta.setAttribute('content', content);
+      selectors.forEach(selector => {
+        const metas = document.querySelectorAll(selector);
+        metas.forEach(meta => meta.remove());
+      });
     };
 
-    // Basic meta tags
-    updateMetaTag("description", description);
-    updateMetaTag("robots", "index, follow");
+    // Create meta tag with proper attributes
+    const createMetaTag = (identifier: string, content: string, useProperty = false) => {
+      const meta = document.createElement("meta");
+      const attribute = useProperty ? "property" : "name";
+      meta.setAttribute(attribute, identifier);
+      meta.setAttribute('content', content);
+      document.head.appendChild(meta);
+      console.log(`Created meta tag: ${attribute}="${identifier}" content="${content.substring(0, 50)}..."`);
+    };
 
-    // Open Graph tags
-    updateMetaTag("og:title", title, true);
-    updateMetaTag("og:description", description, true);
-    updateMetaTag("og:type", type, true);
-    updateMetaTag("fb:app_id", "1234567890", true); // Facebook App ID
-    
-    if (url) {
-      updateMetaTag("og:url", url, true);
-    }
-    
+    // Remove existing meta tags first
+    removeExistingMetaTags();
+
     // Always set an image - use provided image or fallback to logo
     const fallbackImage = "https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png";
     const imageToUse = image || fallbackImage;
     console.log('useSEO - Image provided:', image);
     console.log('useSEO - Image to use:', imageToUse);
-    updateMetaTag("og:image", imageToUse, true);
-    updateMetaTag("og:image:width", "1200", true);
-    updateMetaTag("og:image:height", "630", true);
 
-    // Twitter tags
-    updateMetaTag("twitter:card", "summary_large_image");
-    updateMetaTag("twitter:title", title);
-    updateMetaTag("twitter:description", description);
-    updateMetaTag("twitter:image", imageToUse);
+    // Basic meta tags
+    createMetaTag("description", description);
+    createMetaTag("robots", "index, follow");
+
+    // Open Graph tags
+    createMetaTag("og:title", title, true);
+    createMetaTag("og:description", description, true);
+    createMetaTag("og:type", type, true);
+    createMetaTag("og:site_name", "America Innovates Magazine", true);
+    createMetaTag("og:image", imageToUse, true);
+    createMetaTag("og:image:width", "1200", true);
+    createMetaTag("og:image:height", "630", true);
+    createMetaTag("og:image:type", "image/jpeg", true);
+    createMetaTag("og:image:alt", title, true);
+    
+    if (url) {
+      createMetaTag("og:url", url, true);
+    }
+
+    // Twitter Card tags
+    createMetaTag("twitter:card", "summary_large_image");
+    createMetaTag("twitter:title", title);
+    createMetaTag("twitter:description", description);
+    createMetaTag("twitter:image", imageToUse);
+    createMetaTag("twitter:site", "@AmericaInnovate");
+
+    // Log final meta tags for debugging
+    setTimeout(() => {
+      const finalImage = document.querySelector('meta[property="og:image"]')?.getAttribute('content');
+      const finalTitle = document.querySelector('meta[property="og:title"]')?.getAttribute('content');
+      console.log('Final meta tags set:', {
+        ogImage: finalImage,
+        ogTitle: finalTitle,
+        twitterImage: document.querySelector('meta[name="twitter:image"]')?.getAttribute('content')
+      });
+    }, 100);
 
     return () => {
       // Reset to default title on unmount

@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Plus, Minus, Loader2 } from 'lucide-react';
+import { sanitizeText, validateUrl, adminActionRateLimiter } from '@/lib/inputValidation';
 
 interface ManualSubmissionForm {
   personName: string;
@@ -74,6 +75,19 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Rate limiting check
+    const rateLimitKey = 'admin-manual-submission';
+    const rateLimitCheck = adminActionRateLimiter.checkLimit(rateLimitKey, 10, 60000); // 10 attempts per minute
+    
+    if (!rateLimitCheck.allowed) {
+      toast({
+        title: "Rate Limited",
+        description: "Too many submission attempts. Please wait before trying again.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     if (!formData.personName.trim() || !formData.description.trim()) {
       toast({
         title: "Error",
@@ -86,22 +100,43 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
     setIsSubmitting(true);
 
     try {
-      // Filter out empty links and URLs
-      const validSourceLinks = formData.sourceLinks.filter(link => link.trim() !== '');
-      const validImageUrls = formData.imageUrls.filter(url => url.trim() !== '');
+      // Sanitize and validate inputs
+      const sanitizedPersonName = sanitizeText(formData.personName);
+      const sanitizedDescription = sanitizeText(formData.description);
+      
+      // Filter and validate links and URLs
+      const validSourceLinks = formData.sourceLinks
+        .filter(link => link.trim() !== '')
+        .map(link => {
+          const validation = validateUrl(link);
+          if (!validation.isValid) {
+            throw new Error(`Invalid source URL: ${validation.error}`);
+          }
+          return link.trim();
+        });
+        
+      const validImageUrls = formData.imageUrls
+        .filter(url => url.trim() !== '')
+        .map(url => {
+          const validation = validateUrl(url);
+          if (!validation.isValid) {
+            throw new Error(`Invalid image URL: ${validation.error}`);
+          }
+          return url.trim();
+        });
 
-      // Create the submission
+      // Create the submission with sanitized data
       const { data, error } = await supabase
         .from('submissions')
         .insert({
-          full_name: formData.personName,
-          product_name: `Story about ${formData.personName}`,
-          description: formData.description,
+          full_name: sanitizedPersonName,
+          product_name: `Story about ${sanitizedPersonName}`,
+          description: sanitizedDescription,
           source_links: validSourceLinks.length > 0 ? validSourceLinks : null,
           image_urls: validImageUrls.length > 0 ? validImageUrls : null,
           is_manual_submission: true,
           status: 'pending',
-          email: 'admin@americainnovates.us'
+          email: 'noreply@americainnovates.us'
         })
         .select()
         .single();
@@ -113,8 +148,8 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
         body: {
           submissionId: data.id,
           isManualSubmission: true,
-          personName: formData.personName,
-          description: formData.description,
+          personName: sanitizedPersonName,
+          description: sanitizedDescription,
           sourceLinks: validSourceLinks
         }
       });

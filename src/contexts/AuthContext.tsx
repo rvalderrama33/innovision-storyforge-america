@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { User, AuthChangeEvent } from '@supabase/supabase-js';
+import { validateEmail } from '@/lib/inputValidation';
 
 interface AuthContextType {
   user: User | null;
@@ -60,31 +61,74 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error };
+    try {
+      // Validate email format for security
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.isValid) {
+        return { error: { message: emailValidation.error } };
+      }
+
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email.toLowerCase().trim(),
+        password,
+      });
+      return { error };
+    } catch (error) {
+      return { error };
+    }
   };
 
   const signUp = async (email: string, password: string, fullName: string) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: redirectUrl,
-        data: {
-          full_name: fullName,
+    try {
+      // Validate inputs for security
+      const emailValidation = validateEmail(email);
+      if (!emailValidation.isValid) {
+        return { error: { message: emailValidation.error } };
+      }
+
+      if (password.length < 8) {
+        return { error: { message: 'Password must be at least 8 characters long' } };
+      }
+
+      const redirectUrl = `${window.location.origin}/`;
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: email.toLowerCase().trim(),
+        password,
+        options: {
+          emailRedirectTo: redirectUrl,
+          data: {
+            full_name: fullName.trim(),
+          },
         },
-      },
-    });
-    return { error };
+      });
+      return { error };
+    } catch (error) {
+      return { error };
+    }
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      // Clear all auth-related localStorage
+      Object.keys(localStorage).forEach((key) => {
+        if (key.startsWith('supabase.auth.') || key.includes('sb-')) {
+          localStorage.removeItem(key);
+        }
+      });
+      
+      // Global sign out to invalidate all sessions
+      await supabase.auth.signOut({ scope: 'global' });
+      
+      // Force page reload for clean state
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 100);
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Force reload even if sign out fails
+      window.location.href = '/';
+    }
   };
 
   const signInWithGoogle = async () => {

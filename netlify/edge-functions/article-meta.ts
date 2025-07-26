@@ -23,9 +23,10 @@ export default async (request: Request) => {
   try {
     // Fetch article data from Supabase
     const { data: article, error } = await supabase
-      .from('articles')
+      .from('submissions')
       .select('*')
       .eq('slug', slug)
+      .eq('status', 'approved')
       .single();
     
     if (error || !article) {
@@ -33,7 +34,7 @@ export default async (request: Request) => {
       return new Response('Article not found', { status: 404 });
     }
     
-    console.log('✅ Article found:', article.title);
+    console.log('✅ Article found:', article.product_name);
     
     // Generate HTML with dynamic meta tags
     const html = `<!DOCTYPE html>
@@ -41,22 +42,22 @@ export default async (request: Request) => {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${article.title} | America Innovates Magazine</title>
+    <title>${article.product_name} | America Innovates Magazine</title>
     
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="${article.title}">
-    <meta property="og:description" content="${article.meta_description || article.excerpt || 'Discover breakthrough innovations and inspiring stories from America\'s entrepreneurs and creators.'}">
-    <meta property="og:image" content="${article.featured_image || 'https://americainnovates.netlify.app/placeholder.svg'}">
+    <meta property="og:title" content="${article.product_name}">
+    <meta property="og:description" content="${article.description || 'Discover breakthrough innovations and inspiring stories from America\'s entrepreneurs and creators.'}">
+    <meta property="og:image" content="${article.banner_image || article.logo_image || 'https://americainnovates.netlify.app/placeholder.svg'}">
     <meta property="og:url" content="${request.url}">
     <meta property="og:type" content="article">
-    <meta property="article:author" content="${article.author || 'America Innovates Magazine'}">
+    <meta property="article:author" content="${article.full_name || 'America Innovates Magazine'}">
     <meta property="article:published_time" content="${article.created_at}">
     
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="${article.title}">
-    <meta name="twitter:description" content="${article.meta_description || article.excerpt || 'Discover breakthrough innovations and inspiring stories from America\'s entrepreneurs and creators.'}">
-    <meta name="twitter:image" content="${article.featured_image || 'https://americainnovates.netlify.app/placeholder.svg'}">
+    <meta name="twitter:title" content="${article.product_name}">
+    <meta name="twitter:description" content="${article.description || 'Discover breakthrough innovations and inspiring stories from America\'s entrepreneurs and creators.'}">
+    <meta name="twitter:image" content="${article.banner_image || article.logo_image || 'https://americainnovates.netlify.app/placeholder.svg'}">
     
     <script>
       // Redirect non-crawlers to the main app
@@ -69,8 +70,8 @@ export default async (request: Request) => {
     </script>
 </head>
 <body>
-    <h1>${article.title}</h1>
-    <p>${article.excerpt || 'This article is available on America Innovates Magazine.'}</p>
+    <h1>${article.product_name}</h1>
+    <p>${article.description || 'This article is available on America Innovates Magazine.'}</p>
 </body>
 </html>`;
 

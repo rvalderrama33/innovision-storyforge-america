@@ -4,7 +4,12 @@
 
 # Using inline config in the Edge Function file instead
 
-# SPA catch-all redirect
+# Edge function for article meta tags (must come before SPA redirect)
+[[edge_functions]]
+  function = "article-meta"
+  path = "/article/*"
+
+# SPA catch-all redirect (comes after edge functions)
 [[redirects]]
   from = "/*"
   to = "/index.html"

@@ -47,7 +47,7 @@ export default async (request: Request) => {
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="${article.product_name}">
     <meta property="og:description" content="${article.description || 'Discover breakthrough innovations and inspiring stories from America\'s entrepreneurs and creators.'}">
-    <meta property="og:image" content="${article.banner_image || article.logo_image || 'https://americainnovates.netlify.app/placeholder.svg'}">
+    <meta property="og:image" content="${article.banner_image || article.logo_image || 'https://americainnovates.us/placeholder.svg'}">
     <meta property="og:url" content="${request.url}">
     <meta property="og:type" content="article">
     <meta property="article:author" content="${article.full_name || 'America Innovates Magazine'}">
@@ -57,7 +57,7 @@ export default async (request: Request) => {
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="${article.product_name}">
     <meta name="twitter:description" content="${article.description || 'Discover breakthrough innovations and inspiring stories from America\'s entrepreneurs and creators.'}">
-    <meta name="twitter:image" content="${article.banner_image || article.logo_image || 'https://americainnovates.netlify.app/placeholder.svg'}">
+    <meta name="twitter:image" content="${article.banner_image || article.logo_image || 'https://americainnovates.us/placeholder.svg'}">
     
     <script>
       // Redirect non-crawlers to the main app
@@ -65,7 +65,7 @@ export default async (request: Request) => {
       const isCrawler = /bot|crawler|spider|crawling|facebookexternalhit|twitterbot|linkedinbot/i.test(userAgent);
       
       if (!isCrawler) {
-        window.location.href = 'https://americainnovates.netlify.app/article/${slug}';
+        window.location.href = 'https://americainnovates.us/article/${slug}';
       }
     </script>
 </head>
@@ -89,5 +89,6 @@ export default async (request: Request) => {
 };
 
 export const config = {
-  path: "/article/*"
+  path: "/article/*",
+  excludedPath: "/article/_next/*"
 };

@@ -117,9 +117,16 @@ serve(async (req) => {
 
     const emailResults = [];
 
-    // Send promotion email to each submission author
-    for (const submission of submissions) {
+    // Send promotion email to each submission author with rate limiting
+    for (let i = 0; i < submissions.length; i++) {
+      const submission = submissions[i];
+      
       try {
+        // Add delay to respect Resend's 2 requests per second rate limit
+        if (i > 0) {
+          await new Promise(resolve => setTimeout(resolve, 600)); // 600ms delay = ~1.6 requests per second
+        }
+
         const upgradeUrl = `${Deno.env.get("SUPABASE_URL")?.replace("/rest/v1", "") || "https://enckzbxifdrihnfcqagb.supabase.co"}/functions/v1/stripe-payment?submission_id=${submission.id}&action=create-order`;
 
         const emailHtml = `

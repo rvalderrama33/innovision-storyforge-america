@@ -66,6 +66,23 @@ serve(async (req) => {
       }
 
       submissions = [singleSubmission];
+    } else if (trigger === 'manual_all') {
+      // Send emails to all approved stories that aren't featured
+      console.log("Sending promotion emails to all approved non-featured stories");
+      
+      const { data: allSubmissions, error: fetchError } = await supabase
+        .from("submissions")
+        .select("*")
+        .eq("status", "approved")
+        .eq("featured", false)
+        .not("email", "is", null);
+
+      if (fetchError) {
+        console.error("Error fetching all submissions:", fetchError);
+        throw fetchError;
+      }
+
+      submissions = allSubmissions;
     } else {
       // Find submissions approved exactly 24 hours ago that haven't been promoted yet
       const twentyFourHoursAgo = new Date();

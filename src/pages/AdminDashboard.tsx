@@ -25,6 +25,7 @@ import RecommendationAnalytics from "@/components/RecommendationAnalytics";
 import SubmissionReports from "@/components/SubmissionReports";
 import { SubmissionCard } from "@/components/SubmissionCard";
 import SecurityMonitor from "@/components/SecurityMonitor";
+import { TestFeaturedEmailSender } from '@/components/TestFeaturedEmailSender';
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 
@@ -550,9 +551,13 @@ const AdminDashboard = () => {
                   </div>
                   <p className="text-muted-foreground">Highlighted articles</p>
                 </CardContent>
-              </Card>
+                </Card>
+              </div>
+              
+              <div className="mt-6">
+                <TestFeaturedEmailSender />
+              </div>
             </div>
-          </div>
         );
       case 'submissions':
         return (

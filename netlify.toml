@@ -8,6 +8,7 @@
 [[edge_functions]]
   function = "article-meta"
   path = "/article/*"
+  cache = "manual"
 
 # SPA catch-all redirect (comes after edge functions)
 [[redirects]]

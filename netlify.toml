@@ -4,12 +4,16 @@
 
 # Redirect article URLs to Supabase edge function for meta tags
 [[redirects]]
-  from = "/article/*"
-  to = "https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/article-meta/:splat"
+  from = "/article/:slug"
+  to = "https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/article-meta/article/:slug"
   status = 200
   force = true
 
 # SPA catch-all redirect
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
 [[redirects]]
   from = "/*"
   to = "/index.html"

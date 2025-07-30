@@ -82,57 +82,66 @@ export default async (request: Request) => {
     };
 
     const shareImage = getShareImage();
-    const description = (article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    const title = `${article.product_name} | America Innovates Magazine`.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-    const authorName = (article.full_name || 'America Innovates Magazine').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     
-    // Generate HTML with dynamic meta tags
+    // Properly escape all text content for HTML
+    const escapeHtml = (text: string) => {
+      return text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    };
+    
+    const safeTitle = escapeHtml(article.product_name || 'America Innovates');
+    const safeDescription = escapeHtml(article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`);
+    const safeAuthor = escapeHtml(article.full_name || 'America Innovates Magazine');
+    const safeCategory = escapeHtml(article.category || 'Innovation');
+    const pageTitle = escapeHtml(`${article.product_name} | America Innovates Magazine`);
+    
+    // Generate clean, valid HTML
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${title}</title>
-    <meta name="description" content="${description}">
+    <title>${pageTitle}</title>
+    <meta name="description" content="${safeDescription}">
     
-    <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="${article.product_name.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}">
-    <meta property="og:description" content="${description}">
+    <meta property="og:title" content="${safeTitle}">
+    <meta property="og:description" content="${safeDescription}">
     <meta property="og:image" content="${shareImage}">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
     <meta property="og:url" content="${request.url}">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="America Innovates Magazine">
-    <meta property="article:author" content="${authorName}">
+    <meta property="article:author" content="${safeAuthor}">
     <meta property="article:published_time" content="${article.created_at}">
-    <meta property="article:section" content="${(article.category || 'Innovation').replace(/"/g, '&quot;').replace(/'/g, '&#39;')}">
+    <meta property="article:section" content="${safeCategory}">
     
-    <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@AmericaInnovates">
-    <meta name="twitter:title" content="${article.product_name.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}">
-    <meta name="twitter:description" content="${description}">
+    <meta name="twitter:title" content="${safeTitle}">
+    <meta name="twitter:description" content="${safeDescription}">
     <meta name="twitter:image" content="${shareImage}">
-    <meta name="twitter:image:alt" content="${article.product_name.replace(/"/g, '&quot;').replace(/'/g, '&#39;')} - Innovation story">
+    <meta name="twitter:image:alt" content="${safeTitle} - Innovation story">
     
-    <!-- Additional Meta Tags -->
-    <meta name="author" content="${authorName}">
-    <meta name="keywords" content="innovation, ${(article.category || 'startup').replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, ${article.product_name.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, entrepreneur, ${authorName}">
+    <meta name="author" content="${safeAuthor}">
+    <meta name="keywords" content="innovation, ${safeCategory}, ${safeTitle}, entrepreneur, ${safeAuthor}">
     <link rel="canonical" href="${request.url}">
     
-    <!-- Schema.org structured data -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Article",
-      "headline": "${article.product_name}",
-      "description": "${description}",
+      "headline": "${safeTitle}",
+      "description": "${safeDescription}",
       "image": "${shareImage}",
       "datePublished": "${article.created_at}",
       "author": {
         "@type": "Person",
-        "name": "${article.full_name || 'America Innovates Magazine'}"
+        "name": "${safeAuthor}"
       },
       "publisher": {
         "@type": "Organization",
@@ -146,7 +155,6 @@ export default async (request: Request) => {
     </script>
     
     <script>
-      // Redirect non-crawlers to the main app
       const userAgent = navigator.userAgent.toLowerCase();
       const isCrawler = /bot|crawler|spider|crawling|facebookexternalhit|twitterbot|linkedinbot|whatsapp/i.test(userAgent);
       
@@ -157,9 +165,9 @@ export default async (request: Request) => {
 </head>
 <body>
     <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
-      <h1 style="color: #1a365d; margin-bottom: 16px;">${article.product_name}</h1>
-      <p style="color: #4a5568; line-height: 1.6; margin-bottom: 20px;">${description}</p>
-      <p style="color: #718096;">by ${article.full_name || 'America Innovates Magazine'}</p>
+      <h1 style="color: #1a365d; margin-bottom: 16px;">${safeTitle}</h1>
+      <p style="color: #4a5568; line-height: 1.6; margin-bottom: 20px;">${safeDescription}</p>
+      <p style="color: #718096;">by ${safeAuthor}</p>
       <a href="https://americainnovates.us/article/${slug}" style="color: #3182ce; text-decoration: none;">Read the full article →</a>
     </div>
 </body>
@@ -168,9 +176,11 @@ export default async (request: Request) => {
     return new Response(html, {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'public, max-age=60, s-maxage=300',
+        'Cache-Control': 'no-transform, public, max-age=60, s-maxage=300',
+        'Content-Encoding': 'identity',
         'X-Edge-Function': 'article-meta',
         'Vary': 'User-Agent',
+        'Content-Length': new TextEncoder().encode(html).length.toString(),
       },
     });
     

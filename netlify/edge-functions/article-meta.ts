@@ -1,7 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-export default async (request: Request) => {
+export default async (request: Request, context: any) => {
   const url = new URL(request.url);
+  
   console.log('🚀 Article Meta Edge Function triggered!', {
     url: request.url,
     pathname: url.pathname,
@@ -13,7 +14,13 @@ export default async (request: Request) => {
   const pathSegments = url.pathname.split('/');
   if (pathSegments.length < 3 || pathSegments[1] !== 'article') {
     console.log('❌ Invalid article URL path:', url.pathname);
-    return new Response('Invalid article URL', { status: 400 });
+    return new Response('Invalid article URL', { 
+      status: 400,
+      headers: {
+        'Content-Type': 'text/plain',
+        'Cache-Control': 'no-cache'
+      }
+    });
   }
   
   const slug = pathSegments[2];
@@ -35,7 +42,13 @@ export default async (request: Request) => {
     
     if (error || !article) {
       console.log('❌ Article not found:', error);
-      return new Response('Article not found', { status: 404 });
+      return new Response('Article not found', { 
+        status: 404,
+        headers: {
+          'Content-Type': 'text/plain',
+          'Cache-Control': 'no-cache'
+        }
+      });
     }
     
     console.log('✅ Article found:', article.product_name);
@@ -186,7 +199,13 @@ export default async (request: Request) => {
     
   } catch (error) {
     console.error('❌ Error fetching article:', error);
-    return new Response('Internal server error', { status: 500 });
+    return new Response('Internal server error', { 
+      status: 500,
+      headers: {
+        'Content-Type': 'text/plain',
+        'Cache-Control': 'no-cache'
+      }
+    });
   }
 };
 

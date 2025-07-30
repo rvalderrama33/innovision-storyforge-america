@@ -180,8 +180,7 @@ exports.handler = async (event, context) => {
     return {
       statusCode: 200,
       headers: {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'public, max-age=300',
+        'Content-Type': 'text/html',
         'Access-Control-Allow-Origin': '*'
       },
       body: html

@@ -175,7 +175,8 @@ exports.handler = async (event, context) => {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
         'Cache-Control': 'public, max-age=300',
-        'Access-Control-Allow-Origin': '*'
+        'Access-Control-Allow-Origin': '*',
+        'Content-Encoding': 'identity'
       },
       body: html
     };

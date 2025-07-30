@@ -3,36 +3,22 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 export default async (request: Request, context: any) => {
   const url = new URL(request.url);
   
-  console.log('🚀 Article Meta Edge Function triggered!', {
-    url: request.url,
-    pathname: url.pathname,
-    userAgent: request.headers.get('User-Agent'),
-    timestamp: new Date().toISOString()
-  });
-  
-  // Extract slug from URL path like /article/slug-here
+  // Extract slug from URL path
   const pathSegments = url.pathname.split('/');
   if (pathSegments.length < 3 || pathSegments[1] !== 'article') {
-    console.log('❌ Invalid article URL path:', url.pathname);
-    return new Response('Invalid article URL', { 
-      status: 400,
-      headers: {
-        'Content-Type': 'text/plain',
-        'Cache-Control': 'no-cache'
-      }
-    });
+    return new Response('Invalid URL', { status: 400 });
   }
   
   const slug = pathSegments[2];
-  console.log('✅ Processing article request for slug:', slug);
   
   // Initialize Supabase client
-  const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-  const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-  const supabase = createClient(supabaseUrl, supabaseKey);
+  const supabase = createClient(
+    'https://enckzbxifdrihnfcqagb.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVuY2t6YnhpZmRyaWhuZmNxYWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMzcxNzcsImV4cCI6MjA2NjYxMzE3N30.hXQ9Q8XYpRGVksTdslNJJt39zfepbhqWjVKd4MiKsvM'
+  );
   
   try {
-    // Fetch article data from Supabase
+    // Fetch article data
     const { data: article, error } = await supabase
       .from('submissions')
       .select('*')
@@ -41,171 +27,75 @@ export default async (request: Request, context: any) => {
       .single();
     
     if (error || !article) {
-      console.log('❌ Article not found:', error);
-      return new Response('Article not found', { 
-        status: 404,
-        headers: {
-          'Content-Type': 'text/plain',
-          'Cache-Control': 'no-cache'
-        }
-      });
+      return new Response('Article not found', { status: 404 });
     }
     
-    console.log('✅ Article found:', article.product_name);
+    // Get the best image for sharing
+    let shareImage = 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png';
     
-    // Determine the best image for social sharing
-    const getShareImage = () => {
-      console.log('🖼️ Banner image data:', article.banner_image);
-      console.log('🖼️ Headshot image:', article.headshot_image);
-      console.log('🖼️ Gallery images:', article.image_urls);
-      
-      // Priority: banner_image > headshot_image > first gallery image > logo_image
-      if (article.banner_image) {
-        let bannerUrl = null;
-        if (typeof article.banner_image === 'string') {
-          bannerUrl = article.banner_image;
-        } else if (typeof article.banner_image === 'object') {
-          try {
-            const parsed = typeof article.banner_image === 'string' ? JSON.parse(article.banner_image) : article.banner_image;
-            bannerUrl = parsed.url || parsed;
-          } catch (e) {
-            console.log('⚠️ Error parsing banner image:', e);
-            bannerUrl = article.banner_image.url || article.banner_image;
-          }
-        }
-        if (bannerUrl) {
-          console.log('✅ Using banner image:', bannerUrl);
-          return bannerUrl;
-        }
-      }
-      if (article.headshot_image) {
-        console.log('✅ Using headshot image:', article.headshot_image);
-        return article.headshot_image;
-      }
-      if (article.image_urls && article.image_urls.length > 0) {
-        console.log('✅ Using first gallery image:', article.image_urls[0]);
-        return article.image_urls[0];
-      }
-      if (article.logo_image) {
-        console.log('✅ Using logo image:', article.logo_image);
-        return article.logo_image;
-      }
-      console.log('⚠️ Using fallback image');
-      return 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png';
-    };
-
-    const shareImage = getShareImage();
+    if (article.headshot_image) {
+      shareImage = article.headshot_image;
+    } else if (article.image_urls && article.image_urls.length > 0) {
+      shareImage = article.image_urls[0];
+    }
     
-    // Properly escape all text content for HTML
-    const escapeHtml = (text: string) => {
-      return text
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;')
-        .replace(/"/g, '&quot;')
-        .replace(/'/g, '&#39;');
+    // Simple text escaping
+    const clean = (text: string) => {
+      if (!text) return '';
+      return text.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     };
     
-    const safeTitle = escapeHtml(article.product_name || 'America Innovates');
-    const safeDescription = escapeHtml(article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`);
-    const safeAuthor = escapeHtml(article.full_name || 'America Innovates Magazine');
-    const safeCategory = escapeHtml(article.category || 'Innovation');
-    const pageTitle = escapeHtml(`${article.product_name} | America Innovates Magazine`);
+    const title = clean(article.product_name || 'America Innovates');
+    const description = clean(article.description || `Read about ${article.product_name} by ${article.full_name}`);
+    const author = clean(article.full_name || 'America Innovates');
+    const articleUrl = `https://americainnovates.us/article/${slug}`;
     
-    // Generate clean, valid HTML
+    // Simple, clean HTML following AddToAny best practices
     const html = `<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${pageTitle}</title>
-    <meta name="description" content="${safeDescription}">
-    
-    <meta property="og:title" content="${safeTitle}">
-    <meta property="og:description" content="${safeDescription}">
-    <meta property="og:image" content="${shareImage}">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:url" content="${request.url}">
-    <meta property="og:type" content="article">
-    <meta property="og:site_name" content="America Innovates Magazine">
-    <meta property="article:author" content="${safeAuthor}">
-    <meta property="article:published_time" content="${article.created_at}">
-    <meta property="article:section" content="${safeCategory}">
-    
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:site" content="@AmericaInnovates">
-    <meta name="twitter:title" content="${safeTitle}">
-    <meta name="twitter:description" content="${safeDescription}">
-    <meta name="twitter:image" content="${shareImage}">
-    <meta name="twitter:image:alt" content="${safeTitle} - Innovation story">
-    
-    <meta name="author" content="${safeAuthor}">
-    <meta name="keywords" content="innovation, ${safeCategory}, ${safeTitle}, entrepreneur, ${safeAuthor}">
-    <link rel="canonical" href="${request.url}">
-    
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Article",
-      "headline": "${safeTitle}",
-      "description": "${safeDescription}",
-      "image": "${shareImage}",
-      "datePublished": "${article.created_at}",
-      "author": {
-        "@type": "Person",
-        "name": "${safeAuthor}"
-      },
-      "publisher": {
-        "@type": "Organization",
-        "name": "America Innovates Magazine",
-        "logo": {
-          "@type": "ImageObject",
-          "url": "https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png"
-        }
-      }
-    }
-    </script>
-    
-    <script>
-      const userAgent = navigator.userAgent.toLowerCase();
-      const isCrawler = /bot|crawler|spider|crawling|facebookexternalhit|twitterbot|linkedinbot|whatsapp/i.test(userAgent);
-      
-      if (!isCrawler) {
-        window.location.href = 'https://americainnovates.us/article/${slug}';
-      }
-    </script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>${title} | America Innovates Magazine</title>
+<meta name="description" content="${description}">
+
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${description}">
+<meta property="og:image" content="${shareImage}">
+<meta property="og:url" content="${articleUrl}">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="America Innovates Magazine">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="${title}">
+<meta name="twitter:description" content="${description}">
+<meta name="twitter:image" content="${shareImage}">
+
+<link rel="canonical" href="${articleUrl}">
+
+<script>
+if (!/bot|crawler|spider|facebook|twitter|linkedin/i.test(navigator.userAgent)) {
+  window.location.href = '${articleUrl}';
+}
+</script>
 </head>
 <body>
-    <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px;">
-      <h1 style="color: #1a365d; margin-bottom: 16px;">${safeTitle}</h1>
-      <p style="color: #4a5568; line-height: 1.6; margin-bottom: 20px;">${safeDescription}</p>
-      <p style="color: #718096;">by ${safeAuthor}</p>
-      <a href="https://americainnovates.us/article/${slug}" style="color: #3182ce; text-decoration: none;">Read the full article →</a>
-    </div>
+<h1>${title}</h1>
+<p>By ${author}</p>
+<p>${description}</p>
+<a href="${articleUrl}">Read the full article</a>
 </body>
 </html>`;
 
     return new Response(html, {
       headers: {
-        'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'no-transform, public, max-age=60, s-maxage=300',
-        'Content-Encoding': 'identity',
-        'X-Edge-Function': 'article-meta',
-        'Vary': 'User-Agent',
-        'Content-Length': new TextEncoder().encode(html).length.toString(),
-      },
+        'Content-Type': 'text/html',
+        'Cache-Control': 'public, max-age=300'
+      }
     });
     
   } catch (error) {
-    console.error('❌ Error fetching article:', error);
-    return new Response('Internal server error', { 
-      status: 500,
-      headers: {
-        'Content-Type': 'text/plain',
-        'Cache-Control': 'no-cache'
-      }
-    });
+    return new Response('Error loading article', { status: 500 });
   }
 };
 

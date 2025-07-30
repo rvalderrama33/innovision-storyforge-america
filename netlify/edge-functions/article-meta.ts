@@ -191,6 +191,5 @@ export default async (request: Request) => {
 };
 
 export const config = {
-  path: "/article/*",
-  excludedPath: "/article/_next/*"
+  path: "/article/*"
 };

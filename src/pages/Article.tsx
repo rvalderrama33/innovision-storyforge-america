@@ -77,12 +77,20 @@ const Article = () => {
     }
   };
 
-  // Update SEO when article loads
+  // Update SEO when article loads with better social media image handling
+  const getShareImage = () => {
+    if (article?.headshot_image) return article.headshot_image;
+    if (article?.banner_image?.url) return article.banner_image.url;
+    if (typeof article?.banner_image === 'string') return article.banner_image;
+    if (article?.image_urls?.[0]) return article.image_urls[0];
+    return 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png';
+  };
+
   useSEO({
     title: article ? `${article.product_name} | America Innovates Magazine` : "Article | America Innovates Magazine",
     description: article ? (article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`) : "Discover inspiring innovation stories from entrepreneurs and creators building breakthrough consumer products.",
     url: `https://americainnovates.us/article/${slug}`,
-    image: article?.banner_image?.url || article?.image_urls?.[0],
+    image: getShareImage(),
     type: "article"
   });
 

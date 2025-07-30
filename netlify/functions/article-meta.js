@@ -35,10 +35,10 @@ exports.handler = async (event, context) => {
     console.log('Processing article request for slug:', slug);
     
     // Initialize Supabase client
-    const supabase = createClient(
-      process.env.SUPABASE_URL,
-      process.env.SUPABASE_ANON_KEY
-    );
+    const supabaseUrl = process.env.SUPABASE_URL || 'https://enckzbxifdrihnfcqagb.supabase.co';
+    const supabaseKey = process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVuY2t6YnhpZmRyaWhuZmNxYWdiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTEwMzcxNzcsImV4cCI6MjA2NjYxMzE3N30.hXQ9Q8XYpRGVksTdslNJJt39zfepbhqWjVKd4MiKsvM';
+    
+    const supabase = createClient(supabaseUrl, supabaseKey);
     
     // Fetch article data
     const { data: article, error } = await supabase
@@ -46,7 +46,7 @@ exports.handler = async (event, context) => {
       .select('*')
       .eq('slug', slug)
       .eq('status', 'approved')
-      .single();
+      .maybeSingle();
     
     if (error || !article) {
       console.log('Article not found:', error);

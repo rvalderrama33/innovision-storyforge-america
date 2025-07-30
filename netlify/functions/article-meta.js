@@ -1,6 +1,12 @@
 const { createClient } = require('@supabase/supabase-js');
 
 exports.handler = async (event, context) => {
+  console.log('=== FUNCTION CALLED ===');
+  console.log('Path:', event.path);
+  console.log('Method:', event.httpMethod);
+  console.log('User Agent:', event.headers['user-agent']);
+  console.log('========================');
+  
   // Handle CORS preflight requests
   if (event.httpMethod === 'OPTIONS') {
     return {

@@ -82,8 +82,9 @@ export default async (request: Request) => {
     };
 
     const shareImage = getShareImage();
-    const description = article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`;
-    const title = `${article.product_name} | America Innovates Magazine`;
+    const description = (article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const title = `${article.product_name} | America Innovates Magazine`.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    const authorName = (article.full_name || 'America Innovates Magazine').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     
     // Generate HTML with dynamic meta tags
     const html = `<!DOCTYPE html>
@@ -95,7 +96,7 @@ export default async (request: Request) => {
     <meta name="description" content="${description}">
     
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="${article.product_name}">
+    <meta property="og:title" content="${article.product_name.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}">
     <meta property="og:description" content="${description}">
     <meta property="og:image" content="${shareImage}">
     <meta property="og:image:width" content="1200">
@@ -103,21 +104,21 @@ export default async (request: Request) => {
     <meta property="og:url" content="${request.url}">
     <meta property="og:type" content="article">
     <meta property="og:site_name" content="America Innovates Magazine">
-    <meta property="article:author" content="${article.full_name || 'America Innovates Magazine'}">
+    <meta property="article:author" content="${authorName}">
     <meta property="article:published_time" content="${article.created_at}">
-    <meta property="article:section" content="${article.category || 'Innovation'}">
+    <meta property="article:section" content="${(article.category || 'Innovation').replace(/"/g, '&quot;').replace(/'/g, '&#39;')}">
     
     <!-- Twitter Card Meta Tags -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@AmericaInnovates">
-    <meta name="twitter:title" content="${article.product_name}">
+    <meta name="twitter:title" content="${article.product_name.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}">
     <meta name="twitter:description" content="${description}">
     <meta name="twitter:image" content="${shareImage}">
-    <meta name="twitter:image:alt" content="${article.product_name} - Innovation story">
+    <meta name="twitter:image:alt" content="${article.product_name.replace(/"/g, '&quot;').replace(/'/g, '&#39;')} - Innovation story">
     
     <!-- Additional Meta Tags -->
-    <meta name="author" content="${article.full_name || 'America Innovates Magazine'}">
-    <meta name="keywords" content="innovation, ${article.category || 'startup'}, ${article.product_name}, entrepreneur, ${article.full_name}">
+    <meta name="author" content="${authorName}">
+    <meta name="keywords" content="innovation, ${(article.category || 'startup').replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, ${article.product_name.replace(/"/g, '&quot;').replace(/'/g, '&#39;')}, entrepreneur, ${authorName}">
     <link rel="canonical" href="${request.url}">
     
     <!-- Schema.org structured data -->

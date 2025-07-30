@@ -1,9 +1,13 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 export default async (request: Request) => {
-  console.log('🚀 Article Meta Edge Function triggered!', request.url);
   const url = new URL(request.url);
-  console.log('🔍 URL pathname:', url.pathname);
+  console.log('🚀 Article Meta Edge Function triggered!', {
+    url: request.url,
+    pathname: url.pathname,
+    userAgent: request.headers.get('User-Agent'),
+    timestamp: new Date().toISOString()
+  });
   
   // Extract slug from URL path like /article/slug-here
   const pathSegments = url.pathname.split('/');
@@ -162,8 +166,10 @@ export default async (request: Request) => {
 
     return new Response(html, {
       headers: {
-        'Content-Type': 'text/html',
-        'Cache-Control': 'public, max-age=300',
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'public, max-age=60, s-maxage=300',
+        'X-Edge-Function': 'article-meta',
+        'Vary': 'User-Agent',
       },
     });
     

@@ -38,14 +38,42 @@ export default async (request: Request) => {
     
     // Determine the best image for social sharing
     const getShareImage = () => {
+      console.log('🖼️ Banner image data:', article.banner_image);
+      console.log('🖼️ Headshot image:', article.headshot_image);
+      console.log('🖼️ Gallery images:', article.image_urls);
+      
       // Priority: banner_image > headshot_image > first gallery image > logo_image
       if (article.banner_image) {
-        if (typeof article.banner_image === 'string') return article.banner_image;
-        if (typeof article.banner_image === 'object' && article.banner_image.url) return article.banner_image.url;
+        let bannerUrl = null;
+        if (typeof article.banner_image === 'string') {
+          bannerUrl = article.banner_image;
+        } else if (typeof article.banner_image === 'object') {
+          try {
+            const parsed = typeof article.banner_image === 'string' ? JSON.parse(article.banner_image) : article.banner_image;
+            bannerUrl = parsed.url || parsed;
+          } catch (e) {
+            console.log('⚠️ Error parsing banner image:', e);
+            bannerUrl = article.banner_image.url || article.banner_image;
+          }
+        }
+        if (bannerUrl) {
+          console.log('✅ Using banner image:', bannerUrl);
+          return bannerUrl;
+        }
       }
-      if (article.headshot_image) return article.headshot_image;
-      if (article.image_urls && article.image_urls.length > 0) return article.image_urls[0];
-      if (article.logo_image) return article.logo_image;
+      if (article.headshot_image) {
+        console.log('✅ Using headshot image:', article.headshot_image);
+        return article.headshot_image;
+      }
+      if (article.image_urls && article.image_urls.length > 0) {
+        console.log('✅ Using first gallery image:', article.image_urls[0]);
+        return article.image_urls[0];
+      }
+      if (article.logo_image) {
+        console.log('✅ Using logo image:', article.logo_image);
+        return article.logo_image;
+      }
+      console.log('⚠️ Using fallback image');
       return 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png';
     };
 

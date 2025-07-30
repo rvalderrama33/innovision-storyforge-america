@@ -24,9 +24,14 @@ export default async (request: Request, context: any) => {
       .select('*')
       .eq('slug', slug)
       .eq('status', 'approved')
-      .single();
+      .maybeSingle();
     
-    if (error || !article) {
+    if (error) {
+      console.error('Database error:', error);
+      return new Response('Database error', { status: 500 });
+    }
+    
+    if (!article) {
       return new Response('Article not found', { status: 404 });
     }
     
@@ -50,47 +55,37 @@ export default async (request: Request, context: any) => {
     const author = clean(article.full_name || 'America Innovates');
     const articleUrl = `https://americainnovates.us/article/${slug}`;
     
-    // Simple, clean HTML following AddToAny best practices
-    const html = `<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title} | America Innovates Magazine</title>
-<meta name="description" content="${description}">
-
-<meta property="og:title" content="${title}">
-<meta property="og:description" content="${description}">
-<meta property="og:image" content="${shareImage}">
-<meta property="og:url" content="${articleUrl}">
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="America Innovates Magazine">
-
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${title}">
-<meta name="twitter:description" content="${description}">
-<meta name="twitter:image" content="${shareImage}">
-
-<link rel="canonical" href="${articleUrl}">
-
-<script>
-if (!/bot|crawler|spider|facebook|twitter|linkedin/i.test(navigator.userAgent)) {
-  window.location.href = '${articleUrl}';
-}
-</script>
-</head>
-<body>
-<h1>${title}</h1>
-<p>By ${author}</p>
-<p>${description}</p>
-<a href="${articleUrl}">Read the full article</a>
-</body>
-</html>`;
+    // Create basic HTML string without template literals
+    const htmlParts = [
+      '<!DOCTYPE html>',
+      '<html lang="en">',
+      '<head>',
+      '<meta charset="utf-8">',
+      '<title>' + title + '</title>',
+      '<meta name="description" content="' + description + '">',
+      '<meta property="og:title" content="' + title + '">',
+      '<meta property="og:description" content="' + description + '">',
+      '<meta property="og:image" content="' + shareImage + '">',
+      '<meta property="og:url" content="' + articleUrl + '">',
+      '<meta property="og:type" content="article">',
+      '<meta name="twitter:card" content="summary_large_image">',
+      '<meta name="twitter:title" content="' + title + '">',
+      '<meta name="twitter:description" content="' + description + '">',
+      '<meta name="twitter:image" content="' + shareImage + '">',
+      '</head>',
+      '<body>',
+      '<h1>' + title + '</h1>',
+      '<p>' + description + '</p>',
+      '<a href="' + articleUrl + '">Read article</a>',
+      '</body>',
+      '</html>'
+    ];
+    
+    const html = htmlParts.join('\n');
 
     return new Response(html, {
       headers: {
-        'Content-Type': 'text/html',
-        'Cache-Control': 'public, max-age=300'
+        'Content-Type': 'text/html; charset=utf-8'
       }
     });
     

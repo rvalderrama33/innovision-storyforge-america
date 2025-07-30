@@ -2,13 +2,12 @@
   publish = "dist"
   command = "npm run build"
 
-# Redirect article URLs to Netlify function for meta tags (only for crawlers)
+# Redirect article URLs to Netlify function for meta tags
 [[redirects]]
   from = "/article/:slug"
   to = "/.netlify/functions/article-meta/:slug"
   status = 200
   force = true
-  headers = {X-Frame-Options = "DENY"}
 
 # SPA catch-all redirect
 [[redirects]]

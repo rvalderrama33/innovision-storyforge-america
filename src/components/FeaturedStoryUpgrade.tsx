@@ -16,7 +16,7 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleUpgrade = async () => {
+  const handleStripeUpgrade = async () => {
     console.log('Starting Stripe upgrade process for submission:', submission);
     
     if (!submission || !submission.id) {
@@ -48,12 +48,12 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
         throw new Error(`Failed to create checkout: ${error.message}`);
       }
 
-      if (data.error) {
+      if (data?.error) {
         throw new Error(data.error);
       }
 
       // Redirect to Stripe checkout
-      if (data.url) {
+      if (data?.url) {
         window.location.href = data.url;
       } else {
         throw new Error('No checkout URL received');
@@ -62,8 +62,64 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
     } catch (error) {
       console.error('Error setting up Stripe:', error);
       toast({
-        title: "Setup Error",
-        description: `Failed to initialize payment system: ${error.message}`,
+        title: "Stripe Payment Error",
+        description: `Failed to initialize Stripe payment: ${error.message}`,
+        variant: "destructive"
+      });
+      setIsLoading(false);
+    }
+  };
+
+  const handlePayPalUpgrade = async () => {
+    console.log('Starting PayPal upgrade process for submission:', submission);
+    
+    if (!submission || !submission.id) {
+      console.error('No submission or submission ID provided:', submission);
+      toast({
+        title: "Error", 
+        description: "Invalid submission data. Please refresh the page and try again.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Create PayPal order
+      const { data, error } = await supabase.functions.invoke('paypal-payment', {
+        body: {
+          action: 'create-order',
+          submissionId: submission.id,
+          amount: 50.00,
+          currency: 'USD'
+        }
+      });
+
+      console.log('PayPal create order response:', { data, error });
+
+      if (error) {
+        console.error('Error creating PayPal order:', error);
+        throw new Error(`Failed to create PayPal order: ${error.message}`);
+      }
+
+      if (data?.error) {
+        throw new Error(data.error);
+      }
+
+      if (data?.orderID) {
+        // Redirect to PayPal checkout
+        const paypalCheckoutUrl = `https://www.paypal.com/checkoutnow?token=${data.orderID}`;
+        window.location.href = paypalCheckoutUrl;
+      } else {
+        throw new Error('No PayPal order ID received');
+      }
+
+    } catch (error) {
+      console.error('Error setting up PayPal:', error);
+      toast({
+        title: "PayPal Payment Error",
+        description: `Failed to initialize PayPal payment: ${error.message}`,
         variant: "destructive"
       });
       setIsLoading(false);
@@ -130,13 +186,24 @@ const FeaturedStoryUpgrade = ({ submission, onPaymentSuccess }: FeaturedStoryUpg
             </Badge>
           </div>
 
-          <Button 
-            onClick={handleUpgrade}
-            disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700"
-          >
-            {isLoading ? 'Creating Checkout...' : 'Upgrade to Featured'}
-          </Button>
+          <div className="space-y-2">
+            <Button 
+              onClick={handleStripeUpgrade}
+              disabled={isLoading}
+              className="w-full bg-blue-600 hover:bg-blue-700"
+            >
+              {isLoading ? 'Creating Checkout...' : 'Pay with Stripe'}
+            </Button>
+            
+            <Button 
+              onClick={handlePayPalUpgrade}
+              disabled={isLoading}
+              variant="outline"
+              className="w-full border-orange-300 text-orange-600 hover:bg-orange-50"
+            >
+              {isLoading ? 'Creating Order...' : 'Pay with PayPal'}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>

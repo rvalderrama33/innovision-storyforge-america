@@ -66,6 +66,7 @@ exports.handler = async (event, context) => {
     console.log('- URL:', event.path)
     console.log('- User agent:', userAgent)
     console.log('- Is crawler:', isCrawler)
+    console.log('- Headers:', JSON.stringify(event.headers))
     
     // Always serve meta HTML for better social sharing
     const articleTitle = `${article.product_name} | America Innovates Magazine`;

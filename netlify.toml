@@ -2,10 +2,10 @@
   publish = "dist"
   command = "npm run build"
 
-# Redirect article URLs to Supabase edge function for meta tags
+# Redirect article URLs to Netlify function for meta tags
 [[redirects]]
   from = "/article/:slug"
-  to = "https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/article-meta/article/:slug"
+  to = "/.netlify/functions/article-meta/:slug"
   status = 200
   force = true
 

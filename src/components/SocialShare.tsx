@@ -24,7 +24,7 @@ const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '',
     {
       name: 'Twitter',
       icon: Twitter,
-      url: `https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}&via=AmericaInnovates`,
+      url: `https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}`,
       color: 'bg-sky-500 hover:bg-sky-600'
     },
     {
@@ -36,13 +36,13 @@ const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '',
     {
       name: 'Email',
       icon: Mail,
-      url: `mailto:?subject=${shareTitle}&body=Check out this innovation story: ${shareTitle} - ${shareUrl}`,
+      url: `mailto:?subject=${shareTitle}&body=${encodeURIComponent(`Check out this innovation story: ${title}\n\n${url}`)}`,
       color: 'bg-gray-600 hover:bg-gray-700'
     },
     {
       name: 'WhatsApp',
       icon: MessageCircle,
-      url: `https://wa.me/?text=${shareTitle} - ${shareUrl}`,
+      url: `https://wa.me/?text=${encodeURIComponent(`${title} - ${url}`)}`,
       color: 'bg-green-600 hover:bg-green-700'
     },
     {

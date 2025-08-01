@@ -1,21 +1,5 @@
 import React from 'react';
-import { Share2 } from 'lucide-react';
-import {
-  FacebookShareButton,
-  TwitterShareButton,
-  LinkedinShareButton,
-  PinterestShareButton,
-  EmailShareButton,
-  WhatsappShareButton,
-  TelegramShareButton,
-  FacebookIcon,
-  TwitterIcon,
-  LinkedinIcon,
-  PinterestIcon,
-  EmailIcon,
-  WhatsappIcon,
-  TelegramIcon
-} from 'react-share';
+import { Share2, Facebook, Twitter, Linkedin, Mail, MessageCircle, Send } from 'lucide-react';
 
 interface SocialShareProps {
   url: string;
@@ -25,9 +9,49 @@ interface SocialShareProps {
 }
 
 const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '', image }) => {
-  const shareTitle = title;
-  const shareUrl = url;
+  const shareTitle = encodeURIComponent(title);
+  const shareUrl = encodeURIComponent(url);
   const shareImage = image || 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png';
+  const shareDescription = encodeURIComponent(description);
+
+  const shareButtons = [
+    {
+      name: 'Facebook',
+      icon: Facebook,
+      url: `https://www.facebook.com/sharer/sharer.php?u=${shareUrl}`,
+      color: 'bg-blue-600 hover:bg-blue-700'
+    },
+    {
+      name: 'Twitter',
+      icon: Twitter,
+      url: `https://twitter.com/intent/tweet?url=${shareUrl}&text=${shareTitle}&via=AmericaInnovates`,
+      color: 'bg-sky-500 hover:bg-sky-600'
+    },
+    {
+      name: 'LinkedIn',
+      icon: Linkedin,
+      url: `https://www.linkedin.com/sharing/share-offsite/?url=${shareUrl}`,
+      color: 'bg-blue-700 hover:bg-blue-800'
+    },
+    {
+      name: 'Email',
+      icon: Mail,
+      url: `mailto:?subject=${shareTitle}&body=Check out this innovation story: ${shareTitle} - ${shareUrl}`,
+      color: 'bg-gray-600 hover:bg-gray-700'
+    },
+    {
+      name: 'WhatsApp',
+      icon: MessageCircle,
+      url: `https://wa.me/?text=${shareTitle} - ${shareUrl}`,
+      color: 'bg-green-600 hover:bg-green-700'
+    },
+    {
+      name: 'Telegram',
+      icon: Send,
+      url: `https://t.me/share/url?url=${shareUrl}&text=${shareTitle}`,
+      color: 'bg-blue-500 hover:bg-blue-600'
+    }
+  ];
 
   return (
     <div className="bg-gray-50 p-6 rounded-lg">
@@ -36,62 +60,22 @@ const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '',
         <h3 className="text-lg font-semibold text-gray-900">Share this article</h3>
       </div>
       
-      {/* React Share Buttons */}
       <div className="flex gap-2 flex-wrap">
-        <FacebookShareButton
-          url={shareUrl}
-          hashtag="#innovation"
-        >
-          <FacebookIcon size={32} round />
-        </FacebookShareButton>
-
-        <TwitterShareButton
-          url={shareUrl}
-          title={shareTitle}
-          hashtags={['innovation', 'entrepreneurs']}
-          via="AmericaInnovates"
-        >
-          <TwitterIcon size={32} round />
-        </TwitterShareButton>
-
-        <LinkedinShareButton
-          url={shareUrl}
-          title={shareTitle}
-          summary={description}
-          source="America Innovates Magazine"
-        >
-          <LinkedinIcon size={32} round />
-        </LinkedinShareButton>
-
-        <PinterestShareButton
-          url={shareUrl}
-          media={shareImage}
-          description={shareTitle}
-        >
-          <PinterestIcon size={32} round />
-        </PinterestShareButton>
-
-        <EmailShareButton
-          url={shareUrl}
-          subject={shareTitle}
-          body={`Check out this innovation story: ${shareTitle}`}
-        >
-          <EmailIcon size={32} round />
-        </EmailShareButton>
-
-        <WhatsappShareButton
-          url={shareUrl}
-          title={shareTitle}
-        >
-          <WhatsappIcon size={32} round />
-        </WhatsappShareButton>
-
-        <TelegramShareButton
-          url={shareUrl}
-          title={shareTitle}
-        >
-          <TelegramIcon size={32} round />
-        </TelegramShareButton>
+        {shareButtons.map((button) => {
+          const IconComponent = button.icon;
+          return (
+            <a
+              key={button.name}
+              href={button.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${button.color} text-white p-2 rounded-full transition-colors duration-200 flex items-center justify-center w-10 h-10`}
+              title={`Share on ${button.name}`}
+            >
+              <IconComponent className="h-5 w-5" />
+            </a>
+          );
+        })}
       </div>
       
       {/* Debug section - only show in development */}

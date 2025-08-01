@@ -7,7 +7,7 @@ interface SessionInfo {
   ipHash: string;
 }
 
-const SESSION_TIMEOUT_MS = 30 * 60 * 1000; // 30 minutes
+const SESSION_TIMEOUT_MS = 2 * 60 * 60 * 1000; // 2 hours (better for long forms)
 const SESSION_KEY = 'auth_session_info';
 
 // Hash IP address for privacy (basic implementation)

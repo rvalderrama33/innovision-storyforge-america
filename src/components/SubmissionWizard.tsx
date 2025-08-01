@@ -1,10 +1,11 @@
 
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 import StepOne from "@/components/submission-steps/StepOne";
 import StepTwo from "@/components/submission-steps/StepTwo";
 import StepThree from "@/components/submission-steps/StepThree";
@@ -28,6 +29,50 @@ const SubmissionWizard = () => {
   const [stepValidations, setStepValidations] = useState<Record<number, boolean>>({});
   const [savedDraftId, setSavedDraftId] = useState<string | null>(null);
   const draftTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const LOCAL_STORAGE_KEY = 'submission_wizard_data';
+  const STEP_STORAGE_KEY = 'submission_wizard_step';
+
+  // Load saved data from localStorage on mount
+  useEffect(() => {
+    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
+    const savedStep = localStorage.getItem(STEP_STORAGE_KEY);
+    
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        setFormData(parsedData);
+        toast.success("Your previous work has been restored!");
+      } catch (error) {
+        console.error('Error parsing saved data:', error);
+        localStorage.removeItem(LOCAL_STORAGE_KEY);
+      }
+    }
+    
+    if (savedStep) {
+      const stepNumber = parseInt(savedStep, 10);
+      if (stepNumber >= 1 && stepNumber <= 6) {
+        setCurrentStep(stepNumber);
+      }
+    }
+  }, []);
+
+  // Save data to localStorage whenever form data changes
+  useEffect(() => {
+    if (Object.keys(formData).length > 0) {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
+    }
+  }, [formData]);
+
+  // Save current step to localStorage
+  useEffect(() => {
+    localStorage.setItem(STEP_STORAGE_KEY, currentStep.toString());
+  }, [currentStep]);
+
+  // Clear localStorage when submission is complete
+  const clearLocalStorage = () => {
+    localStorage.removeItem(LOCAL_STORAGE_KEY);
+    localStorage.removeItem(STEP_STORAGE_KEY);
+  };
 
   const steps = [
     { number: 1, title: "About You", component: StepOne },
@@ -97,6 +142,8 @@ const SubmissionWizard = () => {
         console.error('Error deleting draft:', error);
       }
     }
+    // Clear localStorage when submission is complete
+    clearLocalStorage();
   };
 
   const handlePrevious = () => {
@@ -269,14 +316,21 @@ const SubmissionWizard = () => {
           </CardContent>
         </Card>
 
-        {/* Save Draft Notice */}
-        {savedDraftId && (
-          <div className="text-center mb-4">
-            <p className="text-sm text-green-600">
-              ✓ Your progress is automatically saved. You can return to complete this form later.
+        {/* Save Progress Notice */}
+        <div className="text-center mb-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <p className="text-sm text-blue-800">
+              ✓ Your progress is automatically saved locally and backed up to our servers.
+              {savedDraftId && " You can safely close your browser and return later."}
             </p>
+            <button 
+              onClick={clearLocalStorage}
+              className="text-xs text-blue-600 hover:text-blue-800 underline mt-1"
+            >
+              Clear saved data
+            </button>
           </div>
-        )}
+        </div>
 
         {/* Navigation */}
         <div className="flex justify-between mt-8">

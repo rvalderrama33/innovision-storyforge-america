@@ -104,7 +104,7 @@ const About = () => {
                 Have a story tip, want to collaborate, or just want to say hello?
               </p>
               <div className="space-y-2">
-                <p className="text-gray-600">📧 Email: stories@americainnovates.com</p>
+                <p className="text-gray-600">📧 Email: stories@americainnovates.us</p>
                 <p className="text-gray-600">📱 Twitter: @AmericaInnovates</p>
                 <p className="text-gray-600">💼 LinkedIn: America Innovates Magazine</p>
               </div>

@@ -1,5 +1,21 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { Share2 } from 'lucide-react';
+import {
+  FacebookShareButton,
+  TwitterShareButton,
+  LinkedinShareButton,
+  PinterestShareButton,
+  EmailShareButton,
+  WhatsappShareButton,
+  TelegramShareButton,
+  FacebookIcon,
+  TwitterIcon,
+  LinkedinIcon,
+  PinterestIcon,
+  EmailIcon,
+  WhatsappIcon,
+  TelegramIcon
+} from 'react-share';
 
 interface SocialShareProps {
   url: string;
@@ -9,15 +25,9 @@ interface SocialShareProps {
 }
 
 const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '', image }) => {
-  useEffect(() => {
-    // Load AddToAny script if not already loaded
-    if (!document.querySelector('script[src*="addtoany"]')) {
-      const script = document.createElement('script');
-      script.src = 'https://static.addtoany.com/menu/page.js';
-      script.async = true;
-      document.head.appendChild(script);
-    }
-  }, []);
+  const shareTitle = title;
+  const shareUrl = url;
+  const shareImage = image || 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png';
 
   return (
     <div className="bg-gray-50 p-6 rounded-lg">
@@ -26,18 +36,62 @@ const SocialShare: React.FC<SocialShareProps> = ({ url, title, description = '',
         <h3 className="text-lg font-semibold text-gray-900">Share this article</h3>
       </div>
       
-      {/* AddToAny Share Buttons */}
-      <div className="a2a_kit a2a_kit_size_32 a2a_default_style" 
-           data-a2a-url={url} 
-           data-a2a-title={title}>
-        <a className="a2a_button_facebook"></a>
-        <a className="a2a_button_twitter"></a>
-        <a className="a2a_button_linkedin"></a>
-        <a className="a2a_button_email"></a>
-        <a className="a2a_button_whatsapp"></a>
-        <a className="a2a_button_telegram"></a>
-        <a className="a2a_button_copy_link"></a>
-        <a className="a2a_dd" href="https://www.addtoany.com/share"></a>
+      {/* React Share Buttons */}
+      <div className="flex gap-2 flex-wrap">
+        <FacebookShareButton
+          url={shareUrl}
+          hashtag="#innovation"
+        >
+          <FacebookIcon size={32} round />
+        </FacebookShareButton>
+
+        <TwitterShareButton
+          url={shareUrl}
+          title={shareTitle}
+          hashtags={['innovation', 'entrepreneurs']}
+          via="AmericaInnovates"
+        >
+          <TwitterIcon size={32} round />
+        </TwitterShareButton>
+
+        <LinkedinShareButton
+          url={shareUrl}
+          title={shareTitle}
+          summary={description}
+          source="America Innovates Magazine"
+        >
+          <LinkedinIcon size={32} round />
+        </LinkedinShareButton>
+
+        <PinterestShareButton
+          url={shareUrl}
+          media={shareImage}
+          description={shareTitle}
+        >
+          <PinterestIcon size={32} round />
+        </PinterestShareButton>
+
+        <EmailShareButton
+          url={shareUrl}
+          subject={shareTitle}
+          body={`Check out this innovation story: ${shareTitle}`}
+        >
+          <EmailIcon size={32} round />
+        </EmailShareButton>
+
+        <WhatsappShareButton
+          url={shareUrl}
+          title={shareTitle}
+        >
+          <WhatsappIcon size={32} round />
+        </WhatsappShareButton>
+
+        <TelegramShareButton
+          url={shareUrl}
+          title={shareTitle}
+        >
+          <TelegramIcon size={32} round />
+        </TelegramShareButton>
       </div>
       
       {/* Debug section - only show in development */}

@@ -290,6 +290,7 @@ export type Database = {
           images: string[] | null
           name: string
           price: number
+          primary_image_index: number | null
           sales_links: string[] | null
           shipping_info: Json | null
           slug: string | null
@@ -310,6 +311,7 @@ export type Database = {
           images?: string[] | null
           name: string
           price: number
+          primary_image_index?: number | null
           sales_links?: string[] | null
           shipping_info?: Json | null
           slug?: string | null
@@ -330,6 +332,7 @@ export type Database = {
           images?: string[] | null
           name?: string
           price?: number
+          primary_image_index?: number | null
           sales_links?: string[] | null
           shipping_info?: Json | null
           slug?: string | null

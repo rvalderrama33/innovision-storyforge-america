@@ -105,7 +105,7 @@ const MarketplaceEdit = () => {
           featured: data.featured || false,
           stock_quantity: data.stock_quantity?.toString() || "",
           images: data.images || [],
-          primaryImageIndex: 0,
+          primaryImageIndex: data.primary_image_index || 0, // Load from database
           specifications: data.specifications || {},
           shipping_info: data.shipping_info || {},
           tags: data.tags || [],
@@ -330,6 +330,7 @@ const MarketplaceEdit = () => {
           featured: formData.featured,
           stock_quantity: parseInt(formData.stock_quantity) || 0,
           images: formData.images,
+          primary_image_index: formData.primaryImageIndex, // Save primary image index
           specifications: formData.specifications,
           shipping_info: formData.shipping_info,
           tags: formData.tags,

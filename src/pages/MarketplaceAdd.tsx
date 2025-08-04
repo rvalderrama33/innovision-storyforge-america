@@ -294,7 +294,7 @@ const MarketplaceAdd = () => {
       const slug = await generateSlug(formData.name);
       const priceInCents = Math.round(parseFloat(formData.price) * 100);
 
-      const { data, error } = await supabase
+        const { data, error } = await supabase
         .from('marketplace_products')
         .insert({
           vendor_id: user.id,
@@ -308,6 +308,7 @@ const MarketplaceAdd = () => {
           stock_quantity: parseInt(formData.stock_quantity) || 0,
           slug,
           images: formData.images,
+          primary_image_index: formData.primaryImageIndex, // Save primary image index
           specifications: formData.specifications,
           shipping_info: formData.shipping_info,
           tags: formData.tags,

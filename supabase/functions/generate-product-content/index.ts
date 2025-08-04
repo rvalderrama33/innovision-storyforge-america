@@ -20,20 +20,28 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
     const response = await fetch(url);
     const html = await response.text();
     
-    // Extract images with improved filtering
+    // Extract ALL images aggressively
     const imageRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
     const imageUrls: string[] = [];
     let match;
+    
     while ((match = imageRegex.exec(html)) !== null) {
       let imageUrl = match[1];
       
-      // Skip data URLs, SVGs, and very small images
-      if (imageUrl.startsWith('data:') || imageUrl.includes('.svg') || imageUrl.includes('icon')) {
+      // Skip only obvious non-product images
+      if (imageUrl.startsWith('data:') || 
+          imageUrl.includes('favicon') || 
+          imageUrl.includes('.svg') ||
+          imageUrl.endsWith('.gif') ||
+          imageUrl.includes('logo') && imageUrl.includes('header')) {
         continue;
       }
       
       // Convert relative URLs to absolute
-      if (imageUrl.startsWith('/')) {
+      if (imageUrl.startsWith('//')) {
+        const urlObj = new URL(url);
+        imageUrl = `${urlObj.protocol}${imageUrl}`;
+      } else if (imageUrl.startsWith('/')) {
         const urlObj = new URL(url);
         imageUrl = `${urlObj.protocol}//${urlObj.host}${imageUrl}`;
       } else if (imageUrl.startsWith('./')) {
@@ -44,12 +52,21 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
         imageUrl = `${urlObj.protocol}//${urlObj.host}/${imageUrl}`;
       }
       
-      // Filter for likely product images (be more inclusive)
-      if (imageUrl.match(/\.(jpg|jpeg|png|webp)$/i) && 
-          !imageUrl.includes('logo') && 
-          !imageUrl.includes('favicon') &&
-          !imageUrl.includes('thumb') &&
-          imageUrl.length < 500) { // Avoid extremely long URLs
+      // Include ALL images that are likely product-related (be very inclusive)
+      if (imageUrl.match(/\.(jpg|jpeg|png|webp)$/i) && imageUrl.length < 1000) {
+        imageUrls.push(imageUrl);
+      }
+    }
+    
+    // Also try to extract from CSS background-image properties
+    const cssImageRegex = /background-image:\s*url\(['"]?([^'"]+)['"]?\)/gi;
+    while ((match = cssImageRegex.exec(html)) !== null) {
+      let imageUrl = match[1];
+      if (imageUrl.match(/\.(jpg|jpeg|png|webp)$/i)) {
+        if (imageUrl.startsWith('/')) {
+          const urlObj = new URL(url);
+          imageUrl = `${urlObj.protocol}//${urlObj.host}${imageUrl}`;
+        }
         imageUrls.push(imageUrl);
       }
     }
@@ -74,12 +91,12 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
       .trim()
       .substring(0, 3000); // Increased limit
     
-    return {
-      textContent,
-      imageUrls: imageUrls.slice(0, 10), // Limit to 10 images
-      title,
-      description
-    };
+      return {
+        textContent,
+        imageUrls: [...new Set(imageUrls)], // Remove duplicates
+        title,
+        description
+      };
   } catch (error) {
     console.error('Error fetching website content:', error);
     return {
@@ -158,11 +175,10 @@ Additional Image URLs found: ${scrapedImages.slice(0, 5).join(', ')}
 
 Please generate:
 
-1. A compelling product name that:
-   - Is based on the actual product found in the scraped content
-   - Is concise but descriptive (2-5 words)
-   - Captures the key value proposition
-   - Is marketable and memorable
+1. Extract the EXACT product name from the scraped content:
+   - Use the product name as it appears on the source website
+   - Do NOT change or modify the existing product name
+   - If multiple names are found, use the most prominent one from the page title or main heading
 
 2. An enhanced, compelling product description (3-4 paragraphs) that:
    - Incorporates information from the scraped website content WITHOUT mentioning the source

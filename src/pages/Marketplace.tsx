@@ -17,6 +17,7 @@ interface MarketplaceProduct {
   currency: string;
   category: string;
   images: string[];
+  primary_image_index: number; // Add primary image index
   slug: string;
   featured: boolean;
   stock_quantity: number;
@@ -116,11 +117,17 @@ const Marketplace = () => {
               <Card key={product.id} className="group hover:shadow-lg transition-shadow">
                 <CardHeader className="p-0">
                   <div className="w-full h-48 bg-muted rounded-t-lg overflow-hidden">
-                    {product.images && product.images[0] ? (
+                    {product.images && product.images.length > 0 ? (
                       <img 
-                        src={product.images[0]} 
+                        src={product.images[product.primary_image_index || 0]} 
                         alt={product.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        onError={(e) => {
+                          // Fallback to first image if primary image fails to load
+                          if (product.primary_image_index !== 0) {
+                            (e.target as HTMLImageElement).src = product.images[0];
+                          }
+                        }}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center text-muted-foreground">

@@ -97,7 +97,12 @@ const Stories = () => {
                           <img 
                             src={imageUrl} 
                             alt={story.product_name || 'Innovation story'}
-                            className={`w-full h-full object-cover ${story.full_name === "Ronald Droze" ? "object-center" : "object-top"} group-hover:scale-105 transition-transform duration-300`}
+                            className={`w-full h-full object-cover ${
+                              story.full_name === "Ronald Droze" || 
+                              story.full_name === "William Kessel" || 
+                              story.product_name === "Beeryards" 
+                                ? "object-center" : "object-top"
+                            } group-hover:scale-105 transition-transform duration-300`}
                           />
                         ) : (
                           <div className="w-full h-full bg-gray-200 flex items-center justify-center">

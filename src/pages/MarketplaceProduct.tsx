@@ -36,6 +36,13 @@ const MarketplaceProduct = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
 
+  // Always call useSEO hook before any early returns
+  useSEO({
+    title: product ? `${product.name} | Marketplace` : 'Product | Marketplace',
+    description: product ? product.description.substring(0, 160) : 'Marketplace product details',
+    url: `https://americainnovates.us/marketplace/product/${product?.slug || product?.id || id}`
+  });
+
   // Restrict access to admins only for now
   if (!user || !isAdmin) {
     return <Navigate to="/auth" replace />;
@@ -109,12 +116,6 @@ const MarketplaceProduct = () => {
       </div>
     );
   }
-
-  useSEO({
-    title: `${product.name} | Marketplace`,
-    description: product.description.substring(0, 160),
-    url: `https://americainnovates.us/marketplace/product/${product.slug || product.id}`
-  });
 
   return (
     <div className="min-h-screen bg-background">

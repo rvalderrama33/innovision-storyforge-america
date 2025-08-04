@@ -217,9 +217,11 @@ const MarketplaceManage = () => {
                                 <Eye className="h-4 w-4" />
                               </Button>
                             </Link>
-                            <Button variant="ghost" size="sm">
-                              <Edit className="h-4 w-4" />
-                            </Button>
+                            <Link to={`/marketplace/edit/${product.id}`}>
+                              <Button variant="ghost" size="sm">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                            </Link>
                             <Button 
                               variant="ghost" 
                               size="sm"

@@ -76,7 +76,7 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
       }
       
       // Include ALL images that are likely product-related (be very inclusive)
-      if (imageUrl.match(/\.(jpg|jpeg|png|webp)$/i) && imageUrl.length < 1000) {
+      if (imageUrl.match(/\.(jpg|jpeg|png|webp)(\?.*)?$/i) && imageUrl.length < 1000) {
         console.log(`✅ Adding image: ${imageUrl}`);
         imageUrls.push(imageUrl);
       } else {
@@ -94,7 +94,7 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
       let imageUrl = match[1];
       cssImages++;
       console.log(`🎨 Found CSS background image: ${imageUrl}`);
-      if (imageUrl.match(/\.(jpg|jpeg|png|webp)$/i)) {
+      if (imageUrl.match(/\.(jpg|jpeg|png|webp)(\?.*)?$/i)) {
         if (imageUrl.startsWith('/')) {
           const urlObj = new URL(url);
           imageUrl = `${urlObj.protocol}//${urlObj.host}${imageUrl}`;

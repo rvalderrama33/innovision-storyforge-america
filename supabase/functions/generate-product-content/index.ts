@@ -158,7 +158,13 @@ Additional Image URLs found: ${scrapedImages.slice(0, 5).join(', ')}
 
 Please generate:
 
-1. An enhanced, compelling product description (3-4 paragraphs) that:
+1. A compelling product name that:
+   - Is based on the actual product found in the scraped content
+   - Is concise but descriptive (2-5 words)
+   - Captures the key value proposition
+   - Is marketable and memorable
+
+2. An enhanced, compelling product description (3-4 paragraphs) that:
    - Incorporates information from the scraped website content WITHOUT mentioning the source
    - Highlights key features and benefits found in the scraped data
    - Uses persuasive language and emotional triggers
@@ -167,19 +173,20 @@ Please generate:
    - References specific product details but NEVER includes external links or website mentions
    - Focuses on why customers should buy THIS product from THIS marketplace
 
-2. 10-15 relevant product tags that:
+3. 10-15 relevant product tags that:
    - Include the product category and subcategories
    - Cover key features mentioned in scraped content
    - Include search-friendly terms from the analysis
    - Mix broad and specific terms for better discoverability
 
-3. Comprehensive product specifications object with technical details based on:
+4. Comprehensive product specifications object with technical details based on:
    - Information extracted from the website content
    - Industry standards for the product category
    - Reasonable inferences from available data
 
 Return your response as a JSON object with this exact structure:
 {
+  "productName": "Generated Product Name",
   "description": "Enhanced product description here (NO EXTERNAL LINKS)",
   "tags": ["tag1", "tag2", "tag3", ...],
   "specifications": {

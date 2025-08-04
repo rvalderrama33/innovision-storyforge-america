@@ -163,10 +163,10 @@ const MarketplaceAdd = () => {
   };
 
   const generateContentWithAI = async () => {
-    if (!formData.name) {
+    if (formData.sales_links.length === 0) {
       toast({
         title: "Error",
-        description: "Please enter a product name first",
+        description: "Please add at least one sales link first",
         variant: "destructive"
       });
       return;
@@ -193,6 +193,7 @@ const MarketplaceAdd = () => {
         // Update form data with AI-generated content
         setFormData(prev => ({
           ...prev,
+          name: content.productName || prev.name, // Use AI-generated name if available
           description: content.description,
           tags: [...new Set([...prev.tags, ...content.tags])],
           specifications: content.specifications
@@ -304,6 +305,69 @@ const MarketplaceAdd = () => {
           
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
+              {/* AI Content Generation - MOVED TO TOP */}
+              <div className="border border-primary/20 rounded-lg p-4 bg-primary/5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  <Label className="text-sm font-medium">🚀 Start Here: AI-Enhanced Content</Label>
+                </div>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Start by adding sales links below, then generate product name, description, images, tags, and specifications automatically using AI.
+                  {formData.sales_links.length > 0 
+                    ? ` Ready to analyze ${formData.sales_links.length} sales link(s) and extract product information!`
+                    : " Add sales links first to enable AI content generation."
+                  }
+                </p>
+                <Button
+                  type="button"
+                  onClick={generateContentWithAI}
+                  disabled={generatingContent || formData.sales_links.length === 0}
+                  variant="outline"
+                  size="sm"
+                >
+                  {generatingContent ? "Generating..." : "Generate AI Content"}
+                </Button>
+              </div>
+
+              {/* Sales Links - MOVED TO SECOND */}
+              <div>
+                <Label className="text-sm font-medium">Where is this product currently sold? 🔗</Label>
+                <p className="text-xs text-muted-foreground mt-1 mb-3">
+                  Add links to websites where this product is sold. AI will analyze these to generate all product details.
+                </p>
+                <div className="mt-2 space-y-3">
+                  <div className="flex gap-2">
+                    <Input
+                      value={newSalesLink}
+                      onChange={(e) => setNewSalesLink(e.target.value)}
+                      placeholder="https://example.com/product"
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSalesLink())}
+                    />
+                    <Button type="button" onClick={addSalesLink} size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  {formData.sales_links.length > 0 && (
+                    <div className="space-y-2">
+                      {formData.sales_links.map((link, index) => (
+                        <div key={index} className="flex items-center justify-between bg-muted rounded-lg p-3">
+                          <span className="text-sm truncate flex-1 mr-2">{link}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeSalesLink(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="name" className="text-sm font-medium">
                   Product Name *
@@ -312,7 +376,7 @@ const MarketplaceAdd = () => {
                   id="name"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  placeholder="Enter product name"
+                  placeholder="Enter product name (or generate with AI)"
                   required
                 />
               </div>
@@ -325,7 +389,7 @@ const MarketplaceAdd = () => {
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                  placeholder="Describe your product"
+                  placeholder="Describe your product (or generate with AI)"
                   rows={4}
                   required
                 />
@@ -334,6 +398,9 @@ const MarketplaceAdd = () => {
               {/* Product Images */}
               <div>
                 <Label className="text-sm font-medium">Product Images</Label>
+                <p className="text-xs text-muted-foreground mt-1 mb-3">
+                  Upload images or let AI extract them from your sales links
+                </p>
                 <div className="mt-2 space-y-4">
                   <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-muted-foreground/50 transition-colors">
                     <input
@@ -379,66 +446,6 @@ const MarketplaceAdd = () => {
                 </div>
               </div>
 
-              {/* Sales Links */}
-              <div>
-                <Label className="text-sm font-medium">Where is this product currently sold?</Label>
-                <div className="mt-2 space-y-3">
-                  <div className="flex gap-2">
-                    <Input
-                      value={newSalesLink}
-                      onChange={(e) => setNewSalesLink(e.target.value)}
-                      placeholder="https://example.com/product"
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSalesLink())}
-                    />
-                    <Button type="button" onClick={addSalesLink} size="sm">
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  
-                  {formData.sales_links.length > 0 && (
-                    <div className="space-y-2">
-                      {formData.sales_links.map((link, index) => (
-                        <div key={index} className="flex items-center justify-between bg-muted rounded-lg p-3">
-                          <span className="text-sm truncate flex-1 mr-2">{link}</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeSalesLink(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* AI Content Generation */}
-              <div className="border border-primary/20 rounded-lg p-4 bg-primary/5">
-                <div className="flex items-center gap-2 mb-3">
-                  <Sparkles className="h-5 w-5 text-primary" />
-                  <Label className="text-sm font-medium">AI-Enhanced Content</Label>
-                </div>
-                <p className="text-xs text-muted-foreground mb-4">
-                  Generate impressive product descriptions, tags, and specifications using AI. 
-                  {formData.sales_links.length > 0 
-                    ? `The AI will analyze your product information and ${formData.sales_links.length} sales link(s) to create compelling content and extract product images.`
-                    : "Add sales links above to enable AI image extraction from those websites."
-                  }
-                </p>
-                <Button
-                  type="button"
-                  onClick={generateContentWithAI}
-                  disabled={generatingContent || !formData.name}
-                  variant="outline"
-                  size="sm"
-                >
-                  {generatingContent ? "Generating..." : "Generate AI Content"}
-                </Button>
-              </div>
-
               {/* Tags */}
               <div>
                 <Label className="text-sm font-medium">Tags</Label>
@@ -447,7 +454,7 @@ const MarketplaceAdd = () => {
                     <Input
                       value={newTag}
                       onChange={(e) => setNewTag(e.target.value)}
-                      placeholder="Enter a tag"
+                      placeholder="Enter a tag (or generate with AI)"
                       onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
                     />
                     <Button type="button" onClick={addTag} size="sm">

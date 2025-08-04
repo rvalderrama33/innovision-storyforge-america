@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
-import { Upload, X, Plus, Sparkles, Star } from "lucide-react";
+import { Upload, X, Plus, Sparkles, Star, Video } from "lucide-react";
 
 
 const categories = [
@@ -60,12 +60,14 @@ const MarketplaceAdd = () => {
     specifications: {},
     shipping_info: {},
     tags: [] as string[],
-    sales_links: [] as string[]
+    sales_links: [] as string[],
+    video_urls: [] as string[] // Add video URLs
   });
 
   const [uploadingImages, setUploadingImages] = useState(false);
   const [newSalesLink, setNewSalesLink] = useState("");
   const [newTag, setNewTag] = useState("");
+  const [newVideoUrl, setNewVideoUrl] = useState("");
   const [generatingContent, setGeneratingContent] = useState(false);
 
   const generateSlug = async (name: string) => {
@@ -204,6 +206,34 @@ const MarketplaceAdd = () => {
     }));
   };
 
+  const addVideoUrl = () => {
+    if (newVideoUrl.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        video_urls: [...prev.video_urls, newVideoUrl.trim()]
+      }));
+      setNewVideoUrl("");
+    }
+  };
+
+  const removeVideoUrl = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      video_urls: prev.video_urls.filter((_, i) => i !== index)
+    }));
+  };
+
+  const isValidVideoUrl = (url: string) => {
+    const patterns = [
+      /youtube\.com\/watch\?v=/,
+      /youtu\.be\//,
+      /youtube\.com\/embed\//,
+      /vimeo\.com\//,
+      /\.(mp4|webm|ogg|mov|avi)$/i
+    ];
+    return patterns.some(pattern => pattern.test(url));
+  };
+
   const generateContentWithAI = async () => {
     if (formData.sales_links.length === 0) {
       toast({
@@ -241,26 +271,35 @@ const MarketplaceAdd = () => {
           specifications: content.specifications
         }));
 
-        // Add scraped images to the existing images
+        // Add scraped images and videos to the existing content
+        let successMessage = "AI-enhanced content generated successfully!";
+        
         if (content.scrapedImages && content.scrapedImages.length > 0) {
           console.log('Scraped images found:', content.scrapedImages);
           setFormData(prev => ({
             ...prev,
             images: [...prev.images, ...content.scrapedImages]
           }));
-          
-          toast({
-            title: "Success",
-            description: `AI content generated and added ${content.scrapedImages.length} images from sales links!`
-          });
-        } else {
-          console.log('No scraped images found in response:', content);
-          console.log('Full response content:', JSON.stringify(content, null, 2));
-          toast({
-            title: "Success",
-            description: "AI-enhanced content generated successfully!"
-          });
+          successMessage = `AI content generated and added ${content.scrapedImages.length} images`;
         }
+        
+        if (content.scrapedVideos && content.scrapedVideos.length > 0) {
+          console.log('Scraped videos found:', content.scrapedVideos);
+          setFormData(prev => ({
+            ...prev,
+            video_urls: [...prev.video_urls, ...content.scrapedVideos]
+          }));
+          successMessage += content.scrapedImages?.length > 0 
+            ? ` and ${content.scrapedVideos.length} videos from sales links!`
+            : ` and added ${content.scrapedVideos.length} videos from sales links!`;
+        } else if (content.scrapedImages?.length > 0) {
+          successMessage += " from sales links!";
+        }
+        
+        toast({
+          title: "Success",
+          description: successMessage
+        });
       } else {
         throw new Error(data.error || 'Failed to generate content');
       }
@@ -312,7 +351,8 @@ const MarketplaceAdd = () => {
           specifications: formData.specifications,
           shipping_info: formData.shipping_info,
           tags: formData.tags,
-          sales_links: formData.sales_links
+          sales_links: formData.sales_links,
+          video_urls: formData.video_urls // Add video URLs to database
         })
         .select()
         .single();
@@ -556,6 +596,56 @@ const MarketplaceAdd = () => {
                             <X className="h-3 w-3" />
                           </button>
                         </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Video URLs */}
+              <div>
+                <Label className="text-sm font-medium">Product Videos 🎬</Label>
+                <p className="text-xs text-muted-foreground mt-1 mb-3">
+                  Add YouTube, Vimeo, or direct video links. AI can also extract these from sales links.
+                </p>
+                <div className="mt-2 space-y-3">
+                  <div className="flex gap-2">
+                    <Input
+                      value={newVideoUrl}
+                      onChange={(e) => setNewVideoUrl(e.target.value)}
+                      placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addVideoUrl())}
+                    />
+                    <Button type="button" onClick={addVideoUrl} size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  {formData.video_urls.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Product Videos ({formData.video_urls.length})</p>
+                      {formData.video_urls.map((videoUrl, index) => (
+                        <div key={index} className="flex items-center justify-between bg-muted rounded-lg p-3">
+                          <div className="flex items-center gap-2 flex-1 mr-2">
+                            <Video className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <span className="text-sm truncate">
+                              {videoUrl.includes('youtube') ? '📺 YouTube' : 
+                               videoUrl.includes('vimeo') ? '🎞️ Vimeo' : 
+                               '🎬 Video'}: {videoUrl}
+                            </span>
+                            {!isValidVideoUrl(videoUrl) && (
+                              <Badge variant="destructive" className="text-xs">Invalid URL</Badge>
+                            )}
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeVideoUrl(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       ))}
                     </div>
                   )}

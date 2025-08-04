@@ -11,6 +11,7 @@ const corsHeaders = {
 interface ScrapedContent {
   textContent: string;
   imageUrls: string[];
+  videoUrls: string[]; // Add video URLs
   title: string;
   description: string;
 }
@@ -24,7 +25,7 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
     
     if (!response.ok) {
       console.log(`❌ Failed to fetch ${url}: ${response.status} ${response.statusText}`);
-      return { textContent: '', imageUrls: [], title: '', description: '' };
+      return { textContent: '', imageUrls: [], videoUrls: [], title: '', description: '' };
     }
     
     const html = await response.text();
@@ -106,6 +107,76 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
     
     console.log(`🎨 CSS images found: ${cssImages}, added to collection`);
     
+    // Extract video URLs - Look for various video patterns
+    const videoUrls: string[] = [];
+    console.log(`🎬 Looking for videos in HTML...`);
+    
+    // YouTube embeds and links
+    const youtubePatterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/gi,
+      /src=["']([^"']*youtube[^"']*)["']/gi,
+      /href=["']([^"']*youtube[^"']*)["']/gi
+    ];
+    
+    // Vimeo patterns
+    const vimeoPatterns = [
+      /(?:vimeo\.com\/)(\d+)/gi,
+      /src=["']([^"']*vimeo[^"']*)["']/gi
+    ];
+    
+    // Generic video file patterns
+    const videoFilePatterns = [
+      /src=["']([^"']*\.(mp4|webm|ogg|mov|avi)(\?[^"']*)?)["']/gi,
+      /href=["']([^"']*\.(mp4|webm|ogg|mov|avi)(\?[^"']*)?)["']/gi
+    ];
+    
+    // Extract YouTube URLs
+    youtubePatterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(html)) !== null) {
+        let videoUrl = match[1] || match[0];
+        if (match[1] && match[1].length === 11) { // YouTube video ID
+          videoUrl = `https://www.youtube.com/watch?v=${match[1]}`;
+        }
+        if (videoUrl.includes('youtube')) {
+          console.log(`🎬 Found YouTube video: ${videoUrl}`);
+          videoUrls.push(videoUrl);
+        }
+      }
+    });
+    
+    // Extract Vimeo URLs
+    vimeoPatterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(html)) !== null) {
+        let videoUrl = match[1] || match[0];
+        if (match[1] && /^\d+$/.test(match[1])) { // Vimeo video ID
+          videoUrl = `https://vimeo.com/${match[1]}`;
+        }
+        if (videoUrl.includes('vimeo')) {
+          console.log(`🎬 Found Vimeo video: ${videoUrl}`);
+          videoUrls.push(videoUrl);
+        }
+      }
+    });
+    
+    // Extract video file URLs
+    videoFilePatterns.forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(html)) !== null) {
+        let videoUrl = match[1];
+        // Convert relative URLs to absolute
+        if (videoUrl.startsWith('/')) {
+          const urlObj = new URL(url);
+          videoUrl = `${urlObj.protocol}//${urlObj.host}${videoUrl}`;
+        }
+        console.log(`🎬 Found video file: ${videoUrl}`);
+        videoUrls.push(videoUrl);
+      }
+    });
+    
+    console.log(`🎬 Video extraction summary: ${videoUrls.length} videos found`);
+    
     // Extract title
     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
     const title = titleMatch ? titleMatch[1].trim() : '';
@@ -129,6 +200,7 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
       return {
         textContent,
         imageUrls: [...new Set(imageUrls)], // Remove duplicates
+        videoUrls: [...new Set(videoUrls)], // Remove duplicate videos
         title,
         description
       };
@@ -137,6 +209,7 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
     return {
       textContent: '',
       imageUrls: [],
+      videoUrls: [],
       title: '',
       description: ''
     };
@@ -162,6 +235,7 @@ serve(async (req) => {
     // Fetch content from sales links
     const websiteContents = [];
     const scrapedImages: string[] = [];
+    const scrapedVideos: string[] = [];
     console.log('Sales links to process:', salesLinks);
     
     if (salesLinks && salesLinks.length > 0) {
@@ -171,16 +245,20 @@ serve(async (req) => {
         console.log('Extracted content from', link, ':', {
           textLength: content.textContent.length,
           imageCount: content.imageUrls.length,
-          images: content.imageUrls
+          videoCount: content.videoUrls.length,
+          images: content.imageUrls,
+          videos: content.videoUrls
         });
         
-        if (content.textContent || content.imageUrls.length > 0) {
+        if (content.textContent || content.imageUrls.length > 0 || content.videoUrls.length > 0) {
           websiteContents.push(`Content from ${link}:
 Title: ${content.title}
 Description: ${content.description}
 Text: ${content.textContent}
-Images found: ${content.imageUrls.length}`);
+Images found: ${content.imageUrls.length}
+Videos found: ${content.videoUrls.length}`);
           scrapedImages.push(...content.imageUrls);
+          scrapedVideos.push(...content.videoUrls);
         }
       }
     } else {
@@ -188,6 +266,7 @@ Images found: ${content.imageUrls.length}`);
     }
     
     console.log('Total scraped images:', scrapedImages.length, scrapedImages);
+    console.log('Total scraped videos:', scrapedVideos.length, scrapedVideos);
 
     const prompt = `
 You are an expert product copywriter and marketing specialist. Create compelling, detailed product content for an e-commerce marketplace.
@@ -280,12 +359,13 @@ Make the content professional, engaging, and data-driven based on the scraped in
     try {
       const parsedContent = JSON.parse(generatedContent);
       
-      // Add the scraped images to the response
+      // Add the scraped images and videos to the response
       const response = {
         success: true, 
         content: {
           ...parsedContent,
-          scrapedImages: scrapedImages.slice(0, 8) // Limit to 8 images
+          scrapedImages: scrapedImages.slice(0, 8), // Limit to 8 images
+          scrapedVideos: scrapedVideos.slice(0, 5)  // Limit to 5 videos
         }
       };
       

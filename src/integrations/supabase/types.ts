@@ -300,6 +300,7 @@ export type Database = {
           tags: string[] | null
           updated_at: string
           vendor_id: string
+          video_urls: string[] | null
         }
         Insert: {
           category?: string | null
@@ -321,6 +322,7 @@ export type Database = {
           tags?: string[] | null
           updated_at?: string
           vendor_id: string
+          video_urls?: string[] | null
         }
         Update: {
           category?: string | null
@@ -342,6 +344,7 @@ export type Database = {
           tags?: string[] | null
           updated_at?: string
           vendor_id?: string
+          video_urls?: string[] | null
         }
         Relationships: []
       }

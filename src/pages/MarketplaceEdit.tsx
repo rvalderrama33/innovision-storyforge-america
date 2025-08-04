@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
-import { Upload, X, Plus, Sparkles, Star, ArrowLeft } from "lucide-react";
+import { Upload, X, Plus, Sparkles, Star, ArrowLeft, Video } from "lucide-react";
 
 const categories = [
   "Electronics",
@@ -61,12 +61,14 @@ const MarketplaceEdit = () => {
     specifications: {},
     shipping_info: {},
     tags: [] as string[],
-    sales_links: [] as string[]
+    sales_links: [] as string[],
+    video_urls: [] as string[] // Add video URLs
   });
 
   const [uploadingImages, setUploadingImages] = useState(false);
   const [newSalesLink, setNewSalesLink] = useState("");
   const [newTag, setNewTag] = useState("");
+  const [newVideoUrl, setNewVideoUrl] = useState("");
   const [generatingContent, setGeneratingContent] = useState(false);
 
   // Load existing product data
@@ -109,7 +111,8 @@ const MarketplaceEdit = () => {
           specifications: data.specifications || {},
           shipping_info: data.shipping_info || {},
           tags: data.tags || [],
-          sales_links: data.sales_links || []
+          sales_links: data.sales_links || [],
+          video_urls: data.video_urls || [] // Load video URLs from database
         });
       } catch (error: any) {
         console.error('Error fetching product:', error);
@@ -234,6 +237,34 @@ const MarketplaceEdit = () => {
     }));
   };
 
+  const addVideoUrl = () => {
+    if (newVideoUrl.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        video_urls: [...prev.video_urls, newVideoUrl.trim()]
+      }));
+      setNewVideoUrl("");
+    }
+  };
+
+  const removeVideoUrl = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      video_urls: prev.video_urls.filter((_, i) => i !== index)
+    }));
+  };
+
+  const isValidVideoUrl = (url: string) => {
+    const patterns = [
+      /youtube\.com\/watch\?v=/,
+      /youtu\.be\//,
+      /youtube\.com\/embed\//,
+      /vimeo\.com\//,
+      /\.(mp4|webm|ogg|mov|avi)$/i
+    ];
+    return patterns.some(pattern => pattern.test(url));
+  };
+
   const generateContentWithAI = async () => {
     if (formData.sales_links.length === 0) {
       toast({
@@ -334,7 +365,8 @@ const MarketplaceEdit = () => {
           specifications: formData.specifications,
           shipping_info: formData.shipping_info,
           tags: formData.tags,
-          sales_links: formData.sales_links
+          sales_links: formData.sales_links,
+          video_urls: formData.video_urls // Save video URLs
         })
         .eq('id', id)
         .eq('vendor_id', user.id); // Ensure user can only update their own products
@@ -600,6 +632,56 @@ const MarketplaceEdit = () => {
                             <X className="h-3 w-3" />
                           </button>
                         </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Video URLs */}
+              <div>
+                <Label className="text-sm font-medium">Product Videos 🎬</Label>
+                <p className="text-xs text-muted-foreground mt-1 mb-3">
+                  Add YouTube, Vimeo, or direct video links. AI can also extract these from sales links.
+                </p>
+                <div className="mt-2 space-y-3">
+                  <div className="flex gap-2">
+                    <Input
+                      value={newVideoUrl}
+                      onChange={(e) => setNewVideoUrl(e.target.value)}
+                      placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addVideoUrl())}
+                    />
+                    <Button type="button" onClick={addVideoUrl} size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  {formData.video_urls.length > 0 && (
+                    <div className="space-y-2">
+                      <p className="text-sm font-medium">Product Videos ({formData.video_urls.length})</p>
+                      {formData.video_urls.map((videoUrl, index) => (
+                        <div key={index} className="flex items-center justify-between bg-muted rounded-lg p-3">
+                          <div className="flex items-center gap-2 flex-1 mr-2">
+                            <Video className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                            <span className="text-sm truncate">
+                              {videoUrl.includes('youtube') ? '📺 YouTube' : 
+                               videoUrl.includes('vimeo') ? '🎞️ Vimeo' : 
+                               '🎬 Video'}: {videoUrl}
+                            </span>
+                            {!isValidVideoUrl(videoUrl) && (
+                              <Badge variant="destructive" className="text-xs">Invalid URL</Badge>
+                            )}
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeVideoUrl(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
                       ))}
                     </div>
                   )}

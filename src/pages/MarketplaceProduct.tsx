@@ -28,6 +28,7 @@ interface MarketplaceProduct {
   shipping_info: any;
   tags: string[];
   sales_links: string[];
+  video_urls: string[]; // Add video URLs
   created_at: string;
 }
 
@@ -256,6 +257,36 @@ const MarketplaceProduct = () => {
                       <div key={key} className="flex justify-between">
                         <span className="font-medium">{key}:</span>
                         <span className="text-muted-foreground">{String(value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Product Videos */}
+            {product.video_urls && product.video_urls.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Product Videos</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {product.video_urls.map((videoUrl, index) => (
+                      <div key={index} className="space-y-2">
+                        <p className="text-sm font-medium">
+                          {videoUrl.includes('youtube') ? '📺 YouTube Video' : 
+                           videoUrl.includes('vimeo') ? '🎞️ Vimeo Video' : 
+                           '🎬 Product Video'}
+                        </p>
+                        <a 
+                          href={videoUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 text-primary hover:underline"
+                        >
+                          Watch Video →
+                        </a>
                       </div>
                     ))}
                   </div>

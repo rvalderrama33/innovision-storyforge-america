@@ -54,7 +54,8 @@ const MobileIndex = () => {
 
   // Featured article (first article or default)
   const featuredArticle = articles?.[0] ? {
-    id: articles[0].slug || articles[0].id,
+    id: articles[0].id,
+    slug: articles[0].slug,
     title: articles[0].product_name || "Featured Innovation",
     description: articles[0].description || "Discover the latest innovation story",
     imageUrl: articles[0].image_urls?.[0] || "/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png",
@@ -105,7 +106,8 @@ const MobileIndex = () => {
             {filteredArticles?.map((article) => (
               <MobileArticleCard
                 key={article.id}
-                id={article.slug || article.id}
+                id={article.id}
+                slug={article.slug}
                 title={article.product_name || "Innovation Story"}
                 description={article.description || "Discover this amazing innovation"}
                 category={article.category || "Innovation"}

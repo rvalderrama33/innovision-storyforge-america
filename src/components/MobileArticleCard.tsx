@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 
 interface MobileArticleCardProps {
   id: string;
+  slug?: string;
   title: string;
   description: string;
   category: string;
@@ -17,6 +18,7 @@ interface MobileArticleCardProps {
 
 const MobileArticleCard = ({ 
   id, 
+  slug,
   title, 
   description, 
   category, 
@@ -27,7 +29,7 @@ const MobileArticleCard = ({
   featured = false 
 }: MobileArticleCardProps) => {
   return (
-    <Link to={`/article/${id}`} className="block">
+    <Link to={`/article/${slug || id}`} className="block">
       <Card className={`overflow-hidden transition-all duration-300 hover:shadow-lg active:scale-[0.98] ${
         featured ? 'border-primary shadow-md' : ''
       }`}>

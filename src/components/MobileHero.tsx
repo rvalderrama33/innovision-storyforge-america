@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 interface MobileHeroProps {
   featuredArticle?: {
     id: string;
+    slug?: string;
     title: string;
     description: string;
     imageUrl: string;
@@ -17,6 +18,7 @@ interface MobileHeroProps {
 const MobileHero = ({ featuredArticle }: MobileHeroProps) => {
   const defaultArticle = {
     id: "1",
+    slug: "revolutionary-ai-health-monitor",
     title: "Revolutionary AI-Powered Health Monitor Transforms Personal Healthcare",
     description: "Discover how this innovative startup is making health monitoring accessible to everyone with their groundbreaking wearable technology.",
     imageUrl: "/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png",
@@ -62,7 +64,7 @@ const MobileHero = ({ featuredArticle }: MobileHeroProps) => {
               By {article.author}
             </div>
 
-            <Link to={`/article/${article.id}`}>
+            <Link to={`/article/${article.slug || article.id}`}>
               <Button 
                 size="sm" 
                 className="bg-white text-black hover:bg-white/90 transition-all duration-300"

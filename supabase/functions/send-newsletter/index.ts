@@ -149,13 +149,21 @@ const handler = async (req: Request): Promise<Response> => {
       
       await Promise.all(batch.map(async (subscriber) => {
         try {
+          // Create personalized tracking pixel and unsubscribe footer
+          const personalizedTrackingPixel = trackingPixel
+            .replace(/{{subscriber_id}}/g, subscriber.id)
+            .replace(/{{subscriber_email}}/g, subscriber.email);
+            
+          const personalizedUnsubscribeFooter = unsubscribeFooter
+            .replace(/{{subscriber_email}}/g, subscriber.email);
+          
           // Personalize content
           let personalizedContent = trackedHtmlContent
             .replace(/{{subscriber_id}}/g, subscriber.id)
             .replace(/{{subscriber_email}}/g, subscriber.email)
             .replace(/{{subscriber_name}}/g, subscriber.full_name || 'Valued Reader');
 
-          personalizedContent += trackingPixel + unsubscribeFooter;
+          personalizedContent += personalizedTrackingPixel + personalizedUnsubscribeFooter;
 
           // Generate plain text version
           const textContent = generateTextVersion(personalizedContent) + `\n\n---\nTo unsubscribe: ${unsubscribeUrl}?email=${encodeURIComponent(subscriber.email)}`;

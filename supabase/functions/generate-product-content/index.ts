@@ -197,11 +197,17 @@ Make the content professional, engaging, and data-driven based on the scraped in
     try {
       const parsedContent = JSON.parse(generatedContent);
       
+      // Add the scraped images to the response
+      const response = {
+        success: true, 
+        content: {
+          ...parsedContent,
+          scrapedImages: scrapedImages.slice(0, 8) // Limit to 8 images
+        }
+      };
+      
       return new Response(
-        JSON.stringify({ 
-          success: true, 
-          content: parsedContent 
-        }),
+        JSON.stringify(response),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     } catch (parseError) {

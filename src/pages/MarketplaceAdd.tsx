@@ -188,17 +188,33 @@ const MarketplaceAdd = () => {
       if (error) throw error;
 
       if (data.success) {
+        const content = data.content;
+        
+        // Update form data with AI-generated content
         setFormData(prev => ({
           ...prev,
-          description: data.content.description,
-          tags: [...new Set([...prev.tags, ...data.content.tags])],
-          specifications: data.content.specifications
+          description: content.description,
+          tags: [...new Set([...prev.tags, ...content.tags])],
+          specifications: content.specifications
         }));
 
-        toast({
-          title: "Success",
-          description: "AI-enhanced content generated successfully!"
-        });
+        // Add scraped images to the existing images
+        if (content.scrapedImages && content.scrapedImages.length > 0) {
+          setFormData(prev => ({
+            ...prev,
+            images: [...prev.images, ...content.scrapedImages]
+          }));
+          
+          toast({
+            title: "Success",
+            description: `AI content generated and added ${content.scrapedImages.length} images from sales links!`
+          });
+        } else {
+          toast({
+            title: "Success",
+            description: "AI-enhanced content generated successfully!"
+          });
+        }
       } else {
         throw new Error(data.error || 'Failed to generate content');
       }
@@ -212,7 +228,6 @@ const MarketplaceAdd = () => {
     } finally {
       setGeneratingContent(false);
     }
-
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

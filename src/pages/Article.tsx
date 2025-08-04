@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { ArrowLeft, Clock, Calendar, ExternalLink, Share2, Globe, User, Building } from 'lucide-react';
@@ -33,64 +33,89 @@ const Article = () => {
 
   const fetchArticle = async () => {
     try {
-      // First try to find by slug
+      setLoading(true);
+      
+      // Add timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
+      // Optimize query to only select essential fields to reduce payload size
+      const selectFields = `
+        id, full_name, city, state, product_name, category, description,
+        generated_article, image_urls, created_at, slug,
+        banner_image, headshot_image, logo_image, website
+      `.replace(/\s+/g, ' ').trim();
+
+      // First try to find by slug with optimized query and timeout
       let { data, error } = await supabase
         .from('submissions')
-        .select('*')
+        .select(selectFields)
         .eq('slug', slug)
         .eq('status', 'approved')
-        .single();
+        .abortSignal(controller.signal)
+        .maybeSingle();
 
       // If not found by slug, try by ID (for articles without slugs)
-      if (error && error.code === 'PGRST116') {
+      if (!data && !error) {
         const { data: dataById, error: errorById } = await supabase
           .from('submissions')
-          .select('*')
+          .select(selectFields)
           .eq('id', slug)
           .eq('status', 'approved')
-          .single();
+          .abortSignal(controller.signal)
+          .maybeSingle();
         
         data = dataById;
         error = errorById;
       }
+      
+      clearTimeout(timeoutId);
 
       if (error) throw error;
+      if (!data) {
+        setArticle(null);
+        return;
+      }
 
-      // Parse banner_image if it's a JSON string
-      if (data.banner_image && typeof data.banner_image === 'string') {
+      // Parse banner_image if it's a JSON string - safely handle any data type
+      if (data && 'banner_image' in data && data.banner_image && typeof data.banner_image === 'string') {
         try {
           const parsed = JSON.parse(data.banner_image);
-          if (typeof parsed === 'object' && parsed.url) {
+          if (typeof parsed === 'object' && parsed?.url) {
             data.banner_image = parsed;
           }
         } catch (e) {
-          // If parsing fails, leave as string
-          console.log('Banner image is not in JSON format:', e);
+          // If parsing fails, leave as string - no logging to reduce overhead
         }
       }
 
       setArticle(data);
     } catch (error) {
-      console.error('Error fetching article:', error);
+      if (error.name === 'AbortError') {
+        console.error('Request timed out:', error);
+      } else {
+        console.error('Error fetching article:', error);
+      }
+      setArticle(null);
     } finally {
       setLoading(false);
     }
   };
 
-  // Update SEO when article loads with better social media image handling
-  const getShareImage = () => {
+  // Memoize share image to prevent recalculation
+  const shareImage = useMemo(() => {
     if (article?.headshot_image) return article.headshot_image;
     if (article?.banner_image?.url) return article.banner_image.url;
     if (typeof article?.banner_image === 'string') return article.banner_image;
     if (article?.image_urls?.[0]) return article.image_urls[0];
     return 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png';
-  };
+  }, [article?.headshot_image, article?.banner_image, article?.image_urls]);
 
   useSEO({
     title: article ? `${article.product_name} | America Innovates Magazine` : "Article | America Innovates Magazine",
     description: article ? (article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`) : "Discover inspiring innovation stories from entrepreneurs and creators building breakthrough consumer products.",
     url: `https://americainnovates.us/article/${slug}`,
-    image: getShareImage(),
+    image: shareImage,
     type: "article"
   });
 
@@ -125,8 +150,8 @@ const Article = () => {
     return `https://${url}`;
   };
 
-  // Helper function to get banner image URL
-  const getBannerImageUrl = () => {
+  // Memoize banner image URL to prevent recalculation
+  const bannerUrl = useMemo(() => {
     if (!article) return '';
     
     if (article.banner_image) {
@@ -134,7 +159,7 @@ const Article = () => {
     }
     
     return article.image_urls && article.image_urls.length > 0 ? article.image_urls[0] : '';
-  };
+  }, [article?.banner_image, article?.image_urls]);
 
   // Helper function to get banner image style
   const getBannerImageStyle = () => {
@@ -209,7 +234,6 @@ const Article = () => {
     hasUser: !!user
   });
 
-  const bannerUrl = getBannerImageUrl();
   const hasBanner = !!bannerUrl;
   const hasHeadshot = !!article?.headshot_image;
   const hasLogo = !!article?.logo_image;
@@ -527,7 +551,7 @@ const Article = () => {
                 url={`https://americainnovates.us/article/${slug}`}
                 title={article.product_name}
                 description={article.description || `Read about ${article.product_name} by ${article.full_name}`}
-                image={article.headshot_image || (article.image_urls && article.image_urls.length > 0 ? article.image_urls[0] : null) || getBannerImageUrl()}
+                image={shareImage}
               />
             </div>
           </div>

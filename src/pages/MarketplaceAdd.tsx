@@ -14,7 +14,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
 import { Upload, X, Plus, Sparkles } from "lucide-react";
-import { ImageScrapingTest } from "@/components/ImageScrapingTest";
+
 
 const categories = [
   "Electronics",
@@ -610,11 +610,6 @@ const MarketplaceAdd = () => {
             </form>
           </CardContent>
         </Card>
-        
-        {/* Temporary Debug Section */}
-        <div className="mt-8">
-          <ImageScrapingTest />
-        </div>
       </div>
     </div>
   );

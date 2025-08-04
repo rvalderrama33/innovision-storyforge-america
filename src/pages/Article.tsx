@@ -141,7 +141,7 @@ const Article = () => {
     if (!article || !article.banner_image || typeof article.banner_image !== 'object') {
       // Special positioning for Lakesha Bowden to show her whole face
       if (article?.full_name === "Lakesha Bowden") {
-        return { objectFit: 'cover', objectPosition: 'center top' } as React.CSSProperties;
+        return { objectFit: 'cover', objectPosition: 'center 40%' } as React.CSSProperties;
       }
       return { objectFit: 'cover', objectPosition: 'center' } as React.CSSProperties;
     }
@@ -160,7 +160,7 @@ const Article = () => {
     
     // Special positioning for Lakesha Bowden to show her whole face
     if (article?.full_name === "Lakesha Bowden") {
-      style.objectPosition = 'center top';
+      style.objectPosition = 'center 40%';
     }
     
     if (banner.size && banner.size !== 'cover' && banner.size !== 'contain' && banner.size !== 'auto') {

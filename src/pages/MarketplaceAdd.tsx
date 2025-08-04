@@ -200,6 +200,7 @@ const MarketplaceAdd = () => {
 
         // Add scraped images to the existing images
         if (content.scrapedImages && content.scrapedImages.length > 0) {
+          console.log('Scraped images found:', content.scrapedImages);
           setFormData(prev => ({
             ...prev,
             images: [...prev.images, ...content.scrapedImages]
@@ -210,6 +211,7 @@ const MarketplaceAdd = () => {
             description: `AI content generated and added ${content.scrapedImages.length} images from sales links!`
           });
         } else {
+          console.log('No scraped images found in response:', content);
           toast({
             title: "Success",
             description: "AI-enhanced content generated successfully!"

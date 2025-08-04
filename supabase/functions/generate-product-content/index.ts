@@ -20,12 +20,18 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
     const response = await fetch(url);
     const html = await response.text();
     
-    // Extract images
+    // Extract images with improved filtering
     const imageRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
     const imageUrls: string[] = [];
     let match;
     while ((match = imageRegex.exec(html)) !== null) {
       let imageUrl = match[1];
+      
+      // Skip data URLs, SVGs, and very small images
+      if (imageUrl.startsWith('data:') || imageUrl.includes('.svg') || imageUrl.includes('icon')) {
+        continue;
+      }
+      
       // Convert relative URLs to absolute
       if (imageUrl.startsWith('/')) {
         const urlObj = new URL(url);
@@ -33,11 +39,17 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
       } else if (imageUrl.startsWith('./')) {
         const urlObj = new URL(url);
         imageUrl = `${urlObj.protocol}//${urlObj.host}${imageUrl.substring(1)}`;
+      } else if (!imageUrl.startsWith('http')) {
+        const urlObj = new URL(url);
+        imageUrl = `${urlObj.protocol}//${urlObj.host}/${imageUrl}`;
       }
       
-      // Filter for likely product images (exclude tiny icons, logos, etc.)
-      if (imageUrl.includes('product') || imageUrl.includes('item') || 
-          imageUrl.match(/\.(jpg|jpeg|png|webp)$/i)) {
+      // Filter for likely product images (be more inclusive)
+      if (imageUrl.match(/\.(jpg|jpeg|png|webp)$/i) && 
+          !imageUrl.includes('logo') && 
+          !imageUrl.includes('favicon') &&
+          !imageUrl.includes('thumb') &&
+          imageUrl.length < 500) { // Avoid extremely long URLs
         imageUrls.push(imageUrl);
       }
     }
@@ -115,6 +127,8 @@ Images found: ${content.imageUrls.length}`);
     const prompt = `
 You are an expert product copywriter and marketing specialist. Create compelling, detailed product content for an e-commerce marketplace.
 
+IMPORTANT: Do NOT include any external links, website URLs, or references to other websites in your content. Focus solely on the product itself.
+
 Product Information:
 - Name: ${productName}
 - Category: ${category || 'Not specified'}
@@ -123,7 +137,7 @@ Product Information:
 - Scraped Images Available: ${scrapedImages.length}
 
 ${websiteContents.length > 0 ? `
-Website Content Analysis (use this information to enhance the product description):
+Website Content Analysis (use this information to enhance the product description, but DO NOT mention or link to the source websites):
 ${websiteContents.join('\n\n')}
 
 Additional Image URLs found: ${scrapedImages.slice(0, 5).join(', ')}
@@ -132,12 +146,13 @@ Additional Image URLs found: ${scrapedImages.slice(0, 5).join(', ')}
 Please generate:
 
 1. An enhanced, compelling product description (3-4 paragraphs) that:
-   - Incorporates information from the scraped website content
+   - Incorporates information from the scraped website content WITHOUT mentioning the source
    - Highlights key features and benefits found in the scraped data
    - Uses persuasive language and emotional triggers
    - Addresses potential customer pain points
    - Is SEO-friendly and conversion-optimized
-   - References specific details from the website analysis when available
+   - References specific product details but NEVER includes external links or website mentions
+   - Focuses on why customers should buy THIS product from THIS marketplace
 
 2. 10-15 relevant product tags that:
    - Include the product category and subcategories
@@ -150,21 +165,18 @@ Please generate:
    - Industry standards for the product category
    - Reasonable inferences from available data
 
-4. Suggested image URLs from the scraped content (if any were found)
-
 Return your response as a JSON object with this exact structure:
 {
-  "description": "Enhanced product description here",
+  "description": "Enhanced product description here (NO EXTERNAL LINKS)",
   "tags": ["tag1", "tag2", "tag3", ...],
   "specifications": {
     "key1": "value1",
     "key2": "value2",
     ...
-  },
-  "suggestedImages": ["url1", "url2", ...]
+  }
 }
 
-Make the content professional, engaging, and data-driven based on the scraped information. Use specific details from the website analysis to create authentic, compelling copy.
+Make the content professional, engaging, and data-driven based on the scraped information. Use specific details from the website analysis to create authentic, compelling copy, but NEVER include external links, URLs, or website references.
 `;
 
     const response = await fetch('https://api.openai.com/v1/chat/completions', {

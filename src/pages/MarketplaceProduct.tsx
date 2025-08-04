@@ -26,6 +26,7 @@ interface MarketplaceProduct {
   specifications: any;
   shipping_info: any;
   tags: string[];
+  sales_links: string[];
   created_at: string;
 }
 
@@ -209,6 +210,27 @@ const MarketplaceProduct = () => {
                 <div className="flex flex-wrap gap-2">
                   {product.tags.map((tag, index) => (
                     <Badge key={index} variant="outline">{tag}</Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {product.sales_links && product.sales_links.length > 0 && (
+              <div>
+                <h3 className="font-semibold mb-2">Available At</h3>
+                <div className="space-y-2">
+                  {product.sales_links.map((link, index) => (
+                    <a
+                      key={index}
+                      href={link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block p-3 border rounded-lg hover:bg-muted transition-colors"
+                    >
+                      <span className="text-sm text-blue-600 hover:text-blue-800 underline">
+                        {new URL(link).hostname}
+                      </span>
+                    </a>
                   ))}
                 </div>
               </div>

@@ -423,7 +423,10 @@ const MarketplaceAdd = () => {
                 </div>
                 <p className="text-xs text-muted-foreground mb-4">
                   Generate impressive product descriptions, tags, and specifications using AI. 
-                  The AI will analyze your product information and sales links to create compelling content.
+                  {formData.sales_links.length > 0 
+                    ? `The AI will analyze your product information and ${formData.sales_links.length} sales link(s) to create compelling content and extract product images.`
+                    : "Add sales links above to enable AI image extraction from those websites."
+                  }
                 </p>
                 <Button
                   type="button"

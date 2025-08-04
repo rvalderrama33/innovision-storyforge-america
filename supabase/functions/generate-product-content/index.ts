@@ -110,9 +110,18 @@ serve(async (req) => {
     // Fetch content from sales links
     const websiteContents = [];
     const scrapedImages: string[] = [];
+    console.log('Sales links to process:', salesLinks);
+    
     if (salesLinks && salesLinks.length > 0) {
       for (const link of salesLinks.slice(0, 3)) { // Limit to 3 links
+        console.log('Processing link:', link);
         const content = await fetchWebsiteContent(link);
+        console.log('Extracted content from', link, ':', {
+          textLength: content.textContent.length,
+          imageCount: content.imageUrls.length,
+          images: content.imageUrls
+        });
+        
         if (content.textContent || content.imageUrls.length > 0) {
           websiteContents.push(`Content from ${link}:
 Title: ${content.title}
@@ -122,7 +131,11 @@ Images found: ${content.imageUrls.length}`);
           scrapedImages.push(...content.imageUrls);
         }
       }
+    } else {
+      console.log('No sales links provided');
     }
+    
+    console.log('Total scraped images:', scrapedImages.length, scrapedImages);
 
     const prompt = `
 You are an expert product copywriter and marketing specialist. Create compelling, detailed product content for an e-commerce marketplace.

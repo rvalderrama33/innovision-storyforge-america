@@ -13,7 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
-import { Upload, X, Plus, Sparkles } from "lucide-react";
+import { Upload, X, Plus, Sparkles, Star } from "lucide-react";
 
 
 const categories = [
@@ -56,6 +56,7 @@ const MarketplaceAdd = () => {
     featured: false,
     stock_quantity: "",
     images: [] as string[],
+    primaryImageIndex: 0, // Track which image is primary
     specifications: {},
     shipping_info: {},
     tags: [] as string[],
@@ -144,9 +145,28 @@ const MarketplaceAdd = () => {
   };
 
   const removeImage = (index: number) => {
+    setFormData(prev => {
+      const newImages = prev.images.filter((_, i) => i !== index);
+      // Adjust primary image index if needed
+      let newPrimaryIndex = prev.primaryImageIndex;
+      if (index === prev.primaryImageIndex) {
+        newPrimaryIndex = 0; // Reset to first image
+      } else if (index < prev.primaryImageIndex) {
+        newPrimaryIndex = prev.primaryImageIndex - 1;
+      }
+      
+      return {
+        ...prev,
+        images: newImages,
+        primaryImageIndex: newImages.length > 0 ? Math.min(newPrimaryIndex, newImages.length - 1) : 0
+      };
+    });
+  };
+
+  const setPrimaryImage = (index: number) => {
     setFormData(prev => ({
       ...prev,
-      images: prev.images.filter((_, i) => i !== index)
+      primaryImageIndex: index
     }));
   };
 
@@ -328,66 +348,69 @@ const MarketplaceAdd = () => {
           
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* AI Content Generation - MOVED TO TOP */}
+              {/* Start Here Section with Sales Links and AI Generation */}
               <div className="border border-primary/20 rounded-lg p-4 bg-primary/5">
                 <div className="flex items-center gap-2 mb-3">
                   <Sparkles className="h-5 w-5 text-primary" />
                   <Label className="text-sm font-medium">🚀 Start Here: AI-Enhanced Content</Label>
                 </div>
-                <p className="text-xs text-muted-foreground mb-4">
-                  Start by adding sales links below, then generate product name, description, images, tags, and specifications automatically using AI.
-                  {formData.sales_links.length > 0 
-                    ? ` Ready to analyze ${formData.sales_links.length} sales link(s) and extract product information!`
-                    : " Add sales links first to enable AI content generation."
-                  }
-                </p>
-                <Button
-                  type="button"
-                  onClick={generateContentWithAI}
-                  disabled={generatingContent || formData.sales_links.length === 0}
-                  variant="outline"
-                  size="sm"
-                >
-                  {generatingContent ? "Generating..." : "Generate AI Content"}
-                </Button>
-              </div>
-
-              {/* Sales Links - MOVED TO SECOND */}
-              <div>
-                <Label className="text-sm font-medium">Where is this product currently sold? 🔗</Label>
-                <p className="text-xs text-muted-foreground mt-1 mb-3">
-                  Add links to websites where this product is sold. AI will analyze these to generate all product details.
-                </p>
-                <div className="mt-2 space-y-3">
-                  <div className="flex gap-2">
-                    <Input
-                      value={newSalesLink}
-                      onChange={(e) => setNewSalesLink(e.target.value)}
-                      placeholder="https://example.com/product"
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSalesLink())}
-                    />
-                    <Button type="button" onClick={addSalesLink} size="sm">
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  
-                  {formData.sales_links.length > 0 && (
-                    <div className="space-y-2">
-                      {formData.sales_links.map((link, index) => (
-                        <div key={index} className="flex items-center justify-between bg-muted rounded-lg p-3">
-                          <span className="text-sm truncate flex-1 mr-2">{link}</span>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => removeSalesLink(index)}
-                          >
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
+                
+                {/* Sales Links Section */}
+                <div className="mb-4">
+                  <Label className="text-sm font-medium">Where is this product currently sold? 🔗</Label>
+                  <p className="text-xs text-muted-foreground mt-1 mb-3">
+                    Add links to websites where this product is sold. AI will analyze these to generate all product details.
+                  </p>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        value={newSalesLink}
+                        onChange={(e) => setNewSalesLink(e.target.value)}
+                        placeholder="https://example.com/product"
+                        onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSalesLink())}
+                      />
+                      <Button type="button" onClick={addSalesLink} size="sm">
+                        <Plus className="h-4 w-4" />
+                      </Button>
                     </div>
-                  )}
+                    
+                    {formData.sales_links.length > 0 && (
+                      <div className="space-y-2">
+                        {formData.sales_links.map((link, index) => (
+                          <div key={index} className="flex items-center justify-between bg-muted rounded-lg p-3">
+                            <span className="text-sm truncate flex-1 mr-2">{link}</span>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => removeSalesLink(index)}
+                            >
+                              <X className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* AI Generation Button */}
+                <div className="pt-3 border-t border-primary/10">
+                  <p className="text-xs text-muted-foreground mb-3">
+                    {formData.sales_links.length > 0 
+                      ? `Ready to analyze ${formData.sales_links.length} sales link(s) and extract product information!`
+                      : "Add sales links above to enable AI content generation."
+                    }
+                  </p>
+                  <Button
+                    type="button"
+                    onClick={generateContentWithAI}
+                    disabled={generatingContent || formData.sales_links.length === 0}
+                    variant="outline"
+                    size="sm"
+                  >
+                    {generatingContent ? "Generating..." : "Generate AI Content"}
+                  </Button>
                 </div>
               </div>
 
@@ -446,26 +469,60 @@ const MarketplaceAdd = () => {
                     </label>
                   </div>
                   
-                  {formData.images.length > 0 && (
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {formData.images.map((image, index) => (
-                        <div key={index} className="relative group">
-                          <img
-                            src={image}
-                            alt={`Product ${index + 1}`}
-                            className="w-full h-24 object-cover rounded-lg border"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeImage(index)}
-                            className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                          >
-                            <X className="h-3 w-3" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+                   {formData.images.length > 0 && (
+                     <div>
+                       <div className="flex items-center justify-between mb-3">
+                         <p className="text-sm font-medium">Product Images ({formData.images.length})</p>
+                         <p className="text-xs text-muted-foreground">Click star to set as primary image</p>
+                       </div>
+                       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                         {formData.images.map((image, index) => (
+                           <div key={index} className="relative group">
+                             <img
+                               src={image}
+                               alt={`Product ${index + 1}`}
+                               className={`w-full h-24 object-cover rounded-lg border-2 transition-colors ${
+                                 index === formData.primaryImageIndex 
+                                   ? 'border-primary' 
+                                   : 'border-muted'
+                               }`}
+                             />
+                             
+                             {/* Primary Image Star */}
+                             <button
+                               type="button"
+                               onClick={() => setPrimaryImage(index)}
+                               className={`absolute top-1 left-1 p-1 rounded-full transition-all ${
+                                 index === formData.primaryImageIndex
+                                   ? 'bg-primary text-primary-foreground'
+                                   : 'bg-black/50 text-white opacity-0 group-hover:opacity-100'
+                               }`}
+                               title="Set as primary image"
+                             >
+                               <Star className="h-3 w-3" fill={index === formData.primaryImageIndex ? "currentColor" : "none"} />
+                             </button>
+                             
+                             {/* Primary Label */}
+                             {index === formData.primaryImageIndex && (
+                               <div className="absolute bottom-1 left-1 bg-primary text-primary-foreground text-xs px-2 py-0.5 rounded">
+                                 Primary
+                               </div>
+                             )}
+                             
+                             {/* Delete Button */}
+                             <button
+                               type="button"
+                               onClick={() => removeImage(index)}
+                               className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                               title="Remove image"
+                             >
+                               <X className="h-3 w-3" />
+                             </button>
+                           </div>
+                         ))}
+                       </div>
+                     </div>
+                   )}
                 </div>
               </div>
 

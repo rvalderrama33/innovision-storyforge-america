@@ -19,6 +19,7 @@ interface MarketplaceProduct {
   currency: string;
   category: string;
   images: string[];
+  primary_image_index: number; // Add primary image index
   slug: string;
   featured: boolean;
   stock_quantity: number;
@@ -62,6 +63,14 @@ const MarketplaceProduct = () => {
 
         if (error) throw error;
         setProduct(data);
+        
+        // Set the initial selected image to the primary image
+        if (data && data.images && data.images.length > 0) {
+          const primaryIndex = data.primary_image_index || 0;
+          // Ensure the primary index is valid
+          const validIndex = Math.min(primaryIndex, data.images.length - 1);
+          setSelectedImage(Math.max(0, validIndex));
+        }
       } catch (error) {
         console.error('Error fetching product:', error);
       } finally {

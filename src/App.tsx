@@ -25,6 +25,10 @@ import PaymentCancelled from "./pages/PaymentCancelled";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import Marketplace from "./pages/Marketplace";
+import MarketplaceAdd from "./pages/MarketplaceAdd";
+import MarketplaceProduct from "./pages/MarketplaceProduct";
+import MarketplaceManage from "./pages/MarketplaceManage";
 
 import SecurityAudit from "./components/SecurityAudit";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -67,6 +71,11 @@ const App = () => (
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             
+            {/* Marketplace Routes - Protected for now */}
+            <Route path="/marketplace" element={<Marketplace />} />
+            <Route path="/marketplace/add" element={<MarketplaceAdd />} />
+            <Route path="/marketplace/product/:id" element={<MarketplaceProduct />} />
+            <Route path="/marketplace/manage" element={<MarketplaceManage />} />
             
             <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />
             <Route path="/test-openai" element={<TestOpenAI />} />

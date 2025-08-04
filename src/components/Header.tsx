@@ -118,6 +118,11 @@ const Header = () => {
               <Link to="/recommend" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                 Recommend Someone
               </Link>
+              {isAdmin && (
+                <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                  Marketplace
+                </Link>
+              )}
               <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                 About
               </Link>
@@ -149,6 +154,9 @@ const Header = () => {
           <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Browse Stories</Link>
           <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
           <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Recommend Someone</Link>
+          {isAdmin && (
+            <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Marketplace</Link>
+          )}
           <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
           {isAdmin && (
             <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">

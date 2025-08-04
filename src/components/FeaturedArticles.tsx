@@ -102,7 +102,7 @@ const FeaturedArticles = () => {
                             {featuredStories[0].category || 'Featured Story'}
                           </Badge>
                           <h3 className="text-3xl font-bold mb-3 leading-tight">
-                            {featuredStories[0].product_name}
+                            {featuredStories[0].full_name}
                           </h3>
                           <p className="text-white/90 text-lg leading-relaxed">
                             {featuredStories[0].description}
@@ -136,7 +136,7 @@ const FeaturedArticles = () => {
                               {story.category || 'Featured'}
                             </Badge>
                             <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors leading-tight">
-                              {story.product_name}
+                              {story.full_name}
                             </h3>
                             <span className="text-sm text-gray-500">by America Innovates Magazine</span>
                           </CardContent>
@@ -166,7 +166,7 @@ const FeaturedArticles = () => {
                           {story.category || 'Featured'}
                         </Badge>
                         <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors leading-tight">
-                          {story.product_name}
+                          {story.full_name}
                         </h3>
                         <p className="text-gray-600 mb-3 line-clamp-2 text-sm">
                           {story.description}

@@ -152,7 +152,7 @@ const NewsletterManagement = () => {
     }
   };
 
-  const handleSendNewsletter = async (newsletter: Newsletter, isTest = false) => {
+  const handleSendNewsletter = async (newsletter: Newsletter, isTest = false, resendToFailed = false) => {
     if (isTest && !testEmail) {
       toast({
         title: "Test email required",
@@ -168,7 +168,8 @@ const NewsletterManagement = () => {
       const { data, error } = await supabase.functions.invoke('send-newsletter', {
         body: {
           newsletterId: newsletter.id,
-          testEmail: isTest ? testEmail : undefined
+          testEmail: isTest ? testEmail : undefined,
+          resendToFailed: resendToFailed
         }
       });
 
@@ -431,22 +432,37 @@ const NewsletterManagement = () => {
                              Send to All
                            </Button>
                          </>
-                       )}
-                       {newsletter.status === 'sent' && (
-                         <Button
-                           variant="outline"
-                           size="sm"
-                           onClick={() => handleSendNewsletter(newsletter, false)}
-                           disabled={sendingNewsletter === newsletter.id}
-                         >
-                           {sendingNewsletter === newsletter.id ? (
-                             <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin mr-1" />
-                           ) : (
-                             <Send className="w-4 h-4 mr-1" />
-                           )}
-                           Resend to All
-                         </Button>
-                       )}
+                        )}
+                        {newsletter.status === 'sent' && (
+                          <div className="flex gap-2">
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => handleSendNewsletter(newsletter, false, true)}
+                              disabled={sendingNewsletter === newsletter.id}
+                            >
+                              {sendingNewsletter === newsletter.id ? (
+                                <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin mr-1" />
+                              ) : (
+                                <Send className="w-4 h-4 mr-1" />
+                              )}
+                              Resend to Failed
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleSendNewsletter(newsletter, false)}
+                              disabled={sendingNewsletter === newsletter.id}
+                            >
+                              {sendingNewsletter === newsletter.id ? (
+                                <div className="w-4 h-4 border-2 border-gray-600 border-t-transparent rounded-full animate-spin mr-1" />
+                              ) : (
+                                <Send className="w-4 h-4 mr-1" />
+                              )}
+                              Resend to All
+                            </Button>
+                          </div>
+                        )}
                      </div>
                   </div>
                 </div>

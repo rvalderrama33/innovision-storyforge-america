@@ -10,6 +10,7 @@ const corsHeaders = {
 interface SendNewsletterRequest {
   newsletterId: string;
   testEmail?: string; // For testing before sending to all subscribers
+  resendToFailed?: boolean; // New option to resend to failed recipients
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -34,9 +35,9 @@ const handler = async (req: Request): Promise<Response> => {
     const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
     console.log(`Resend API Key exists: ${!!Deno.env.get("RESEND_API_KEY")}`);
     
-    const { newsletterId, testEmail }: SendNewsletterRequest = await req.json();
+    const { newsletterId, testEmail, resendToFailed }: SendNewsletterRequest = await req.json();
 
-    console.log(`Processing newsletter send request for newsletter: ${newsletterId}`);
+    console.log(`Processing newsletter send request for newsletter: ${newsletterId}, resendToFailed: ${!!resendToFailed}`);
 
     // Get newsletter details
     const { data: newsletter, error: newsletterError } = await supabase
@@ -59,8 +60,40 @@ const handler = async (req: Request): Promise<Response> => {
       // Test mode - send only to test email
       recipients = [{ email: testEmail, full_name: 'Test User', id: 'test' }];
       console.log(`Sending test newsletter to: ${testEmail}`);
+    } else if (resendToFailed) {
+      // Resend mode - only send to subscribers who didn't receive it
+      const { data: allSubscribers, error: subscribersError } = await supabase
+        .from('newsletter_subscribers')
+        .select('*')
+        .eq('is_active', true);
+
+      if (subscribersError) {
+        throw new Error(`Failed to fetch subscribers: ${subscribersError.message}`);
+      }
+
+      // Get subscribers who already received this newsletter
+      const { data: sentAnalytics, error: analyticsError } = await supabase
+        .from('email_analytics')
+        .select('subscriber_id')
+        .eq('newsletter_id', newsletterId)
+        .eq('event_type', 'sent');
+
+      if (analyticsError) {
+        throw new Error(`Failed to fetch analytics: ${analyticsError.message}`);
+      }
+
+      const sentSubscriberIds = new Set(sentAnalytics?.map(a => a.subscriber_id) || []);
+      
+      // Filter out subscribers who already received the newsletter
+      recipients = (allSubscribers || []).filter(subscriber => 
+        !sentSubscriberIds.has(subscriber.id)
+      );
+      
+      console.log(`Found ${allSubscribers?.length || 0} total active subscribers`);
+      console.log(`${sentAnalytics?.length || 0} already received the newsletter`);
+      console.log(`${recipients.length} need to receive the newsletter`);
     } else {
-      // Get all active subscribers
+      // Normal mode - get all active subscribers
       const { data: subscribers, error: subscribersError } = await supabase
         .from('newsletter_subscribers')
         .select('*')

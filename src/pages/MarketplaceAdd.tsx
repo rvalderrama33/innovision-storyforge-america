@@ -66,11 +66,32 @@ const MarketplaceAdd = () => {
   const [newTag, setNewTag] = useState("");
   const [generatingContent, setGeneratingContent] = useState(false);
 
-  const generateSlug = (name: string) => {
-    return name
+  const generateSlug = async (name: string) => {
+    let baseSlug = name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '');
+    
+    let finalSlug = baseSlug;
+    let counter = 1;
+    
+    // Check if slug exists and increment until we find a unique one
+    while (true) {
+      const { data: existingProduct } = await supabase
+        .from('marketplace_products')
+        .select('id')
+        .eq('slug', finalSlug)
+        .maybeSingle();
+      
+      if (!existingProduct) {
+        break; // Slug is unique
+      }
+      
+      finalSlug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+    
+    return finalSlug;
   };
 
   const handleImageUpload = async (files: FileList) => {
@@ -249,7 +270,7 @@ const MarketplaceAdd = () => {
     setLoading(true);
 
     try {
-      const slug = generateSlug(formData.name);
+      const slug = await generateSlug(formData.name);
       const priceInCents = Math.round(parseFloat(formData.price) * 100);
 
       const { data, error } = await supabase

@@ -16,28 +16,47 @@ interface ScrapedContent {
 }
 
 async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
+  console.log(`🔍 Starting to scrape: ${url}`);
   try {
+    console.log(`📡 Fetching ${url}...`);
     const response = await fetch(url);
+    console.log(`📊 Response status: ${response.status} for ${url}`);
+    
+    if (!response.ok) {
+      console.log(`❌ Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+      return { textContent: '', imageUrls: [], title: '', description: '' };
+    }
+    
     const html = await response.text();
+    console.log(`📄 HTML length: ${html.length} characters from ${url}`);
     
     // Extract ALL images aggressively
     const imageRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
     const imageUrls: string[] = [];
     let match;
+    let totalImgTags = 0;
+    let skippedImages = 0;
+    
+    console.log(`🖼️ Looking for images in HTML...`);
     
     while ((match = imageRegex.exec(html)) !== null) {
+      totalImgTags++;
       let imageUrl = match[1];
+      console.log(`🔍 Found img tag #${totalImgTags}: ${imageUrl}`);
       
       // Skip only obvious non-product images
       if (imageUrl.startsWith('data:') || 
           imageUrl.includes('favicon') || 
           imageUrl.includes('.svg') ||
           imageUrl.endsWith('.gif') ||
-          imageUrl.includes('logo') && imageUrl.includes('header')) {
+          (imageUrl.includes('logo') && imageUrl.includes('header'))) {
+        console.log(`⏭️ Skipping non-product image: ${imageUrl}`);
+        skippedImages++;
         continue;
       }
       
       // Convert relative URLs to absolute
+      const originalUrl = imageUrl;
       if (imageUrl.startsWith('//')) {
         const urlObj = new URL(url);
         imageUrl = `${urlObj.protocol}${imageUrl}`;
@@ -52,24 +71,40 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
         imageUrl = `${urlObj.protocol}//${urlObj.host}/${imageUrl}`;
       }
       
+      if (originalUrl !== imageUrl) {
+        console.log(`🔗 Converted relative URL: ${originalUrl} → ${imageUrl}`);
+      }
+      
       // Include ALL images that are likely product-related (be very inclusive)
       if (imageUrl.match(/\.(jpg|jpeg|png|webp)$/i) && imageUrl.length < 1000) {
+        console.log(`✅ Adding image: ${imageUrl}`);
         imageUrls.push(imageUrl);
+      } else {
+        console.log(`❌ Rejected image (no valid extension or too long): ${imageUrl}`);
+        skippedImages++;
       }
     }
     
+    console.log(`📊 Image extraction summary: ${totalImgTags} total img tags, ${imageUrls.length} accepted, ${skippedImages} skipped`);
+    
     // Also try to extract from CSS background-image properties
     const cssImageRegex = /background-image:\s*url\(['"]?([^'"]+)['"]?\)/gi;
+    let cssImages = 0;
     while ((match = cssImageRegex.exec(html)) !== null) {
       let imageUrl = match[1];
+      cssImages++;
+      console.log(`🎨 Found CSS background image: ${imageUrl}`);
       if (imageUrl.match(/\.(jpg|jpeg|png|webp)$/i)) {
         if (imageUrl.startsWith('/')) {
           const urlObj = new URL(url);
           imageUrl = `${urlObj.protocol}//${urlObj.host}${imageUrl}`;
         }
+        console.log(`✅ Adding CSS image: ${imageUrl}`);
         imageUrls.push(imageUrl);
       }
     }
+    
+    console.log(`🎨 CSS images found: ${cssImages}, added to collection`);
     
     // Extract title
     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);

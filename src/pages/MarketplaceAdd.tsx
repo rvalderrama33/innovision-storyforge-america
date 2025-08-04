@@ -213,6 +213,7 @@ const MarketplaceAdd = () => {
           });
         } else {
           console.log('No scraped images found in response:', content);
+          console.log('Full response content:', JSON.stringify(content, null, 2));
           toast({
             title: "Success",
             description: "AI-enhanced content generated successfully!"

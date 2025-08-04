@@ -18,6 +18,7 @@ interface Story {
   created_at: string;
   featured: boolean;
   generated_article: string;
+  headshot_image?: string;
 }
 
 const Stories = () => {
@@ -83,7 +84,10 @@ const Stories = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {stories.map((story) => {
-                const imageUrl = story.image_urls?.[0];
+                // Use headshot image for Michael Jon Smith, otherwise use first image
+                const imageUrl = story.full_name === "Michael Jon Smith" && story.headshot_image 
+                  ? story.headshot_image 
+                  : story.image_urls?.[0];
                 
                 return (
                   <Link key={story.id} to={`/article/${story.slug || story.id}`}>

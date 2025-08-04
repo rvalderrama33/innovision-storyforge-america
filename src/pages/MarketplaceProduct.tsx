@@ -56,11 +56,18 @@ const MarketplaceProduct = () => {
       if (!id) return;
 
       try {
-        const { data, error } = await supabase
-          .from('marketplace_products')
-          .select('*')
-          .or(`id.eq.${id},slug.eq.${id}`)
-          .single();
+        // Check if the id parameter is a UUID or a slug
+        const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+        
+        let query = supabase.from('marketplace_products').select('*');
+        
+        if (isUUID) {
+          query = query.eq('id', id);
+        } else {
+          query = query.eq('slug', id);
+        }
+        
+        const { data, error } = await query.maybeSingle();
 
         if (error) throw error;
         setProduct(data);

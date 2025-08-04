@@ -29,6 +29,7 @@ import Marketplace from "./pages/Marketplace";
 import MarketplaceAdd from "./pages/MarketplaceAdd";
 import MarketplaceProduct from "./pages/MarketplaceProduct";
 import MarketplaceManage from "./pages/MarketplaceManage";
+import MarketplaceEdit from "./pages/MarketplaceEdit";
 
 import SecurityAudit from "./components/SecurityAudit";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -76,6 +77,7 @@ const App = () => (
             <Route path="/marketplace/add" element={<MarketplaceAdd />} />
             <Route path="/marketplace/product/:id" element={<MarketplaceProduct />} />
             <Route path="/marketplace/manage" element={<MarketplaceManage />} />
+            <Route path="/marketplace/edit/:id" element={<MarketplaceEdit />} />
             
             <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />
             <Route path="/test-openai" element={<TestOpenAI />} />

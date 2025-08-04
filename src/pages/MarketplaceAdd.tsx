@@ -9,9 +9,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
+import { Upload, X, Plus, Sparkles } from "lucide-react";
 
 const categories = [
   "Electronics",
@@ -55,14 +57,162 @@ const MarketplaceAdd = () => {
     images: [] as string[],
     specifications: {},
     shipping_info: {},
-    tags: [] as string[]
+    tags: [] as string[],
+    sales_links: [] as string[]
   });
+
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [newSalesLink, setNewSalesLink] = useState("");
+  const [newTag, setNewTag] = useState("");
+  const [generatingContent, setGeneratingContent] = useState(false);
 
   const generateSlug = (name: string) => {
     return name
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/(^-|-$)+/g, '');
+  };
+
+  const handleImageUpload = async (files: FileList) => {
+    if (!files || files.length === 0) return;
+
+    setUploadingImages(true);
+    const uploadedImages = [];
+
+    try {
+      for (const file of Array.from(files)) {
+        if (!file.type.startsWith('image/')) continue;
+
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).slice(2)}.${fileExt}`;
+        const filePath = `marketplace/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('submission-images')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('submission-images')
+          .getPublicUrl(filePath);
+
+        uploadedImages.push(publicUrl);
+      }
+
+      setFormData(prev => ({
+        ...prev,
+        images: [...prev.images, ...uploadedImages]
+      }));
+
+      toast({
+        title: "Success",
+        description: `${uploadedImages.length} image(s) uploaded successfully!`
+      });
+    } catch (error: any) {
+      console.error('Error uploading images:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to upload images",
+        variant: "destructive"
+      });
+    } finally {
+      setUploadingImages(false);
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addSalesLink = () => {
+    if (newSalesLink.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        sales_links: [...prev.sales_links, newSalesLink.trim()]
+      }));
+      setNewSalesLink("");
+    }
+  };
+
+  const removeSalesLink = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      sales_links: prev.sales_links.filter((_, i) => i !== index)
+    }));
+  };
+
+  const addTag = () => {
+    if (newTag.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        tags: [...prev.tags, newTag.trim()]
+      }));
+      setNewTag("");
+    }
+  };
+
+  const removeTag = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      tags: prev.tags.filter((_, i) => i !== index)
+    }));
+  };
+
+  const generateContentWithAI = async () => {
+    if (!formData.name) {
+      toast({
+        title: "Error",
+        description: "Please enter a product name first",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setGeneratingContent(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-product-content', {
+        body: {
+          productName: formData.name,
+          basicDescription: formData.description,
+          category: formData.category,
+          salesLinks: formData.sales_links,
+          images: formData.images
+        }
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        setFormData(prev => ({
+          ...prev,
+          description: data.content.description,
+          tags: [...new Set([...prev.tags, ...data.content.tags])],
+          specifications: data.content.specifications
+        }));
+
+        toast({
+          title: "Success",
+          description: "AI-enhanced content generated successfully!"
+        });
+      } else {
+        throw new Error(data.error || 'Failed to generate content');
+      }
+    } catch (error: any) {
+      console.error('Error generating content:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to generate AI content",
+        variant: "destructive"
+      });
+    } finally {
+      setGeneratingContent(false);
+    }
+
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -99,7 +249,8 @@ const MarketplaceAdd = () => {
           images: formData.images,
           specifications: formData.specifications,
           shipping_info: formData.shipping_info,
-          tags: formData.tags
+          tags: formData.tags,
+          sales_links: formData.sales_links
         })
         .select()
         .single();
@@ -161,6 +312,146 @@ const MarketplaceAdd = () => {
                   rows={4}
                   required
                 />
+              </div>
+
+              {/* Product Images */}
+              <div>
+                <Label className="text-sm font-medium">Product Images</Label>
+                <div className="mt-2 space-y-4">
+                  <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center hover:border-muted-foreground/50 transition-colors">
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={(e) => e.target.files && handleImageUpload(e.target.files)}
+                      className="hidden"
+                      id="image-upload"
+                      disabled={uploadingImages}
+                    />
+                    <label htmlFor="image-upload" className="cursor-pointer">
+                      <Upload className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+                      <p className="text-sm text-muted-foreground">
+                        {uploadingImages ? "Uploading..." : "Click to upload images or drag and drop"}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        PNG, JPG, JPEG up to 10MB each
+                      </p>
+                    </label>
+                  </div>
+                  
+                  {formData.images.length > 0 && (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {formData.images.map((image, index) => (
+                        <div key={index} className="relative group">
+                          <img
+                            src={image}
+                            alt={`Product ${index + 1}`}
+                            className="w-full h-24 object-cover rounded-lg border"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => removeImage(index)}
+                            className="absolute -top-2 -right-2 bg-destructive text-destructive-foreground rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Sales Links */}
+              <div>
+                <Label className="text-sm font-medium">Where is this product currently sold?</Label>
+                <div className="mt-2 space-y-3">
+                  <div className="flex gap-2">
+                    <Input
+                      value={newSalesLink}
+                      onChange={(e) => setNewSalesLink(e.target.value)}
+                      placeholder="https://example.com/product"
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addSalesLink())}
+                    />
+                    <Button type="button" onClick={addSalesLink} size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  {formData.sales_links.length > 0 && (
+                    <div className="space-y-2">
+                      {formData.sales_links.map((link, index) => (
+                        <div key={index} className="flex items-center justify-between bg-muted rounded-lg p-3">
+                          <span className="text-sm truncate flex-1 mr-2">{link}</span>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeSalesLink(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* AI Content Generation */}
+              <div className="border border-primary/20 rounded-lg p-4 bg-primary/5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Sparkles className="h-5 w-5 text-primary" />
+                  <Label className="text-sm font-medium">AI-Enhanced Content</Label>
+                </div>
+                <p className="text-xs text-muted-foreground mb-4">
+                  Generate impressive product descriptions, tags, and specifications using AI. 
+                  The AI will analyze your product information and sales links to create compelling content.
+                </p>
+                <Button
+                  type="button"
+                  onClick={generateContentWithAI}
+                  disabled={generatingContent || !formData.name}
+                  variant="outline"
+                  size="sm"
+                >
+                  {generatingContent ? "Generating..." : "Generate AI Content"}
+                </Button>
+              </div>
+
+              {/* Tags */}
+              <div>
+                <Label className="text-sm font-medium">Tags</Label>
+                <div className="mt-2 space-y-3">
+                  <div className="flex gap-2">
+                    <Input
+                      value={newTag}
+                      onChange={(e) => setNewTag(e.target.value)}
+                      placeholder="Enter a tag"
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTag())}
+                    />
+                    <Button type="button" onClick={addTag} size="sm">
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  
+                  {formData.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.tags.map((tag, index) => (
+                        <Badge key={index} variant="secondary" className="gap-1">
+                          {tag}
+                          <button
+                            type="button"
+                            onClick={() => removeTag(index)}
+                            className="ml-1 hover:text-destructive"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

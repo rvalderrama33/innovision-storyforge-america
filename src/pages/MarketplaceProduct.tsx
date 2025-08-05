@@ -329,31 +329,6 @@ const MarketplaceProduct = () => {
             />
           </div>
 
-          {/* Specifications Section - moved here for better layout */}
-          {product.specifications && Object.keys(product.specifications).length > 0 && (
-            <div className="lg:col-span-2">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Specifications</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {Object.entries(product.specifications).map(([key, value]) => (
-                      <div key={key} className="flex justify-between">
-                        <span className="font-medium">{key}:</span>
-                        <span className="text-muted-foreground">{String(value)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
-          <div></div>
-
           {/* Product Details */}
           <div className="space-y-6">
             <div>
@@ -438,6 +413,27 @@ const MarketplaceProduct = () => {
 
           </div>
         </div>
+
+        {/* Specifications Section */}
+        {product.specifications && Object.keys(product.specifications).length > 0 && (
+          <div className="mt-8">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Specifications</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {Object.entries(product.specifications).map(([key, value]) => (
+                    <div key={key} className="flex justify-between">
+                      <span className="font-medium">{key}:</span>
+                      <span className="text-muted-foreground">{String(value)}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         {/* Reviews Section */}
         <div className="mt-12">

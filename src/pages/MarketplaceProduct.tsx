@@ -6,9 +6,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
 import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
+import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Star, ShoppingCart, Package, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -35,14 +37,32 @@ interface MarketplaceProduct {
   created_at: string;
 }
 
+interface MarketplaceReview {
+  id: string;
+  product_id: string;
+  reviewer_id: string;
+  rating: number;
+  title: string;
+  content: string;
+  images: string[];
+  created_at: string;
+  profiles?: {
+    full_name: string;
+  };
+}
+
 const MarketplaceProduct = () => {
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
   const { id } = useParams<{ id: string }>();
   const { user, isAdmin } = useAuth();
   const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const [product, setProduct] = useState<MarketplaceProduct | null>(null);
+  const [reviews, setReviews] = useState<MarketplaceReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
+  const [showReviewForm, setShowReviewForm] = useState(false);
+  const [newReview, setNewReview] = useState({ rating: 5, title: '', content: '' });
+  const { toast } = useToast();
 
   // Always call useSEO hook before any early returns
   useSEO({
@@ -52,7 +72,7 @@ const MarketplaceProduct = () => {
   });
 
   useEffect(() => {
-    const fetchProduct = async () => {
+    const fetchProductAndReviews = async () => {
       if (!id) return;
 
       try {
@@ -67,17 +87,47 @@ const MarketplaceProduct = () => {
           query = query.eq('slug', id);
         }
         
-        const { data, error } = await query.maybeSingle();
+        const { data: productData, error: productError } = await query.maybeSingle();
 
-        if (error) throw error;
-        setProduct(data);
+        if (productError) throw productError;
+        setProduct(productData);
         
         // Set the initial selected image to the primary image
-        if (data && data.images && data.images.length > 0) {
-          const primaryIndex = data.primary_image_index || 0;
+        if (productData && productData.images && productData.images.length > 0) {
+          const primaryIndex = productData.primary_image_index || 0;
           // Ensure the primary index is valid
-          const validIndex = Math.min(primaryIndex, data.images.length - 1);
+          const validIndex = Math.min(primaryIndex, productData.images.length - 1);
           setSelectedImage(Math.max(0, validIndex));
+        }
+
+        // Fetch reviews for this product
+        if (productData) {
+          const { data: reviewsData, error: reviewsError } = await supabase
+            .from('marketplace_reviews')
+            .select('*')
+            .eq('product_id', productData.id)
+            .order('created_at', { ascending: false });
+
+          if (reviewsError) {
+            console.error('Error fetching reviews:', reviewsError);
+          } else {
+            // Fetch reviewer names separately
+            const reviewsWithProfiles = await Promise.all(
+              (reviewsData || []).map(async (review) => {
+                const { data: profile } = await supabase
+                  .from('profiles')
+                  .select('full_name')
+                  .eq('id', review.reviewer_id)
+                  .single();
+                
+                return {
+                  ...review,
+                  profiles: profile || { full_name: 'Anonymous' }
+                };
+              })
+            );
+            setReviews(reviewsWithProfiles);
+          }
         }
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -86,7 +136,7 @@ const MarketplaceProduct = () => {
       }
     };
 
-    fetchProduct();
+    fetchProductAndReviews();
   }, [id]);
 
   // NOW WE CAN HAVE CONDITIONAL RETURNS
@@ -137,6 +187,85 @@ const MarketplaceProduct = () => {
       
       window.open(url.toString(), '_blank', 'noopener,noreferrer');
     }
+  };
+
+  const submitReview = async () => {
+    if (!user || !product) return;
+
+    try {
+      const { error } = await supabase.from('marketplace_reviews').insert({
+        product_id: product.id,
+        reviewer_id: user.id,
+        rating: newReview.rating,
+        title: newReview.title,
+        content: newReview.content,
+        images: []
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Review submitted",
+        description: "Your review has been posted successfully.",
+      });
+
+      // Reset form and hide it
+      setNewReview({ rating: 5, title: '', content: '' });
+      setShowReviewForm(false);
+
+      // Refresh reviews
+      const { data: reviewsData } = await supabase
+        .from('marketplace_reviews')
+        .select('*')
+        .eq('product_id', product.id)
+        .order('created_at', { ascending: false });
+
+      if (reviewsData) {
+        const reviewsWithProfiles = await Promise.all(
+          reviewsData.map(async (review) => {
+            const { data: profile } = await supabase
+              .from('profiles')
+              .select('full_name')
+              .eq('id', review.reviewer_id)
+              .single();
+            
+            return {
+              ...review,
+              profiles: profile || { full_name: 'Anonymous' }
+            };
+          })
+        );
+        setReviews(reviewsWithProfiles);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit review. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const calculateAverageRating = () => {
+    if (reviews.length === 0) return 0;
+    const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
+    return Math.round((sum / reviews.length) * 10) / 10;
+  };
+
+  const renderStars = (rating: number, size: 'sm' | 'lg' = 'sm') => {
+    const starSize = size === 'lg' ? 'h-5 w-5' : 'h-4 w-4';
+    return (
+      <div className="flex items-center">
+        {[1, 2, 3, 4, 5].map((star) => (
+          <Star
+            key={star}
+            className={`${starSize} ${
+              star <= rating ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'
+            }`}
+          />
+        ))}
+      </div>
+    );
   };
 
   if (loading) {
@@ -358,6 +487,156 @@ const MarketplaceProduct = () => {
               </Card>
             )}
           </div>
+        </div>
+
+        {/* Reviews Section */}
+        <div className="mt-12">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-2xl">Customer Reviews</CardTitle>
+              
+              {/* Rating Summary */}
+              <div className="flex items-center gap-4 mt-4">
+                <div className="text-center">
+                  <div className="text-4xl font-bold">{calculateAverageRating()}</div>
+                  {renderStars(calculateAverageRating(), 'lg')}
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {reviews.length} {reviews.length === 1 ? 'review' : 'reviews'}
+                  </div>
+                </div>
+                
+                {/* Rating Breakdown */}
+                <div className="flex-1 space-y-1">
+                  {[5, 4, 3, 2, 1].map((rating) => {
+                    const count = reviews.filter(r => r.rating === rating).length;
+                    const percentage = reviews.length > 0 ? (count / reviews.length) * 100 : 0;
+                    
+                    return (
+                      <div key={rating} className="flex items-center gap-2 text-sm">
+                        <span className="w-2">{rating}</span>
+                        <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                        <div className="flex-1 bg-muted rounded-full h-2 relative">
+                          <div 
+                            className="bg-yellow-400 h-full rounded-full" 
+                            style={{ width: `${percentage}%` }}
+                          />
+                        </div>
+                        <span className="w-8 text-right">{count}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            </CardHeader>
+            
+            <CardContent>
+              {/* Write Review Button */}
+              {user && (
+                <div className="mb-6">
+                  {!showReviewForm ? (
+                    <Button onClick={() => setShowReviewForm(true)}>
+                      Write a Review
+                    </Button>
+                  ) : (
+                    <div className="space-y-4 p-4 border rounded-lg">
+                      <h3 className="font-semibold">Write Your Review</h3>
+                      
+                      {/* Star Rating Input */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Rating</label>
+                        <div className="flex items-center gap-1">
+                          {[1, 2, 3, 4, 5].map((star) => (
+                            <button
+                              key={star}
+                              type="button"
+                              onClick={() => setNewReview(prev => ({ ...prev, rating: star }))}
+                              className="p-1 hover:scale-110 transition-transform"
+                            >
+                              <Star
+                                className={`h-6 w-6 ${
+                                  star <= newReview.rating 
+                                    ? 'fill-yellow-400 text-yellow-400' 
+                                    : 'text-muted-foreground hover:text-yellow-400'
+                                }`}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Review Title */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Title</label>
+                        <input
+                          type="text"
+                          placeholder="Summarize your review"
+                          value={newReview.title}
+                          onChange={(e) => setNewReview(prev => ({ ...prev, title: e.target.value }))}
+                          className="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+
+                      {/* Review Content */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Review</label>
+                        <Textarea
+                          placeholder="Share your experience with this product"
+                          value={newReview.content}
+                          onChange={(e) => setNewReview(prev => ({ ...prev, content: e.target.value }))}
+                          rows={4}
+                        />
+                      </div>
+
+                      {/* Submit Buttons */}
+                      <div className="flex gap-2">
+                        <Button 
+                          onClick={submitReview}
+                          disabled={!newReview.title || !newReview.content}
+                        >
+                          Submit Review
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          onClick={() => {
+                            setShowReviewForm(false);
+                            setNewReview({ rating: 5, title: '', content: '' });
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Reviews List */}
+              <div className="space-y-6">
+                {reviews.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <p>No reviews yet. Be the first to review this product!</p>
+                  </div>
+                ) : (
+                  reviews.map((review) => (
+                    <div key={review.id} className="border-b pb-6 last:border-b-0">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <div className="flex items-center gap-2 mb-1">
+                            {renderStars(review.rating)}
+                            <span className="font-semibold">{review.title}</span>
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            By {review.profiles?.full_name || 'Anonymous'} • {new Date(review.created_at).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </div>
+                      <p className="text-muted-foreground leading-relaxed">{review.content}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>

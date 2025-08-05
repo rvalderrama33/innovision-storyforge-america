@@ -39,30 +39,7 @@ const MarketplaceEdit = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  useSEO({
-    title: "Edit Product | Marketplace",
-    description: "Edit your marketplace product details.",
-    url: `https://americainnovates.us/marketplace/edit/${id}`
-  });
-
-  // NOW WE CAN HAVE CONDITIONAL RETURNS
-  if (configLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!isMarketplaceLive && !isAdmin) {
-    return <Navigate to="/" />;
-  }
-
-  // Restrict access to admins only for now
-  if (!user || !isAdmin) {
-    return <Navigate to="/auth" replace />;
-  }
-
+  // ALL STATE HOOKS MUST BE DECLARED BEFORE CONDITIONAL RETURNS
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -88,6 +65,30 @@ const MarketplaceEdit = () => {
   const [newTag, setNewTag] = useState("");
   const [newVideoUrl, setNewVideoUrl] = useState("");
   const [generatingContent, setGeneratingContent] = useState(false);
+
+  useSEO({
+    title: "Edit Product | Marketplace",
+    description: "Edit your marketplace product details.",
+    url: `https://americainnovates.us/marketplace/edit/${id}`
+  });
+
+  // NOW WE CAN HAVE CONDITIONAL RETURNS
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isMarketplaceLive && !isAdmin) {
+    return <Navigate to="/" />;
+  }
+
+  // Restrict access to admins only for now
+  if (!user || !isAdmin) {
+    return <Navigate to="/auth" replace />;
+  }
 
   // Load existing product data
   useEffect(() => {

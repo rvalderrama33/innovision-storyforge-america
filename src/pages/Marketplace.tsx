@@ -137,7 +137,7 @@ const Marketplace = () => {
             {products.map((product) => (
               <Card key={product.id} className="group hover:shadow-lg transition-shadow">
                 <CardHeader className="p-0">
-                  <div className="w-full h-48 bg-muted rounded-t-lg overflow-hidden relative">
+                  <div className="w-full h-32 bg-muted rounded-t-lg overflow-hidden relative">
                     {product.images && product.images.length > 0 ? (
                       <img 
                         src={product.images[product.primary_image_index || 0]} 

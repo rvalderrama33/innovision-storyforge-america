@@ -14,6 +14,9 @@ interface ScrapedContent {
   videoUrls: string[]; // Add video URLs
   title: string;
   description: string;
+  price?: string;
+  rating?: number;
+  reviewCount?: number;
 }
 
 async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
@@ -185,6 +188,75 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
     const descMatch = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["'][^>]*>/i);
     const description = descMatch ? descMatch[1].trim() : '';
     
+    // Extract price information
+    let price: string | undefined;
+    console.log(`💰 Looking for price information...`);
+    
+    // Common price patterns
+    const pricePatterns = [
+      /\$[\d,]+\.?\d*/g, // $19.99, $1,299
+      /USD\s*[\d,]+\.?\d*/g, // USD 19.99
+      /Price[:\s]*\$?[\d,]+\.?\d*/gi, // Price: $19.99
+      /[\d,]+\.?\d*\s*dollars?/gi, // 19.99 dollars
+      /\€[\d,]+\.?\d*/g, // €19.99
+      /\£[\d,]+\.?\d*/g, // £19.99
+      /[\d,]+\.?\d*\s*€/g, // 19.99 €
+      /[\d,]+\.?\d*\s*£/g, // 19.99 £
+    ];
+    
+    for (const pattern of pricePatterns) {
+      const matches = html.match(pattern);
+      if (matches && matches.length > 0) {
+        // Find the most likely price (usually the first or most prominent one)
+        price = matches[0];
+        console.log(`💰 Found price: ${price}`);
+        break;
+      }
+    }
+    
+    // Extract rating and review count
+    let rating: number | undefined;
+    let reviewCount: number | undefined;
+    console.log(`⭐ Looking for rating and review information...`);
+    
+    // Common rating patterns
+    const ratingPatterns = [
+      /(\d+\.?\d*)\s*out\s*of\s*(\d+)\s*stars?/gi,
+      /(\d+\.?\d*)\s*\/\s*(\d+)\s*stars?/gi,
+      /rating[:\s]*(\d+\.?\d*)/gi,
+      /(\d+\.?\d*)\s*star[s]?/gi,
+      /(\d+\.?\d*)\s*⭐/g,
+    ];
+    
+    for (const pattern of ratingPatterns) {
+      const match = pattern.exec(html);
+      if (match) {
+        const ratingValue = parseFloat(match[1]);
+        if (ratingValue >= 0 && ratingValue <= 5) {
+          rating = ratingValue;
+          console.log(`⭐ Found rating: ${rating}`);
+          break;
+        }
+      }
+    }
+    
+    // Review count patterns
+    const reviewPatterns = [
+      /(\d+)\s*reviews?/gi,
+      /(\d+)\s*customer\s*reviews?/gi,
+      /(\d+)\s*ratings?/gi,
+      /based\s*on\s*(\d+)\s*reviews?/gi,
+    ];
+    
+    for (const pattern of reviewPatterns) {
+      const match = pattern.exec(html);
+      if (match) {
+        reviewCount = parseInt(match[1]);
+        console.log(`📝 Found review count: ${reviewCount}`);
+        break;
+      }
+    }
+
     // Extract text content (enhanced)
     const textContent = html
       .replace(/<script[^>]*>[\s\S]*?<\/script>/gi, '')
@@ -202,7 +274,10 @@ async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
         imageUrls: [...new Set(imageUrls)], // Remove duplicates
         videoUrls: [...new Set(videoUrls)], // Remove duplicate videos
         title,
-        description
+        description,
+        price,
+        rating,
+        reviewCount
       };
   } catch (error) {
     console.error('Error fetching website content:', error);
@@ -236,6 +311,9 @@ serve(async (req) => {
     const websiteContents = [];
     const scrapedImages: string[] = [];
     const scrapedVideos: string[] = [];
+    let scrapedPrice: string | undefined;
+    let scrapedRating: number | undefined;
+    let scrapedReviewCount: number | undefined;
     console.log('Sales links to process:', salesLinks);
     
     if (salesLinks && salesLinks.length > 0) {
@@ -247,14 +325,31 @@ serve(async (req) => {
           imageCount: content.imageUrls.length,
           videoCount: content.videoUrls.length,
           images: content.imageUrls,
-          videos: content.videoUrls
+          videos: content.videoUrls,
+          price: content.price,
+          rating: content.rating,
+          reviewCount: content.reviewCount
         });
+        
+        // Capture the first price and rating found
+        if (content.price && !scrapedPrice) {
+          scrapedPrice = content.price;
+        }
+        if (content.rating && !scrapedRating) {
+          scrapedRating = content.rating;
+        }
+        if (content.reviewCount && !scrapedReviewCount) {
+          scrapedReviewCount = content.reviewCount;
+        }
         
         if (content.textContent || content.imageUrls.length > 0 || content.videoUrls.length > 0) {
           websiteContents.push(`Content from ${link}:
 Title: ${content.title}
 Description: ${content.description}
 Text: ${content.textContent}
+Price: ${content.price || 'Not found'}
+Rating: ${content.rating ? `${content.rating} stars` : 'Not found'}
+Reviews: ${content.reviewCount ? `${content.reviewCount} reviews` : 'Not found'}
 Images found: ${content.imageUrls.length}
 Videos found: ${content.videoUrls.length}`);
           scrapedImages.push(...content.imageUrls);
@@ -359,13 +454,16 @@ Make the content professional, engaging, and data-driven based on the scraped in
     try {
       const parsedContent = JSON.parse(generatedContent);
       
-      // Add the scraped images and videos to the response
+      // Add the scraped images, videos, price and rating to the response
       const response = {
         success: true, 
         content: {
           ...parsedContent,
           scrapedImages: scrapedImages.slice(0, 8), // Limit to 8 images
-          scrapedVideos: scrapedVideos.slice(0, 5)  // Limit to 5 videos
+          scrapedVideos: scrapedVideos.slice(0, 5), // Limit to 5 videos
+          scrapedPrice: scrapedPrice,
+          scrapedRating: scrapedRating,
+          scrapedReviewCount: scrapedReviewCount
         }
       };
       

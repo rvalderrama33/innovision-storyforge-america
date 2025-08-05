@@ -320,13 +320,32 @@ const MarketplaceProduct = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Product Media Gallery */}
-          <div className="w-full">
+          <div className="w-full space-y-6">
             <MediaGallery
               images={product.images || []}
               videoUrls={product.video_urls || []}
               primaryIndex={product.primary_image_index || 0}
               productName={product.name}
             />
+
+            {/* Specifications Section - vertical under images */}
+            {product.specifications && Object.keys(product.specifications).length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Specifications</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {Object.entries(product.specifications).map(([key, value]) => (
+                      <div key={key} className="flex justify-between">
+                        <span className="font-medium">{key}:</span>
+                        <span className="text-muted-foreground">{String(value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Product Details */}
@@ -413,27 +432,6 @@ const MarketplaceProduct = () => {
 
           </div>
         </div>
-
-        {/* Specifications Section */}
-        {product.specifications && Object.keys(product.specifications).length > 0 && (
-          <div className="mt-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Specifications</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {Object.entries(product.specifications).map(([key, value]) => (
-                    <div key={key} className="flex justify-between">
-                      <span className="font-medium">{key}:</span>
-                      <span className="text-muted-foreground">{String(value)}</span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
 
         {/* Reviews Section */}
         <div className="mt-12">

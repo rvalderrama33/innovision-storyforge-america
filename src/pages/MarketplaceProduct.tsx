@@ -20,7 +20,7 @@ interface MarketplaceProduct {
   currency: string;
   category: string;
   images: string[];
-  primary_image_index: number; // Add primary image index
+  primary_image_index: number;
   slug: string;
   featured: boolean;
   stock_quantity: number;
@@ -29,7 +29,9 @@ interface MarketplaceProduct {
   shipping_info: any;
   tags: string[];
   sales_links: string[];
-  video_urls: string[]; // Add video URLs
+  video_urls: string[];
+  is_affiliate: boolean;
+  affiliate_url: string;
   created_at: string;
 }
 
@@ -110,6 +112,31 @@ const MarketplaceProduct = () => {
       style: 'currency',
       currency: currency
     }).format(price / 100);
+  };
+
+  const handleAffiliateClick = async () => {
+    if (product?.is_affiliate && product?.affiliate_url) {
+      // Track affiliate click
+      try {
+        await supabase.from('affiliate_clicks').insert({
+          product_id: product.id,
+          user_id: user?.id || null,
+          ip_address: null, // Could be populated from client IP if needed
+          user_agent: navigator.userAgent
+        });
+      } catch (error) {
+        console.error('Error tracking affiliate click:', error);
+      }
+      
+      // Add UTM parameters
+      const url = new URL(product.affiliate_url);
+      url.searchParams.set('ref', 'americainnovates');
+      url.searchParams.set('utm_source', 'americainnovates');
+      url.searchParams.set('utm_medium', 'affiliate');
+      url.searchParams.set('utm_campaign', 'marketplace');
+      
+      window.open(url.toString(), '_blank', 'noopener,noreferrer');
+    }
   };
 
   if (loading) {
@@ -215,17 +242,19 @@ const MarketplaceProduct = () => {
                 <Badge variant="outline" className="mb-4">{product.category}</Badge>
               )}
               
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-3xl font-bold text-primary">
-                  {formatPrice(product.price, product.currency)}
-                </span>
-                <div className="flex items-center gap-1">
-                  <Package className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    {product.stock_quantity} in stock
+              {!product.is_affiliate && (
+                <div className="flex items-center gap-2 mb-4">
+                  <span className="text-3xl font-bold text-primary">
+                    {formatPrice(product.price, product.currency)}
                   </span>
+                  <div className="flex items-center gap-1">
+                    <Package className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {product.stock_quantity} in stock
+                    </span>
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
 
             <Separator />
@@ -252,10 +281,22 @@ const MarketplaceProduct = () => {
             <Separator />
 
             <div className="space-y-4">
-              <Button size="lg" className="w-full" disabled={product.stock_quantity === 0}>
-                <ShoppingCart className="mr-2 h-5 w-5" />
-                {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
-              </Button>
+              {product.is_affiliate ? (
+                <Button 
+                  size="lg" 
+                  className="w-full" 
+                  onClick={handleAffiliateClick}
+                  disabled={!product.affiliate_url}
+                >
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  Buy Now
+                </Button>
+              ) : (
+                <Button size="lg" className="w-full" disabled={product.stock_quantity === 0}>
+                  <ShoppingCart className="mr-2 h-5 w-5" />
+                  {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
+                </Button>
+              )}
               
               <div className="grid grid-cols-2 gap-4 text-sm">
                 <div className="flex items-center gap-2">

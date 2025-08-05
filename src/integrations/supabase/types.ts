@@ -77,6 +77,41 @@ export type Database = {
         }
         Relationships: []
       }
+      affiliate_clicks: {
+        Row: {
+          clicked_at: string | null
+          id: string
+          ip_address: unknown | null
+          product_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          clicked_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          product_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          clicked_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          product_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_clicks_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_analytics: {
         Row: {
           created_at: string
@@ -281,6 +316,7 @@ export type Database = {
       }
       marketplace_products: {
         Row: {
+          affiliate_url: string | null
           category: string | null
           created_at: string
           currency: string
@@ -288,6 +324,7 @@ export type Database = {
           featured: boolean | null
           id: string
           images: string[] | null
+          is_affiliate: boolean | null
           name: string
           price: number
           primary_image_index: number | null
@@ -303,6 +340,7 @@ export type Database = {
           video_urls: string[] | null
         }
         Insert: {
+          affiliate_url?: string | null
           category?: string | null
           created_at?: string
           currency?: string
@@ -310,6 +348,7 @@ export type Database = {
           featured?: boolean | null
           id?: string
           images?: string[] | null
+          is_affiliate?: boolean | null
           name: string
           price: number
           primary_image_index?: number | null
@@ -325,6 +364,7 @@ export type Database = {
           video_urls?: string[] | null
         }
         Update: {
+          affiliate_url?: string | null
           category?: string | null
           created_at?: string
           currency?: string
@@ -332,6 +372,7 @@ export type Database = {
           featured?: boolean | null
           id?: string
           images?: string[] | null
+          is_affiliate?: boolean | null
           name?: string
           price?: number
           primary_image_index?: number | null

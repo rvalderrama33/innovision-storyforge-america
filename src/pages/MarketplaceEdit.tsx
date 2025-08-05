@@ -78,7 +78,9 @@ const MarketplaceEdit = () => {
     shipping_info: {},
     tags: [] as string[],
     sales_links: [] as string[],
-    video_urls: [] as string[] // Add video URLs
+    video_urls: [] as string[],
+    isAffiliate: false,
+    affiliateUrl: ""
   });
 
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -116,19 +118,21 @@ const MarketplaceEdit = () => {
         setFormData({
           name: data.name || "",
           description: data.description || "",
-          price: (data.price / 100).toString(),
+          price: data.is_affiliate ? "" : (data.price / 100).toString(),
           currency: data.currency || "USD",
           category: data.category || "",
           status: data.status || "draft",
           featured: data.featured || false,
           stock_quantity: data.stock_quantity?.toString() || "",
           images: data.images || [],
-          primaryImageIndex: data.primary_image_index || 0, // Load from database
+          primaryImageIndex: data.primary_image_index || 0,
           specifications: data.specifications || {},
           shipping_info: data.shipping_info || {},
           tags: data.tags || [],
           sales_links: data.sales_links || [],
-          video_urls: data.video_urls || [] // Load video URLs from database
+          video_urls: data.video_urls || [],
+          isAffiliate: data.is_affiliate || false,
+          affiliateUrl: data.affiliate_url || ""
         });
       } catch (error: any) {
         console.error('Error fetching product:', error);
@@ -351,7 +355,7 @@ const MarketplaceEdit = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.name || !formData.description || !formData.price) {
+    if (!formData.name || !formData.description || (!formData.isAffiliate && !formData.price) || (formData.isAffiliate && !formData.affiliateUrl)) {
       toast({
         title: "Error",
         description: "Please fill in all required fields.",
@@ -370,19 +374,21 @@ const MarketplaceEdit = () => {
         .update({
           name: formData.name,
           description: formData.description,
-          price: priceInCents,
+          price: formData.isAffiliate ? 0 : priceInCents,
           currency: formData.currency,
           category: formData.category,
           status: formData.status,
           featured: formData.featured,
-          stock_quantity: parseInt(formData.stock_quantity) || 0,
+          stock_quantity: formData.isAffiliate ? 0 : parseInt(formData.stock_quantity) || 0,
           images: formData.images,
-          primary_image_index: formData.primaryImageIndex, // Save primary image index
+          primary_image_index: formData.primaryImageIndex,
           specifications: formData.specifications,
           shipping_info: formData.shipping_info,
           tags: formData.tags,
           sales_links: formData.sales_links,
-          video_urls: formData.video_urls // Save video URLs
+          video_urls: formData.video_urls,
+          is_affiliate: formData.isAffiliate,
+          affiliate_url: formData.isAffiliate ? formData.affiliateUrl : null
         })
         .eq('id', id)
         .eq('vendor_id', user.id); // Ensure user can only update their own products
@@ -704,72 +710,96 @@ const MarketplaceEdit = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Affiliate Product Toggle */}
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isAffiliate"
+                  checked={formData.isAffiliate}
+                  onCheckedChange={(checked) => setFormData({...formData, isAffiliate: checked})}
+                />
+                <Label htmlFor="isAffiliate" className="text-sm font-medium">This is an affiliate product</Label>
+              </div>
+
+              {formData.isAffiliate ? (
                 <div>
-                  <Label htmlFor="price" className="text-sm font-medium">
-                    Price *
-                  </Label>
+                  <Label htmlFor="affiliateUrl" className="text-sm font-medium">Affiliate URL *</Label>
                   <Input
-                    id="price"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    value={formData.price}
-                    onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                    placeholder="0.00"
+                    id="affiliateUrl"
+                    type="url"
+                    value={formData.affiliateUrl}
+                    onChange={(e) => setFormData({...formData, affiliateUrl: e.target.value})}
+                    placeholder="https://example.com/product"
                     required
                   />
                 </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="price" className="text-sm font-medium">
+                        Price *
+                      </Label>
+                      <Input
+                        id="price"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        value={formData.price}
+                        onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                        placeholder="0.00"
+                        required
+                      />
+                    </div>
 
-                <div>
-                  <Label htmlFor="currency" className="text-sm font-medium">
-                    Currency
-                  </Label>
-                  <Select value={formData.currency} onValueChange={(value) => setFormData({ ...formData, currency: value })}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="USD">USD</SelectItem>
-                      <SelectItem value="EUR">EUR</SelectItem>
-                      <SelectItem value="GBP">GBP</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+                    <div>
+                      <Label htmlFor="currency" className="text-sm font-medium">
+                        Currency
+                      </Label>
+                      <Select value={formData.currency} onValueChange={(value) => setFormData({ ...formData, currency: value })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="USD">USD</SelectItem>
+                          <SelectItem value="EUR">EUR</SelectItem>
+                          <SelectItem value="GBP">GBP</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="category" className="text-sm font-medium">
-                    Category
-                  </Label>
-                  <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category} value={category}>
-                          {category}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                  <div>
+                    <Label htmlFor="stock_quantity" className="text-sm font-medium">
+                      Stock Quantity
+                    </Label>
+                    <Input
+                      id="stock_quantity"
+                      type="number"
+                      min="0"
+                      value={formData.stock_quantity}
+                      onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
+                      placeholder="0"
+                    />
+                  </div>
+                </>
+              )}
 
-                <div>
-                  <Label htmlFor="stock_quantity" className="text-sm font-medium">
-                    Stock Quantity
-                  </Label>
-                  <Input
-                    id="stock_quantity"
-                    type="number"
-                    min="0"
-                    value={formData.stock_quantity}
-                    onChange={(e) => setFormData({ ...formData, stock_quantity: e.target.value })}
-                    placeholder="0"
-                  />
-                </div>
+              <div>
+                <Label htmlFor="category" className="text-sm font-medium">
+                  Category
+                </Label>
+                <Select value={formData.category} onValueChange={(value) => setFormData({ ...formData, category: value })}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category} value={category}>
+                        {category}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div>

@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
+import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
 import { Upload, X, Plus, Sparkles, Star, Video } from "lucide-react";
 
 
@@ -31,17 +32,24 @@ const categories = [
 
 const MarketplaceAdd = () => {
   const { user, isAdmin } = useAuth();
+  const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-
-  const isMarketplaceLive = false;
 
   useSEO({
     title: "Add Product | Marketplace",
     description: "Add your innovative product to the America Innovates Marketplace.",
     url: "https://americainnovates.us/marketplace/add"
   });
+
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!isMarketplaceLive && !isAdmin) {
     return <Navigate to="/" />;

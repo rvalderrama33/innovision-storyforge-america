@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
+import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
 import { Edit, Trash2, Eye, Plus } from "lucide-react";
 
 interface MarketplaceProduct {
@@ -26,17 +27,24 @@ interface MarketplaceProduct {
 
 const MarketplaceManage = () => {
   const { user, isAdmin } = useAuth();
+  const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const { toast } = useToast();
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const isMarketplaceLive = false;
 
   useSEO({
     title: "Manage Products | Marketplace",
     description: "Manage your marketplace products and inventory.",
     url: "https://americainnovates.us/marketplace/manage"
   });
+
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!isMarketplaceLive && !isAdmin) {
     return <Navigate to="/" />;
@@ -132,12 +140,19 @@ const MarketplaceManage = () => {
             <p className="text-muted-foreground">View and manage your marketplace listings</p>
           </div>
           
-          <Link to="/marketplace/add">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Product
-            </Button>
-          </Link>
+          <div className="space-x-4">
+            <Link to="/marketplace/add">
+              <Button>
+                <Plus className="mr-2 h-4 w-4" />
+                Add Product
+              </Button>
+            </Link>
+            <Link to="/marketplace/orders">
+              <Button variant="outline">
+                Orders & Tracking
+              </Button>
+            </Link>
+          </div>
         </div>
 
         <Card>

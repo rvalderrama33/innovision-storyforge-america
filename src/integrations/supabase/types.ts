@@ -617,6 +617,27 @@ export type Database = {
           },
         ]
       }
+      site_config: {
+        Row: {
+          created_at: string
+          key: string
+          updated_at: string
+          value: boolean
+        }
+        Insert: {
+          created_at?: string
+          key: string
+          updated_at?: string
+          value?: boolean
+        }
+        Update: {
+          created_at?: string
+          key?: string
+          updated_at?: string
+          value?: boolean
+        }
+        Relationships: []
+      }
       submissions: {
         Row: {
           approved_at: string | null
@@ -755,6 +776,48 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_payouts: {
+        Row: {
+          commission_amount: number
+          created_at: string
+          id: string
+          net_payout: number
+          paid_at: string | null
+          period_end: string
+          period_start: string
+          status: string
+          total_sales: number
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          net_payout?: number
+          paid_at?: string | null
+          period_end: string
+          period_start: string
+          status?: string
+          total_sales?: number
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          commission_amount?: number
+          created_at?: string
+          id?: string
+          net_payout?: number
+          paid_at?: string | null
+          period_end?: string
+          period_start?: string
+          status?: string
+          total_sales?: number
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -828,6 +891,12 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "subscriber" | "super_admin"
+      order_status:
+        | "pending"
+        | "confirmed"
+        | "shipped"
+        | "delivered"
+        | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -956,6 +1025,13 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "subscriber", "super_admin"],
+      order_status: [
+        "pending",
+        "confirmed",
+        "shipped",
+        "delivered",
+        "cancelled",
+      ],
     },
   },
 } as const

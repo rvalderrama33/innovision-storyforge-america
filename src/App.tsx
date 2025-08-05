@@ -7,7 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { initializeCSRF } from "@/lib/csrf";
 import { initializeSessionSecurity, monitorSession } from "@/lib/sessionSecurity";
-import { useEffect } from "react";
+import { useEffect, lazy, Suspense } from "react";
 import Index from "./pages/Index";
 import MobileIndex from "./pages/MobileIndex";
 import Submit from "./pages/Submit";
@@ -25,11 +25,14 @@ import PaymentCancelled from "./pages/PaymentCancelled";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
-import Marketplace from "./pages/Marketplace";
-import MarketplaceAdd from "./pages/MarketplaceAdd";
-import MarketplaceProduct from "./pages/MarketplaceProduct";
-import MarketplaceManage from "./pages/MarketplaceManage";
-import MarketplaceEdit from "./pages/MarketplaceEdit";
+
+// Lazy load marketplace components for better performance
+const Marketplace = lazy(() => import("./pages/Marketplace"));
+const MarketplaceAdd = lazy(() => import("./pages/MarketplaceAdd"));
+const MarketplaceProduct = lazy(() => import("./pages/MarketplaceProduct"));
+const MarketplaceManage = lazy(() => import("./pages/MarketplaceManage"));
+const MarketplaceEdit = lazy(() => import("./pages/MarketplaceEdit"));
+const MarketplaceOrders = lazy(() => import("./pages/MarketplaceOrders"));
 
 import SecurityAudit from "./components/SecurityAudit";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -72,12 +75,37 @@ const App = () => (
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             
-            {/* Marketplace Routes - Protected for now */}
-            <Route path="/marketplace" element={<Marketplace />} />
-            <Route path="/marketplace/add" element={<MarketplaceAdd />} />
-            <Route path="/marketplace/product/:id" element={<MarketplaceProduct />} />
-            <Route path="/marketplace/manage" element={<MarketplaceManage />} />
-            <Route path="/marketplace/edit/:id" element={<MarketplaceEdit />} />
+            {/* Marketplace Routes - Lazy loaded for performance */}
+            <Route path="/marketplace" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <Marketplace />
+              </Suspense>
+            } />
+            <Route path="/marketplace/add" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <MarketplaceAdd />
+              </Suspense>
+            } />
+            <Route path="/marketplace/product/:id" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <MarketplaceProduct />
+              </Suspense>
+            } />
+            <Route path="/marketplace/manage" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <MarketplaceManage />
+              </Suspense>
+            } />
+            <Route path="/marketplace/orders" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <MarketplaceOrders />
+              </Suspense>
+            } />
+            <Route path="/marketplace/edit/:id" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <MarketplaceEdit />
+              </Suspense>
+            } />
             
             <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />
             <Route path="/test-openai" element={<TestOpenAI />} />

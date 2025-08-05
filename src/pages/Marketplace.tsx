@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
+import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
 
 interface MarketplaceProduct {
   id: string;
@@ -26,16 +27,23 @@ interface MarketplaceProduct {
 
 const Marketplace = () => {
   const { user, isAdmin } = useAuth();
+  const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
   const [loading, setLoading] = useState(true);
-
-  const isMarketplaceLive = false;
 
   useSEO({
     title: "Marketplace | America Innovates Magazine",
     description: "Discover and purchase innovative consumer products from featured entrepreneurs and creators.",
     url: "https://americainnovates.us/marketplace"
   });
+
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!isMarketplaceLive && !isAdmin) {
     return <Navigate to="/" />;
@@ -91,6 +99,9 @@ const Marketplace = () => {
             </Link>
             <Link to="/marketplace/manage">
               <Button variant="outline">Manage Products</Button>
+            </Link>
+            <Link to="/marketplace/orders">
+              <Button variant="outline">Orders & Tracking</Button>
             </Link>
           </div>
         </div>

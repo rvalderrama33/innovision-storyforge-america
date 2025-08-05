@@ -329,6 +329,31 @@ const MarketplaceProduct = () => {
             />
           </div>
 
+          {/* Specifications Section - moved here for better layout */}
+          {product.specifications && Object.keys(product.specifications).length > 0 && (
+            <div className="lg:col-span-2">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Specifications</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {Object.entries(product.specifications).map(([key, value]) => (
+                      <div key={key} className="flex justify-between">
+                        <span className="font-medium">{key}:</span>
+                        <span className="text-muted-foreground">{String(value)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mt-8">
+          <div></div>
+
           {/* Product Details */}
           <div className="space-y-6">
             <div>
@@ -411,53 +436,6 @@ const MarketplaceProduct = () => {
               </div>
             </div>
 
-            {product.specifications && Object.keys(product.specifications).length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Specifications</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    {Object.entries(product.specifications).map(([key, value]) => (
-                      <div key={key} className="flex justify-between">
-                        <span className="font-medium">{key}:</span>
-                        <span className="text-muted-foreground">{String(value)}</span>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Product Videos */}
-            {product.video_urls && product.video_urls.length > 0 && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Product Videos</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {product.video_urls.map((videoUrl, index) => (
-                      <div key={index} className="space-y-2">
-                        <p className="text-sm font-medium">
-                          {videoUrl.includes('youtube') ? '📺 YouTube Video' : 
-                           videoUrl.includes('vimeo') ? '🎞️ Vimeo Video' : 
-                           '🎬 Product Video'}
-                        </p>
-                        <a 
-                          href={videoUrl} 
-                          target="_blank" 
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 text-primary hover:underline"
-                        >
-                          Watch Video →
-                        </a>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            )}
           </div>
         </div>
 

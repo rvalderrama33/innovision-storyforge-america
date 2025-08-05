@@ -733,16 +733,31 @@ const MarketplaceEdit = () => {
               </div>
 
               {formData.isAffiliate ? (
-                <div>
-                  <Label htmlFor="affiliateUrl" className="text-sm font-medium">Affiliate URL *</Label>
-                  <Input
-                    id="affiliateUrl"
-                    type="url"
-                    value={formData.affiliateUrl}
-                    onChange={(e) => setFormData({...formData, affiliateUrl: e.target.value})}
-                    placeholder="https://example.com/product"
-                    required
-                  />
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="affiliateUrl" className="text-sm font-medium">Affiliate URL *</Label>
+                    <Input
+                      id="affiliateUrl"
+                      type="url"
+                      value={formData.affiliateUrl}
+                      onChange={(e) => setFormData({...formData, affiliateUrl: e.target.value})}
+                      placeholder="https://example.com/product"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="affiliatePrice" className="text-sm font-medium">Affiliate Price</Label>
+                    <Input
+                      id="affiliatePrice"
+                      type="text"
+                      value={formData.affiliatePrice}
+                      onChange={(e) => setFormData({...formData, affiliatePrice: e.target.value})}
+                      placeholder="$99.99"
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Price as displayed on the affiliate site (e.g., "$99.99", "€75.00")
+                    </p>
+                  </div>
                 </div>
               ) : (
                 <>

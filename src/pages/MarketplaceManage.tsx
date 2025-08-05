@@ -30,11 +30,17 @@ const MarketplaceManage = () => {
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const isMarketplaceLive = false;
+
   useSEO({
     title: "Manage Products | Marketplace",
     description: "Manage your marketplace products and inventory.",
     url: "https://americainnovates.us/marketplace/manage"
   });
+
+  if (!isMarketplaceLive && !isAdmin) {
+    return <Navigate to="/" />;
+  }
 
   // Restrict access to admins only for now
   if (!user || !isAdmin) {

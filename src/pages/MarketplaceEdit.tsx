@@ -36,11 +36,17 @@ const MarketplaceEdit = () => {
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
+  const isMarketplaceLive = false;
+
   useSEO({
     title: "Edit Product | Marketplace",
     description: "Edit your marketplace product details.",
     url: `https://americainnovates.us/marketplace/edit/${id}`
   });
+
+  if (!isMarketplaceLive && !isAdmin) {
+    return <Navigate to="/" />;
+  }
 
   // Restrict access to admins only for now
   if (!user || !isAdmin) {

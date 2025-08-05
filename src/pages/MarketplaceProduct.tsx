@@ -39,12 +39,18 @@ const MarketplaceProduct = () => {
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
 
+  const isMarketplaceLive = false;
+
   // Always call useSEO hook before any early returns
   useSEO({
     title: product ? `${product.name} | Marketplace` : 'Product | Marketplace',
     description: product ? product.description.substring(0, 160) : 'Marketplace product details',
     url: `https://americainnovates.us/marketplace/product/${product?.slug || product?.id || id}`
   });
+
+  if (!isMarketplaceLive && !isAdmin) {
+    return <Navigate to="/" />;
+  }
 
   // Restrict access to admins only for now
   if (!user || !isAdmin) {

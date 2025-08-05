@@ -35,11 +35,17 @@ const MarketplaceAdd = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
+  const isMarketplaceLive = false;
+
   useSEO({
     title: "Add Product | Marketplace",
     description: "Add your innovative product to the America Innovates Marketplace.",
     url: "https://americainnovates.us/marketplace/add"
   });
+
+  if (!isMarketplaceLive && !isAdmin) {
+    return <Navigate to="/" />;
+  }
 
   // Restrict access to admins only for now
   if (!user || !isAdmin) {

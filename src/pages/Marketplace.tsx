@@ -29,11 +29,17 @@ const Marketplace = () => {
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const isMarketplaceLive = false;
+
   useSEO({
     title: "Marketplace | America Innovates Magazine",
     description: "Discover and purchase innovative consumer products from featured entrepreneurs and creators.",
     url: "https://americainnovates.us/marketplace"
   });
+
+  if (!isMarketplaceLive && !isAdmin) {
+    return <Navigate to="/" />;
+  }
 
   // Restrict access to admins only for now
   if (!user || !isAdmin) {

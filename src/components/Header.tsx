@@ -2,11 +2,11 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, LogOut, Settings, X } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-const LogoComponent = ({ isMobile = false }: { isMobile?: boolean }) => {
+const LogoComponent = ({ isMobile = false, isMarketplace = false }: { isMobile?: boolean; isMarketplace?: boolean }) => {
   const [imageError, setImageError] = useState(false);
   
   const handleImageError = () => {
@@ -20,16 +20,24 @@ const LogoComponent = ({ isMobile = false }: { isMobile?: boolean }) => {
           America Innovates
         </h1>
         <p className={`text-gray-600 ${isMobile ? 'text-sm' : 'text-xs lg:text-sm'}`}>
-          Magazine
+          {isMarketplace ? 'Marketplace' : 'Magazine'}
         </p>
       </div>
     );
   }
 
+  const logoSrc = isMarketplace 
+    ? "/lovable-uploads/25521c59-14bd-4565-990e-aa4d304aa849.png"
+    : "/lovable-uploads/2108e82a-9d65-4ee6-b974-51aa5bc01a16.png";
+  
+  const altText = isMarketplace 
+    ? "America Innovates Marketplace" 
+    : "America Innovates Magazine";
+
   return (
     <img 
-      src="/lovable-uploads/2108e82a-9d65-4ee6-b974-51aa5bc01a16.png" 
-      alt="America Innovates Magazine" 
+      src={logoSrc} 
+      alt={altText} 
       className={isMobile 
         ? "h-16 w-auto max-w-[280px] object-contain" 
         : "h-32 w-auto object-contain"
@@ -43,7 +51,10 @@ const LogoComponent = ({ isMobile = false }: { isMobile?: boolean }) => {
 const Header = () => {
   const { user, isAdmin, signOut } = useAuth();
   const isMobile = useIsMobile();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  const isMarketplacePage = location.pathname.startsWith('/marketplace');
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -58,8 +69,8 @@ const Header = () => {
       <nav className="bg-white border-b border-gray-200 px-4 py-1.5">
         {/* Mobile Layout: Logo centered at top */}
         <div className="flex justify-center mb-3">
-          <Link to="/" className="block">
-            <LogoComponent isMobile={true} />
+          <Link to={isMarketplacePage ? "/marketplace" : "/"} className="block">
+            <LogoComponent isMobile={true} isMarketplace={isMarketplacePage} />
           </Link>
         </div>
         
@@ -106,26 +117,48 @@ const Header = () => {
               </Button>
             </div>
             <div className="flex flex-col space-y-4 p-4">
-              <Link to="/" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                Magazine
-              </Link>
-              <Link to="/stories" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                Browse Stories
-              </Link>
-              <Link to="/submit" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                Submit Story
-              </Link>
-              <Link to="/recommend" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                Recommend Someone
-              </Link>
-              {isAdmin && (
-                <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                  Marketplace
-                </Link>
+              {isMarketplacePage ? (
+                <>
+                  <Link to="/" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    Magazine
+                  </Link>
+                  <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    Product Categories
+                  </Link>
+                  <Link to="/marketplace/add" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    Submit Your Product
+                  </Link>
+                  <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    How We Work
+                  </Link>
+                  <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    About
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link to="/" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    Magazine
+                  </Link>
+                  <Link to="/stories" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    Browse Stories
+                  </Link>
+                  <Link to="/submit" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    Submit Story
+                  </Link>
+                  <Link to="/recommend" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    Recommend Someone
+                  </Link>
+                  {isAdmin && (
+                    <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                      Marketplace
+                    </Link>
+                  )}
+                  <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    About
+                  </Link>
+                </>
               )}
-              <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                About
-              </Link>
               {isAdmin && (
                 <Link to="/admin" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                   <Settings className="inline h-4 w-4 mr-1" />
@@ -144,20 +177,32 @@ const Header = () => {
     <nav className="bg-white border-b border-gray-200 px-4 py-1.5 lg:px-12">
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <Link to="/">
-            <LogoComponent isMobile={false} />
+          <Link to={isMarketplacePage ? "/marketplace" : "/"}>
+            <LogoComponent isMobile={false} isMarketplace={isMarketplacePage} />
           </Link>
         </div>
         
         <div className="flex items-center space-x-8">
-          <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
-          <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Browse Stories</Link>
-          <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
-          <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Recommend Someone</Link>
-          {isAdmin && (
-            <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Marketplace</Link>
+          {isMarketplacePage ? (
+            <>
+              <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
+              <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Product Categories</Link>
+              <Link to="/marketplace/add" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Your Product</Link>
+              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">How We Work</Link>
+              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
+            </>
+          ) : (
+            <>
+              <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
+              <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Browse Stories</Link>
+              <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
+              <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Recommend Someone</Link>
+              {isAdmin && (
+                <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Marketplace</Link>
+              )}
+              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
+            </>
           )}
-          <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
           {isAdmin && (
             <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">
               <Settings className="inline h-4 w-4 mr-1" />

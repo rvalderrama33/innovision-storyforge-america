@@ -13,6 +13,7 @@ import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Star, ShoppingCart, Package, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
+import MediaGallery from "@/components/MediaGallery";
 
 interface MarketplaceProduct {
   id: string;
@@ -318,43 +319,14 @@ const MarketplaceProduct = () => {
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Product Images */}
-          <div className="space-y-4">
-            <Card className="overflow-hidden">
-              <div className="aspect-square">
-                {product.images && product.images.length > 0 ? (
-                  <img 
-                    src={product.images[selectedImage]} 
-                    alt={product.name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-muted text-muted-foreground">
-                    No Image Available
-                  </div>
-                )}
-              </div>
-            </Card>
-            
-            {product.images && product.images.length > 1 && (
-              <div className="flex gap-2 overflow-x-auto">
-                {product.images.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImage(index)}
-                    className={`flex-shrink-0 w-20 h-20 rounded-md overflow-hidden border-2 ${
-                      selectedImage === index ? 'border-primary' : 'border-transparent'
-                    }`}
-                  >
-                    <img 
-                      src={image} 
-                      alt={`${product.name} ${index + 1}`}
-                      className="w-full h-full object-cover"
-                    />
-                  </button>
-                ))}
-              </div>
-            )}
+          {/* Product Media Gallery */}
+          <div className="w-full">
+            <MediaGallery
+              images={product.images || []}
+              videoUrls={product.video_urls || []}
+              primaryIndex={product.primary_image_index || 0}
+              productName={product.name}
+            />
           </div>
 
           {/* Product Details */}

@@ -18,11 +18,14 @@ interface MarketplaceProduct {
   currency: string;
   category: string;
   images: string[];
-  primary_image_index: number; // Add primary image index
+  primary_image_index: number;
   slug: string;
   featured: boolean;
   stock_quantity: number;
   vendor_id: string;
+  is_affiliate: boolean;
+  affiliate_url: string;
+  affiliate_price?: string;
 }
 
 const Marketplace = () => {
@@ -174,14 +177,19 @@ const Marketplace = () => {
                     {product.description}
                   </p>
                   
-                  <div className="flex items-center justify-between">
-                    <span className="text-xl font-bold text-primary">
-                      {formatPrice(product.price, product.currency)}
-                    </span>
-                    <span className="text-sm text-muted-foreground">
-                      {product.stock_quantity} in stock
-                    </span>
-                  </div>
+                   <div className="flex items-center justify-between">
+                     <span className="text-xl font-bold text-primary">
+                       {product.is_affiliate && product.affiliate_price 
+                         ? product.affiliate_price 
+                         : formatPrice(product.price, product.currency)
+                       }
+                     </span>
+                     {!product.is_affiliate && (
+                       <span className="text-sm text-muted-foreground">
+                         {product.stock_quantity} in stock
+                       </span>
+                     )}
+                   </div>
                 </CardContent>
                 
                 <CardFooter className="p-4 pt-0">

@@ -57,7 +57,8 @@ const MarketplaceEdit = () => {
     sales_links: [] as string[],
     video_urls: [] as string[],
     isAffiliate: false,
-    affiliateUrl: ""
+    affiliateUrl: "",
+    affiliatePrice: ""
   });
 
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -115,7 +116,8 @@ const MarketplaceEdit = () => {
           sales_links: data.sales_links || [],
           video_urls: data.video_urls || [],
           isAffiliate: data.is_affiliate || false,
-          affiliateUrl: data.affiliate_url || ""
+          affiliateUrl: data.affiliate_url || "",
+          affiliatePrice: data.affiliate_price || ""
         });
       } catch (error: any) {
         console.error('Error fetching product:', error);
@@ -322,6 +324,14 @@ const MarketplaceEdit = () => {
           specifications: content.specifications
         }));
 
+        // If it's an affiliate product and we found a price, update the affiliate_price
+        if (formData.isAffiliate && content.scrapedPrice) {
+          setFormData(prev => ({
+            ...prev,
+            affiliatePrice: content.scrapedPrice
+          }));
+        }
+
         if (content.scrapedImages && content.scrapedImages.length > 0) {
           setFormData(prev => ({
             ...prev,
@@ -330,12 +340,12 @@ const MarketplaceEdit = () => {
           
           toast({
             title: "Success",
-            description: `AI content updated and added ${content.scrapedImages.length} images!`
+            description: `AI content updated and added ${content.scrapedImages.length} images!${content.scrapedPrice ? ` Found price: ${content.scrapedPrice}` : ''}`
           });
         } else {
           toast({
             title: "Success",
-            description: "AI-enhanced content updated successfully!"
+            description: `AI-enhanced content updated successfully!${content.scrapedPrice ? ` Found price: ${content.scrapedPrice}` : ''}`
           });
         }
       } else {
@@ -389,7 +399,8 @@ const MarketplaceEdit = () => {
           sales_links: formData.sales_links,
           video_urls: formData.video_urls,
           is_affiliate: formData.isAffiliate,
-          affiliate_url: formData.isAffiliate ? formData.affiliateUrl : null
+          affiliate_url: formData.isAffiliate ? formData.affiliateUrl : null,
+          affiliate_price: formData.isAffiliate ? formData.affiliatePrice : null
         })
         .eq('id', id)
         .eq('vendor_id', user.id); // Ensure user can only update their own products

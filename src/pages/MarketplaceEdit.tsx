@@ -72,28 +72,10 @@ const MarketplaceEdit = () => {
     url: `https://americainnovates.us/marketplace/edit/${id}`
   });
 
-  // NOW WE CAN HAVE CONDITIONAL RETURNS
-  if (configLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!isMarketplaceLive && !isAdmin) {
-    return <Navigate to="/" />;
-  }
-
-  // Restrict access to admins only for now
-  if (!user || !isAdmin) {
-    return <Navigate to="/auth" replace />;
-  }
-
-  // Load existing product data
+  // Load existing product data - ALL HOOKS BEFORE CONDITIONAL RETURNS
   useEffect(() => {
     const fetchProduct = async () => {
-      if (!id) return;
+      if (!id || !user?.id) return;
 
       try {
         const { data, error } = await supabase
@@ -149,7 +131,25 @@ const MarketplaceEdit = () => {
     };
 
     fetchProduct();
-  }, [id, user.id, navigate, toast]);
+  }, [id, user?.id, navigate, toast]);
+
+  // NOW WE CAN HAVE CONDITIONAL RETURNS
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isMarketplaceLive && !isAdmin) {
+    return <Navigate to="/" />;
+  }
+
+  // Restrict access to admins only for now
+  if (!user || !isAdmin) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const handleImageUpload = async (files: FileList) => {
     if (!files || files.length === 0) return;

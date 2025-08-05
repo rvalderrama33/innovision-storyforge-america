@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/integrations/supabase/client";
 import { useSEO } from "@/hooks/useSEO";
+import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
 import { ArrowLeft, Star, ShoppingCart, Package, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -33,13 +34,13 @@ interface MarketplaceProduct {
 }
 
 const MarketplaceProduct = () => {
+  // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
   const { id } = useParams<{ id: string }>();
   const { user, isAdmin } = useAuth();
+  const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const [product, setProduct] = useState<MarketplaceProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState(0);
-
-  const isMarketplaceLive = false;
 
   // Always call useSEO hook before any early returns
   useSEO({
@@ -47,15 +48,6 @@ const MarketplaceProduct = () => {
     description: product ? product.description.substring(0, 160) : 'Marketplace product details',
     url: `https://americainnovates.us/marketplace/product/${product?.slug || product?.id || id}`
   });
-
-  if (!isMarketplaceLive && !isAdmin) {
-    return <Navigate to="/" />;
-  }
-
-  // Restrict access to admins only for now
-  if (!user || !isAdmin) {
-    return <Navigate to="/auth" replace />;
-  }
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -94,6 +86,24 @@ const MarketplaceProduct = () => {
 
     fetchProduct();
   }, [id]);
+
+  // NOW WE CAN HAVE CONDITIONAL RETURNS
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isMarketplaceLive && !isAdmin) {
+    return <Navigate to="/" />;
+  }
+
+  // Restrict access to admins only for now
+  if (!user || !isAdmin) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {

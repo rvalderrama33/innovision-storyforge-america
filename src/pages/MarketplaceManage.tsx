@@ -26,6 +26,7 @@ interface MarketplaceProduct {
 }
 
 const MarketplaceManage = () => {
+  // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
   const { user, isAdmin } = useAuth();
   const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const { toast } = useToast();
@@ -37,23 +38,6 @@ const MarketplaceManage = () => {
     description: "Manage your marketplace products and inventory.",
     url: "https://americainnovates.us/marketplace/manage"
   });
-
-  if (configLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!isMarketplaceLive && !isAdmin) {
-    return <Navigate to="/" />;
-  }
-
-  // Restrict access to admins only for now
-  if (!user || !isAdmin) {
-    return <Navigate to="/auth" replace />;
-  }
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -78,8 +62,28 @@ const MarketplaceManage = () => {
       }
     };
 
-    fetchProducts();
-  }, [user.id, toast]);
+    if (user?.id) {
+      fetchProducts();
+    }
+  }, [user?.id, toast]);
+
+  // NOW WE CAN HAVE CONDITIONAL RETURNS
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isMarketplaceLive && !isAdmin) {
+    return <Navigate to="/" />;
+  }
+
+  // Restrict access to admins only for now
+  if (!user || !isAdmin) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {

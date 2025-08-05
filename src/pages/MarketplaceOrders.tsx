@@ -48,6 +48,7 @@ interface VendorStats {
 }
 
 const MarketplaceOrders = () => {
+  // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
   const { user, isAdmin } = useAuth();
   const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const { toast } = useToast();
@@ -69,52 +70,38 @@ const MarketplaceOrders = () => {
     url: "https://americainnovates.us/marketplace/orders"
   });
 
-  if (configLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!isMarketplaceLive && !isAdmin) {
-    return <Navigate to="/" />;
-  }
-
-  if (!user || !isAdmin) {
-    return <Navigate to="/auth" replace />;
-  }
-
   useEffect(() => {
-    fetchOrders();
-  }, [user.id]);
+    const fetchOrders = async () => {
+      try {
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('marketplace_orders')
+          .select(`
+            *,
+            product:marketplace_products(name, images)
+          `)
+          .eq('vendor_id', user.id)
+          .order('created_at', { ascending: false });
 
-  const fetchOrders = async () => {
-    try {
-      const { data: ordersData, error: ordersError } = await supabase
-        .from('marketplace_orders')
-        .select(`
-          *,
-          product:marketplace_products(name, images)
-        `)
-        .eq('vendor_id', user.id)
-        .order('created_at', { ascending: false });
+        if (ordersError) throw ordersError;
 
-      if (ordersError) throw ordersError;
+        setOrders(ordersData || []);
+        calculateStats(ordersData || []);
+      } catch (error: any) {
+        console.error('Error fetching orders:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load orders.",
+          variant: "destructive"
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
 
-      setOrders(ordersData || []);
-      calculateStats(ordersData || []);
-    } catch (error: any) {
-      console.error('Error fetching orders:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load orders.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+    if (user?.id) {
+      fetchOrders();
     }
-  };
+  }, [user?.id, toast]);
 
   const calculateStats = (ordersData: MarketplaceOrder[]) => {
     const now = new Date();
@@ -140,6 +127,24 @@ const MarketplaceOrders = () => {
     });
   };
 
+  // NOW WE CAN HAVE CONDITIONAL RETURNS
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isMarketplaceLive && !isAdmin) {
+    return <Navigate to="/" />;
+  }
+
+  if (!user || !isAdmin) {
+    return <Navigate to="/auth" replace />;
+  }
+
+
   const updateOrderStatus = async (orderId: string, status: string, tracking?: string) => {
     setUpdatingOrder(true);
     try {
@@ -160,7 +165,23 @@ const MarketplaceOrders = () => {
         description: `Order ${status === 'shipped' ? 'marked as shipped' : 'updated'} successfully!`
       });
 
-      fetchOrders(); // Refresh the orders list
+      // Refresh the orders by calling the effect again
+      if (user?.id) {
+        const { data: ordersData, error: ordersError } = await supabase
+          .from('marketplace_orders')
+          .select(`
+            *,
+            product:marketplace_products(name, images)
+          `)
+          .eq('vendor_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (!ordersError && ordersData) {
+          setOrders(ordersData);
+          calculateStats(ordersData);
+        }
+      }
+      
       setSelectedOrder(null);
       setTrackingNumber("");
     } catch (error: any) {

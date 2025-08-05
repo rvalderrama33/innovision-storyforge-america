@@ -31,34 +31,17 @@ const categories = [
 ];
 
 const MarketplaceAdd = () => {
+  // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
   const { user, isAdmin } = useAuth();
   const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-
-  useSEO({
-    title: "Add Product | Marketplace",
-    description: "Add your innovative product to the America Innovates Marketplace.",
-    url: "https://americainnovates.us/marketplace/add"
-  });
-
-  if (configLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!isMarketplaceLive && !isAdmin) {
-    return <Navigate to="/" />;
-  }
-
-  // Restrict access to admins only for now
-  if (!user || !isAdmin) {
-    return <Navigate to="/auth" replace />;
-  }
+  const [uploadingImages, setUploadingImages] = useState(false);
+  const [newSalesLink, setNewSalesLink] = useState("");
+  const [newTag, setNewTag] = useState("");
+  const [newVideoUrl, setNewVideoUrl] = useState("");
+  const [generatingContent, setGeneratingContent] = useState(false);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -78,11 +61,29 @@ const MarketplaceAdd = () => {
     video_urls: [] as string[] // Add video URLs
   });
 
-  const [uploadingImages, setUploadingImages] = useState(false);
-  const [newSalesLink, setNewSalesLink] = useState("");
-  const [newTag, setNewTag] = useState("");
-  const [newVideoUrl, setNewVideoUrl] = useState("");
-  const [generatingContent, setGeneratingContent] = useState(false);
+  useSEO({
+    title: "Add Product | Marketplace",
+    description: "Add your innovative product to the America Innovates Marketplace.",
+    url: "https://americainnovates.us/marketplace/add"
+  });
+
+  // NOW WE CAN HAVE CONDITIONAL RETURNS
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!isMarketplaceLive && !isAdmin) {
+    return <Navigate to="/" />;
+  }
+
+  // Restrict access to admins only for now
+  if (!user || !isAdmin) {
+    return <Navigate to="/auth" replace />;
+  }
 
   const generateSlug = async (name: string) => {
     let baseSlug = name

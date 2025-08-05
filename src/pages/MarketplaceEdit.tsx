@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
+import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
 import { Upload, X, Plus, Sparkles, Star, ArrowLeft, Video } from "lucide-react";
 
 const categories = [
@@ -29,20 +30,29 @@ const categories = [
 ];
 
 const MarketplaceEdit = () => {
+  // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
   const { user, isAdmin } = useAuth();
+  const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [initialLoading, setInitialLoading] = useState(true);
 
-  const isMarketplaceLive = false;
-
   useSEO({
     title: "Edit Product | Marketplace",
     description: "Edit your marketplace product details.",
     url: `https://americainnovates.us/marketplace/edit/${id}`
   });
+
+  // NOW WE CAN HAVE CONDITIONAL RETURNS
+  if (configLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   if (!isMarketplaceLive && !isAdmin) {
     return <Navigate to="/" />;

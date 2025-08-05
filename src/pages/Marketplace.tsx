@@ -137,12 +137,12 @@ const Marketplace = () => {
             {products.map((product) => (
               <Card key={product.id} className="group hover:shadow-lg transition-shadow">
                 <CardHeader className="p-0">
-                  <div className="w-full h-48 bg-muted rounded-t-lg overflow-hidden">
+                  <div className="w-full h-48 bg-muted rounded-t-lg overflow-hidden relative">
                     {product.images && product.images.length > 0 ? (
                       <img 
                         src={product.images[product.primary_image_index || 0]} 
                         alt={product.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                         onError={(e) => {
                           // Fallback to first image if primary image fails to load
                           if (product.primary_image_index !== 0) {

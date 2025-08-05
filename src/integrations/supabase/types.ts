@@ -316,6 +316,7 @@ export type Database = {
       }
       marketplace_products: {
         Row: {
+          affiliate_price: string | null
           affiliate_url: string | null
           category: string | null
           created_at: string
@@ -340,6 +341,7 @@ export type Database = {
           video_urls: string[] | null
         }
         Insert: {
+          affiliate_price?: string | null
           affiliate_url?: string | null
           category?: string | null
           created_at?: string
@@ -364,6 +366,7 @@ export type Database = {
           video_urls?: string[] | null
         }
         Update: {
+          affiliate_price?: string | null
           affiliate_url?: string | null
           category?: string | null
           created_at?: string

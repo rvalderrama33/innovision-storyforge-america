@@ -50,6 +50,7 @@ const AdminDashboard = () => {
   const [editUserData, setEditUserData] = useState({ full_name: '', email: '' });
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
+  const [selectedDrafts, setSelectedDrafts] = useState<string[]>([]);
 
   useEffect(() => {
     if (user && isAdmin) {
@@ -569,7 +570,7 @@ const AdminDashboard = () => {
                 </CardContent>
               </Card>
             ) : (
-              <Tabs defaultValue="all" className="space-y-6">
+              <Tabs defaultValue="pending" className="space-y-6">
                 <TabsList className="grid w-full grid-cols-6">
                   <TabsTrigger value="all">All ({submissions.length})</TabsTrigger>
                   <TabsTrigger value="pending">Pending ({submissions.filter(s => s.status === 'pending').length})</TabsTrigger>
@@ -640,22 +641,103 @@ const AdminDashboard = () => {
                 </TabsContent>
 
                 <TabsContent value="draft" className="space-y-6">
-                  <div className="grid gap-6">
-                    {submissions.filter(s => s.status === 'draft').map((submission) => (
-                      <SubmissionCard 
-                        key={submission.id} 
-                        submission={submission}
-                        onPreview={() => {
-                          setSelectedSubmission(submission);
-                          setPreviewDialogOpen(true);
-                        }}
-                        onUpdateStatus={updateSubmissionStatus}
-                        onToggleFeatured={toggleFeatured}
-                        onTogglePinned={togglePinned}
-                        onDelete={deleteSubmission}
-                        onSendUpgradeEmail={sendUpgradeEmailToArticle}
-                      />
-                    ))}
+                  <div className="space-y-4">
+                    {submissions.filter(s => s.status === 'draft').length > 0 && (
+                      <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedDrafts.length === submissions.filter(s => s.status === 'draft').length}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedDrafts(submissions.filter(s => s.status === 'draft').map(s => s.id));
+                              } else {
+                                setSelectedDrafts([]);
+                              }
+                            }}
+                            className="rounded"
+                          />
+                          <span className="text-sm font-medium">
+                            Select All ({selectedDrafts.length} selected)
+                          </span>
+                        </div>
+                        {selectedDrafts.length > 0 && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm">
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete Selected ({selectedDrafts.length})
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Selected Drafts</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete {selectedDrafts.length} selected draft(s)? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={async () => {
+                                  try {
+                                    for (const id of selectedDrafts) {
+                                      await supabase.from('submissions').delete().eq('id', id);
+                                    }
+                                    setSelectedDrafts([]);
+                                    fetchSubmissions();
+                                    toast({
+                                      title: "Drafts deleted",
+                                      description: `${selectedDrafts.length} draft(s) have been deleted`,
+                                    });
+                                  } catch (error) {
+                                    console.error('Error deleting drafts:', error);
+                                    toast({
+                                      title: "Error",
+                                      description: "Failed to delete some drafts",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}>
+                                  Delete Selected
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                      </div>
+                    )}
+                    <div className="grid gap-6">
+                      {submissions.filter(s => s.status === 'draft').map((submission) => (
+                        <div key={submission.id} className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedDrafts.includes(submission.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedDrafts(prev => [...prev, submission.id]);
+                              } else {
+                                setSelectedDrafts(prev => prev.filter(id => id !== submission.id));
+                              }
+                            }}
+                            className="mt-6 rounded"
+                          />
+                          <div className="flex-1">
+                            <SubmissionCard 
+                              submission={submission}
+                              onPreview={() => {
+                                setSelectedSubmission(submission);
+                                setPreviewDialogOpen(true);
+                              }}
+                              onUpdateStatus={updateSubmissionStatus}
+                              onToggleFeatured={toggleFeatured}
+                              onTogglePinned={togglePinned}
+                              onDelete={deleteSubmission}
+                              onSendUpgradeEmail={sendUpgradeEmailToArticle}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </TabsContent>
 

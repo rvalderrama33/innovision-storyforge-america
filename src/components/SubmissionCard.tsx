@@ -123,7 +123,7 @@ export const SubmissionCard = ({ submission, onPreview, onUpdateStatus, onToggle
               variant="outline"
             >
               <Mail className="w-4 h-4 mr-2" />
-              Email Submitter
+              Email
             </Button>
           )}
           

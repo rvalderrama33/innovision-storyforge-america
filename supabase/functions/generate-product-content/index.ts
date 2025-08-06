@@ -21,14 +21,14 @@ interface ScrapedContent {
 }
 
 async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedContent> {
-  console.log(`🔥 Starting Firecrawl scrape: ${url}`);
+  console.log(`🔥 Starting enhanced Firecrawl scrape for URLs: ${url}`);
   try {
     if (!firecrawlApiKey) {
       console.log('⚠️ Firecrawl API key not found, falling back to basic scraping');
       return await fetchWebsiteContentBasic(url);
     }
     
-    const firecrawlResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
+    const firecrawlResponse = await fetch('https://api.firecrawl.dev/v1/scrape', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${firecrawlApiKey}`,
@@ -36,15 +36,28 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
       },
       body: JSON.stringify({
         url: url,
-        formats: ['markdown', 'html'],
+        formats: ['html', 'markdown', 'links'],
         onlyMainContent: false,
-        includeRawHtml: true,
-        waitFor: 3000,
-        screenshot: true,
-        extractorOptions: {
-          extractImages: true,
-          extractVideos: true
-        }
+        includeTags: ['img', 'video', 'source', 'picture', 'a'],
+        excludeTags: ['script', 'style'],
+        waitFor: 5000,
+        timeout: 30000,
+        mobile: false,
+        skipTlsVerification: false,
+        actions: [
+          {
+            type: 'wait',
+            milliseconds: 3000
+          },
+          {
+            type: 'scroll',
+            direction: 'down'
+          },
+          {
+            type: 'wait', 
+            milliseconds: 2000
+          }
+        ]
       })
     });
 
@@ -68,18 +81,33 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
 
     const html = firecrawlData.data.html || '';
     const markdown = firecrawlData.data.markdown || '';
+    const linksOnPage = firecrawlData.data.linksOnPage || [];
     
     console.log(`📄 HTML length: ${html.length}, Markdown length: ${markdown.length}`);
+    console.log(`🔗 Links on page: ${linksOnPage.length}`);
+    
+    // Extract image and video URLs from multiple sources
+    const imageUrls: string[] = [];
+    const videoUrls: string[] = [];
+    
+    // 1. Extract from linksOnPage first (most reliable for URLs)
+    const imageLinks = linksOnPage.filter((link: string) => 
+      /\.(jpg|jpeg|png|gif|webp|svg|avif)(\?.*)?$/i.test(link)
+    );
+    const videoLinks = linksOnPage.filter((link: string) => 
+      /\.(mp4|webm|avi|mov|wmv|flv|m4v)(\?.*)?$/i.test(link) ||
+      link.includes('youtube.com') || link.includes('youtu.be') || link.includes('vimeo.com')
+    );
+    
+    console.log(`🔗 Found ${imageLinks.length} image URLs and ${videoLinks.length} video URLs in linksOnPage`);
+    imageUrls.push(...imageLinks);
+    videoUrls.push(...videoLinks);
     
     // If we have no HTML content, fall back to basic scraping
     if (!html || html.length < 100) {
       console.log(`⚠️ Firecrawl returned insufficient HTML content, falling back to basic scraping`);
       return await fetchWebsiteContentBasic(url);
     }
-    
-    // Extract images from Firecrawl data more aggressively
-    const imageUrls: string[] = [];
-    const videoUrls: string[] = [];
     
     // Check if Firecrawl extracted images directly
     if (firecrawlData.data.images && Array.isArray(firecrawlData.data.images)) {
@@ -98,48 +126,39 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
       imageUrls.push(...firecrawlData.data.scrapeResult.images);
     }
     
-    // Extract images from HTML with multiple patterns
+    // 2. Extract from HTML attributes for additional image URLs
+    console.log(`🖼️ Parsing HTML for additional image URLs...`);
     const imagePatterns = [
-      /<img[^>]+src=["']([^"']+)["'][^>]*>/gi,
-      /<img[^>]+data-src=["']([^"']+)["'][^>]*>/gi, // Lazy loading
-      /<source[^>]+src=["']([^"']+)["'][^>]*>/gi,
-      /<source[^>]+srcset=["']([^"']+)["'][^>]*>/gi,
-      /data-image-src=["']([^"']+)["']/gi, // Amazon specific
-      /data-old-hires=["']([^"']+)["']/gi, // Amazon high-res
-      /data-a-dynamic-image=["']([^"']+)["']/gi // Amazon dynamic
+      /<img[^>]+(?:src|data-src|data-lazy-src|data-original)=["']([^"']+)["'][^>]*>/gi,
+      /<picture[^>]*>.*?<source[^>]+(?:src|srcset)=["']([^"']+)["'][^>]*>.*?<\/picture>/gi,
+      /background-image:\s*url\(['"]?([^'"]+)['"]?\)/gi,
+      /data-image[^=]*=["']([^"']+)["']/gi, // Amazon specific
+      /data-.*-image=["']([^"']+)["']/gi // Generic data attributes
     ];
     
-    let totalImgTags = 0;
     imagePatterns.forEach((pattern, index) => {
       let match;
       while ((match = pattern.exec(html)) !== null) {
-        totalImgTags++;
         let imageUrl = match[1];
         
         // Handle srcset (comma-separated URLs with sizes)
         if (imageUrl.includes(',')) {
-          // Take the highest resolution image from srcset
           const urls = imageUrl.split(',').map(s => s.trim().split(' ')[0]);
           imageUrl = urls[urls.length - 1] || urls[0];
         }
         
-        console.log(`🔍 Pattern ${index + 1} found img #${totalImgTags}: ${imageUrl.substring(0, 100)}...`);
-        
-        // Skip obvious non-product images
+        // Skip data URLs and obvious non-product images
         if (imageUrl.startsWith('data:') || 
             imageUrl.includes('favicon') || 
             imageUrl.includes('spacer.gif') ||
             imageUrl.includes('tracking') ||
-            imageUrl.includes('analytics') ||
-            (imageUrl.includes('logo') && imageUrl.includes('header'))) {
-          console.log(`⏭️ Skipping non-product image: ${imageUrl.substring(0, 50)}...`);
+            imageUrl.includes('analytics')) {
           continue;
         }
         
         // Convert relative URLs to absolute
         if (imageUrl.startsWith('//')) {
-          const urlObj = new URL(url);
-          imageUrl = `${urlObj.protocol}${imageUrl}`;
+          imageUrl = `https:${imageUrl}`;
         } else if (imageUrl.startsWith('/')) {
           const urlObj = new URL(url);
           imageUrl = `${urlObj.protocol}//${urlObj.host}${imageUrl}`;
@@ -148,52 +167,55 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
           imageUrl = `${urlObj.protocol}//${urlObj.host}/${imageUrl}`;
         }
         
-        // Accept more image formats and be less restrictive
-        if ((imageUrl.match(/\.(jpg|jpeg|png|webp|avif)(\?.*)?$/i) || 
-             imageUrl.includes('images-amazon.com') ||
-             imageUrl.includes('ssl-images-amazon.com') ||
-             imageUrl.includes('m.media-amazon.com')) && 
-            imageUrl.length < 2000) {
-          console.log(`✅ Adding image: ${imageUrl.substring(0, 100)}...`);
+        // Add any valid image URL
+        if (/\.(jpg|jpeg|png|gif|webp|svg|avif)(\?.*)?$/i.test(imageUrl) && imageUrl.length < 2000) {
           imageUrls.push(imageUrl);
-        } else {
-          console.log(`❌ Rejected image: ${imageUrl.substring(0, 100)}...`);
         }
       }
     });
     
-    console.log(`📊 Image extraction summary: ${totalImgTags} total patterns matched, ${imageUrls.length} images accepted`);
+    console.log(`📊 HTML parsing found additional images, total now: ${imageUrls.length}`);
     
-    // Extract videos with enhanced patterns
+    // 3. Extract videos from HTML 
+    console.log(`🎬 Parsing HTML for video URLs...`);
     const videoPatterns = [
+      /<video[^>]+src=["']([^"']+)["'][^>]*>/gi,
+      /<source[^>]+src=["']([^"']+\.(mp4|webm|ogg|mov|avi))["'][^>]*>/gi,
       /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/gi,
-      /src=["']([^"']*youtube[^"']*)["']/gi,
-      /href=["']([^"']*youtube[^"']*)["']/gi,
       /(?:vimeo\.com\/)(\d+)/gi,
-      /src=["']([^"']*vimeo[^"']*)["']/gi,
-      /src=["']([^"']*\.(mp4|webm|ogg|mov|avi)(\?[^"']*)?)["']/gi,
-      /data-video-url=["']([^"']+)["']/gi, // Common e-commerce pattern
-      /video.*src=["']([^"']+)["']/gi
+      /data-video[^=]*=["']([^"']+)["']/gi
     ];
     
     videoPatterns.forEach(pattern => {
       let match;
       while ((match = pattern.exec(html)) !== null) {
         let videoUrl = match[1] || match[0];
+        
+        // Handle YouTube IDs
         if (match[1] && match[1].length === 11 && pattern.toString().includes('youtube')) {
           videoUrl = `https://www.youtube.com/watch?v=${match[1]}`;
         }
+        // Handle Vimeo IDs
         if (match[1] && /^\d+$/.test(match[1]) && pattern.toString().includes('vimeo')) {
           videoUrl = `https://vimeo.com/${match[1]}`;
         }
-        if (videoUrl && (videoUrl.includes('youtube') || videoUrl.includes('vimeo') || videoUrl.includes('.mp4') || videoUrl.includes('.webm'))) {
-          console.log(`🎬 Found video: ${videoUrl}`);
+        
+        // Convert relative URLs to absolute
+        if (videoUrl.startsWith('/') && !videoUrl.startsWith('//')) {
+          const urlObj = new URL(url);
+          videoUrl = `${urlObj.protocol}//${urlObj.host}${videoUrl}`;
+        } else if (videoUrl.startsWith('//')) {
+          videoUrl = `https:${videoUrl}`;
+        }
+        
+        if (videoUrl && (videoUrl.includes('youtube') || videoUrl.includes('vimeo') || 
+                        /\.(mp4|webm|ogg|mov|avi)(\?.*)?$/i.test(videoUrl))) {
           videoUrls.push(videoUrl);
         }
       }
     });
     
-    console.log(`🎬 Video extraction summary: ${videoUrls.length} videos found`);
+    console.log(`🎬 HTML parsing found additional videos, total now: ${videoUrls.length}`);
     
     // Extract title and description
     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
@@ -202,13 +224,20 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
     const descMatch = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["'][^>]*>/i);
     const description = descMatch ? descMatch[1].trim() : firecrawlData.data.description || '';
     
-    console.log(`🔥 Final extraction results: ${imageUrls.length} images, ${videoUrls.length} videos`);
-    if (imageUrls.length > 0) {
-      console.log(`🖼️ Sample images: ${imageUrls.slice(0, 3).map(img => img.substring(0, 80)).join(', ')}`);
+    // Remove duplicates and clean up URLs
+    const uniqueImageUrls = [...new Set(imageUrls)].filter(url => url && url.length > 0);
+    const uniqueVideoUrls = [...new Set(videoUrls)].filter(url => url && url.length > 0);
+    
+    console.log(`🔥 Final extraction results: ${uniqueImageUrls.length} images, ${uniqueVideoUrls.length} videos`);
+    if (uniqueImageUrls.length > 0) {
+      console.log(`🖼️ Sample image URLs: ${uniqueImageUrls.slice(0, 3).map(img => img.substring(0, 80)).join(', ')}`);
+    }
+    if (uniqueVideoUrls.length > 0) {
+      console.log(`🎬 Sample video URLs: ${uniqueVideoUrls.slice(0, 3).map(vid => vid.substring(0, 80)).join(', ')}`);
     }
     
     // If no images found with Firecrawl, try basic scraping as fallback
-    if (imageUrls.length === 0) {
+    if (uniqueImageUrls.length === 0) {
       console.log(`⚠️ Firecrawl found no images, trying basic scraping fallback`);
       const basicResult = await fetchWebsiteContentBasic(url);
       if (basicResult.imageUrls.length > 0) {
@@ -219,8 +248,8 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
     
     return {
       textContent: markdown.substring(0, 3000),
-      imageUrls: [...new Set(imageUrls)],
-      videoUrls: [...new Set(videoUrls)],
+      imageUrls: uniqueImageUrls,
+      videoUrls: uniqueVideoUrls,
       title,
       description
     };

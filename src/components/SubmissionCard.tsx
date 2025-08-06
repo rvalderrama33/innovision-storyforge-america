@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Eye, CheckCircle, XCircle, Star, Pin, Edit, Trash2, Mail } from "lucide-react";
 import { Link } from "react-router-dom";
 
@@ -70,26 +71,20 @@ export const SubmissionCard = ({ submission, onPreview, onUpdateStatus, onToggle
             Preview
           </Button>
           
-          {submission.status === 'pending' && (
-            <>
-              <Button
-                onClick={() => onUpdateStatus(submission.id, 'approved')}
-                size="sm"
-                variant="default"
-              >
-                <CheckCircle className="w-4 h-4 mr-2" />
-                Approve
-              </Button>
-              <Button
-                onClick={() => onUpdateStatus(submission.id, 'rejected')}
-                size="sm"
-                variant="destructive"
-              >
-                <XCircle className="w-4 h-4 mr-2" />
-                Reject
-              </Button>
-            </>
-          )}
+          <Select
+            value={submission.status}
+            onValueChange={(value) => onUpdateStatus(submission.id, value)}
+          >
+            <SelectTrigger className="w-32 h-8">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="approved">Approved</SelectItem>
+              <SelectItem value="rejected">Rejected</SelectItem>
+              <SelectItem value="draft">Draft</SelectItem>
+            </SelectContent>
+          </Select>
           
           <Button
             onClick={() => onToggleFeatured(submission.id, !submission.featured)}

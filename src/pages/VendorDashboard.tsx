@@ -164,6 +164,28 @@ const VendorDashboard = () => {
             </p>
           </div>
 
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <Link to="/marketplace/add">
+              <Button className="w-full h-16 text-lg">
+                <Plus className="h-5 w-5 mr-2" />
+                Add New Product
+              </Button>
+            </Link>
+            <Link to="/marketplace/manage">
+              <Button variant="outline" className="w-full h-16 text-lg">
+                <Edit className="h-5 w-5 mr-2" />
+                Manage Products
+              </Button>
+            </Link>
+            <Link to="/marketplace/orders">
+              <Button variant="outline" className="w-full h-16 text-lg">
+                <Package className="h-5 w-5 mr-2" />
+                Orders & Tracking
+              </Button>
+            </Link>
+          </div>
+
           {/* Stats Overview */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             <Card>
@@ -207,59 +229,6 @@ const VendorDashboard = () => {
             </Card>
           </div>
 
-          {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Plus className="h-5 w-5" />
-                  Add New Product
-                </CardTitle>
-                <CardDescription>
-                  Create a new product listing for your marketplace
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link to="/marketplace/add">
-                  <Button className="w-full">Create Product</Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Package className="h-5 w-5" />
-                  Manage Products
-                </CardTitle>
-                <CardDescription>
-                  View and edit your existing product listings
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link to="/marketplace/manage">
-                  <Button variant="outline" className="w-full">Manage Products</Button>
-                </Link>
-              </CardContent>
-            </Card>
-
-            <Card className="hover:shadow-lg transition-shadow">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <ShoppingCart className="h-5 w-5" />
-                  View Orders
-                </CardTitle>
-                <CardDescription>
-                  Track and manage your customer orders
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Link to="/marketplace/orders">
-                  <Button variant="outline" className="w-full">View Orders</Button>
-                </Link>
-              </CardContent>
-            </Card>
-          </div>
 
           {/* Recent Products */}
           <Card>

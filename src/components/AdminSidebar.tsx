@@ -7,7 +7,8 @@ import {
   TrendingUp, 
   Users, 
   Shield, 
-  Home
+  Home,
+  Store
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -35,6 +36,7 @@ const adminMenuItems = [
   { title: "Users", url: "/admin/users", icon: Users },
   { title: "Security", url: "/admin/security", icon: Shield },
   { title: "Email Center", url: "/admin/emails", icon: Mail },
+  { title: "Vendor Dashboard", url: "/vendor/dashboard", icon: Store },
 ];
 
 export function AdminSidebar() {

@@ -9,7 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
 import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
-import { BecomeVendorButton } from "@/components/BecomeVendorButton";
+
 
 interface MarketplaceProduct {
   id: string;
@@ -102,19 +102,7 @@ const Marketplace = () => {
           </div>
           
           <div className="flex flex-wrap gap-4">
-            <BecomeVendorButton />
-            <Link to="/marketplace/add">
-              <Button>Add Product</Button>
-            </Link>
-            <Link to="/marketplace/manage">
-              <Button variant="outline">Manage Products</Button>
-            </Link>
-            <Link to="/marketplace/orders">
-              <Button variant="outline">Orders & Tracking</Button>
-            </Link>
-            <Link to="/vendor/dashboard">
-              <Button variant="outline">Vendor Dashboard</Button>
-            </Link>
+            {/* Marketplace is now for browsing only - vendor actions moved to vendor dashboard */}
           </div>
         </div>
 

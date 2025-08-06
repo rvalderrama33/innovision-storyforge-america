@@ -56,6 +56,7 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
     const firecrawlData = await firecrawlResponse.json();
     console.log(`🔥 Firecrawl response received for ${url}`);
     console.log(`🔥 Firecrawl data keys:`, Object.keys(firecrawlData));
+    console.log(`🔥 Firecrawl full response:`, JSON.stringify(firecrawlData, null, 2));
     
     if (!firecrawlData.success) {
       console.log(`❌ Firecrawl failed: ${firecrawlData.error}, falling back to basic scraping`);
@@ -66,6 +67,12 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
     const markdown = firecrawlData.data.markdown || '';
     
     console.log(`📄 HTML length: ${html.length}, Markdown length: ${markdown.length}`);
+    
+    // If we have no HTML content, fall back to basic scraping
+    if (!html || html.length < 100) {
+      console.log(`⚠️ Firecrawl returned insufficient HTML content, falling back to basic scraping`);
+      return await fetchWebsiteContentBasic(url);
+    }
     
     // Extract images from Firecrawl data more aggressively
     const imageUrls: string[] = [];

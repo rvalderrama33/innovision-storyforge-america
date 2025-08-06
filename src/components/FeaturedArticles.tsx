@@ -15,7 +15,11 @@ interface FeaturedStory {
   image_urls: string[];
 }
 
-const FeaturedArticles = () => {
+interface FeaturedArticlesProps {
+  onContentLoad?: (hasContent: boolean) => void;
+}
+
+const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
   const [featuredStories, setFeaturedStories] = useState<FeaturedStory[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -44,9 +48,11 @@ const FeaturedArticles = () => {
 
         if (error) {
           console.error('Error fetching featured stories:', error);
+          onContentLoad?.(false);
         } else {
           const shuffledStories = shuffleArray(data || []);
           setFeaturedStories(shuffledStories);
+          onContentLoad?.(shuffledStories.length > 0);
         }
       } catch (error) {
         console.error('Failed to fetch stories:', error);

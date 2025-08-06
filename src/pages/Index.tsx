@@ -4,32 +4,38 @@ import Hero from "@/components/Hero";
 import FeaturedArticles from "@/components/FeaturedArticles";
 import Newsletter from "@/components/Newsletter";
 import { useSEO } from "@/hooks/useSEO";
+import { useState } from "react";
 
 const Index = () => {
+  const [hasContent, setHasContent] = useState(false);
+
   useSEO({
     title: "America Innovates Magazine | Spotlighting Entrepreneurs & Creators",
     description: "Discover breakthrough consumer products from visionary entrepreneurs and creators who are building innovations that make everyday life better. Share your innovation story today.",
     url: "https://americainnovates.us",
     image: "https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png"
   });
+
   return (
     <div className="min-h-screen bg-white">
       <Header />
       <Hero />
-      <FeaturedArticles />
+      <FeaturedArticles onContentLoad={setHasContent} />
       
-      {/* Google AdSense Ad Unit */}
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <ins className="adsbygoogle"
-             style={{display:'block'}}
-             data-ad-client="ca-pub-3665365079867533"
-             data-ad-slot="5115934537"
-             data-ad-format="auto"
-             data-full-width-responsive="true"></ins>
-        <script dangerouslySetInnerHTML={{
-          __html: `(adsbygoogle = window.adsbygoogle || []).push({});`
-        }} />
-      </div>
+      {/* Only show AdSense when there's substantial content */}
+      {hasContent && (
+        <div className="max-w-6xl mx-auto px-4 py-8">
+          <ins className="adsbygoogle"
+               style={{display:'block'}}
+               data-ad-client="ca-pub-3665365079867533"
+               data-ad-slot="5115934537"
+               data-ad-format="auto"
+               data-full-width-responsive="true"></ins>
+          <script dangerouslySetInnerHTML={{
+            __html: `(adsbygoogle = window.adsbygoogle || []).push({});`
+          }} />
+        </div>
+      )}
       
       <Newsletter />
     </div>

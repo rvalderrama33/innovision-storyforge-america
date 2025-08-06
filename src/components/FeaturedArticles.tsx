@@ -1,4 +1,3 @@
-
 import { useEffect, useState, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,11 +12,20 @@ interface FeaturedStory {
   category: string;
   slug: string;
   image_urls: string[];
+  generated_article?: string;
 }
 
 interface FeaturedArticlesProps {
   onContentLoad?: (hasContent: boolean) => void;
 }
+
+const getStoryTeaser = (story: FeaturedStory & { generated_article?: string }) => {
+  if (!story.generated_article) return "";
+  
+  // Get first two lines of the generated article
+  const lines = story.generated_article.split('\n').filter(line => line.trim() !== '');
+  return lines.slice(0, 2).join(' ').replace(/^#+\s*/, '').trim();
+};
 
 const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
   const [featuredStories, setFeaturedStories] = useState<FeaturedStory[]>([]);
@@ -39,7 +47,7 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
         setIsLoading(true);
         const { data, error } = await supabase
           .from('submissions')
-          .select('*')
+          .select('*, generated_article')
           .eq('status', 'approved')
           .eq('featured', true)
           .order('pinned', { ascending: false })
@@ -117,6 +125,9 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                           <h3 className="text-3xl font-bold mb-3 leading-tight">
                             {featuredStories[0].full_name}
                           </h3>
+                          <p className="text-white/90 text-lg leading-relaxed">
+                            {getStoryTeaser(featuredStories[0])}
+                          </p>
                           <p className="text-white/75 text-sm mt-2">
                             by America Innovates Magazine
                           </p>
@@ -192,6 +203,9 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                         <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors leading-tight">
                           {story.full_name}
                         </h3>
+                        <p className="text-gray-600 mb-3 line-clamp-2 text-sm">
+                          {getStoryTeaser(story)}
+                        </p>
                         <p className="text-sm text-gray-500">
                           by America Innovates Magazine
                         </p>

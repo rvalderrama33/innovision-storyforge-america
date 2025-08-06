@@ -21,6 +21,13 @@ interface Story {
   headshot_image?: string;
 }
 
+const getStoryTeaser = (story: Story) => {
+  if (!story.generated_article) return "";
+  
+  // Get first two lines of the generated article
+  const lines = story.generated_article.split('\n').filter(line => line.trim() !== '');
+  return lines.slice(0, 2).join(' ').replace(/^#+\s*/, '').trim();
+};
 
 const Stories = () => {
   const [stories, setStories] = useState<Story[]>([]);
@@ -132,6 +139,9 @@ const Stories = () => {
                         <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors">
                           {story.generated_article ? story.generated_article.split('\n')[0].replace(/^#+\s*/, '').trim() : (story.product_name || 'Untitled Product')}
                         </h3>
+                        <p className="text-gray-600 mb-3 line-clamp-3">
+                          {getStoryTeaser(story)}
+                        </p>
                         <p className="text-sm text-gray-500">
                           by America Innovates Magazine
                         </p>

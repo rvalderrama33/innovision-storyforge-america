@@ -372,7 +372,7 @@ const Article = () => {
                     </Badge>
                   )}
                 </div>
-                <p className="text-muted-foreground">{article.description}</p>
+                
               </div>
             </div>
 

@@ -6,6 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Upload, Loader2, ExternalLink } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import headshotExample1 from "@/assets/headshot-example-1.webp";
+import headshotExample2 from "@/assets/headshot-example-2.webp";
+import headshotExample3 from "@/assets/headshot-example-3.webp";
+import headshotExample4 from "@/assets/headshot-example-4.webp";
 
 interface StepFourProps {
   data: any;
@@ -156,9 +160,37 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
           <h4 className="text-lg font-semibold text-gray-900 mb-3">
             A professional headshot will make all the difference
           </h4>
+          <p className="text-gray-700 mb-2">
+            Get the biggest impact from your story with a beautiful headshot.
+          </p>
           <p className="text-gray-700 mb-4">
             We want your headshot to be spectacular. Let AI create professional headshots for you in minutes.
           </p>
+          
+          {/* Headshot examples */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4 max-w-md mx-auto">
+            <img 
+              src={headshotExample1} 
+              alt="Professional headshot example" 
+              className="w-full h-20 object-cover rounded-lg shadow-sm"
+            />
+            <img 
+              src={headshotExample2} 
+              alt="Professional headshot example" 
+              className="w-full h-20 object-cover rounded-lg shadow-sm"
+            />
+            <img 
+              src={headshotExample3} 
+              alt="Professional headshot example" 
+              className="w-full h-20 object-cover rounded-lg shadow-sm"
+            />
+            <img 
+              src={headshotExample4} 
+              alt="Professional headshot example" 
+              className="w-full h-20 object-cover rounded-lg shadow-sm"
+            />
+          </div>
+          
           <Button
             onClick={() => window.open('https://www.headshot.kiwi/?ref=ricardo', '_blank')}
             className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-2 rounded-lg font-medium transition-all duration-200 flex items-center space-x-2 mx-auto"

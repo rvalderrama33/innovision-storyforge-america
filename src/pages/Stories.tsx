@@ -119,9 +119,9 @@ const Stories = () => {
                               story.full_name === "Ronald Droze" || 
                               story.full_name === "William Kessel" || 
                               story.full_name === "Lakesha Bowden" ||
-                              story.full_name === "David Harrington" ||
                               story.product_name === "Beeryards" 
-                                ? "object-center" : "object-top"
+                                ? "object-center" : story.full_name === "David Harrington" 
+                                ? "object-top" : "object-top"
                             } group-hover:scale-105 transition-transform duration-300`}
                           />
                         ) : (

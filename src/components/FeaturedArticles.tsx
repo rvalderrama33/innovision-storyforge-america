@@ -104,9 +104,9 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                             featuredStories[0].full_name === "Ronald Droze" || 
                             featuredStories[0].full_name === "William Kessel" || 
                             featuredStories[0].full_name === "Lakesha Bowden" ||
-                            featuredStories[0].full_name === "David Harrington" ||
                             featuredStories[0].product_name === "Beeryards" 
-                              ? "object-center" : "object-top"
+                              ? "object-center" : featuredStories[0].full_name === "David Harrington" 
+                              ? "object-top" : "object-top"
                           }`}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
@@ -145,9 +145,9 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                                 story.full_name === "Ronald Droze" || 
                                 story.full_name === "William Kessel" || 
                                 story.full_name === "Lakesha Bowden" ||
-                                story.full_name === "David Harrington" ||
                                 story.product_name === "Beeryards" 
-                                  ? "object-center" : "object-top"
+                                  ? "object-center" : story.full_name === "David Harrington" 
+                                  ? "object-top" : "object-top"
                               }`}
                             />
                           </div>
@@ -182,9 +182,9 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                             story.full_name === "Ronald Droze" || 
                             story.full_name === "William Kessel" || 
                             story.full_name === "Lakesha Bowden" ||
-                            story.full_name === "David Harrington" ||
                             story.product_name === "Beeryards" 
-                              ? "object-center" : "object-top"
+                              ? "object-center" : story.full_name === "David Harrington" 
+                              ? "object-top" : "object-top"
                           }`}
                         />
                       </div>

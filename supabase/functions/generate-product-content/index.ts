@@ -262,28 +262,37 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
 
 async function fetchWebsiteContentBasic(url: string): Promise<ScrapedContent> {
   console.log(`🔍 Starting basic scrape: ${url}`);
+  
+  // Ensure URL has protocol
+  const normalizedUrl = url.startsWith('http') ? url : `https://${url}`;
+  console.log(`📝 Normalized URL: ${normalizedUrl}`);
+  
   try {
     // Add headers to mimic a real browser
-    const response = await fetch(url, {
+    const response = await fetch(normalizedUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Accept-Encoding': 'gzip, deflate',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Encoding': 'gzip, deflate, br',
         'Connection': 'keep-alive',
-        'Upgrade-Insecure-Requests': '1'
+        'Upgrade-Insecure-Requests': '1',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'none',
+        'Cache-Control': 'max-age=0',
       }
     });
     
-    console.log(`📊 Response status: ${response.status} for ${url}`);
+    console.log(`📊 Response status: ${response.status} for ${normalizedUrl}`);
     
     if (!response.ok) {
-      console.log(`❌ Failed to fetch ${url}: ${response.status} ${response.statusText}`);
+      console.log(`❌ Failed to fetch ${normalizedUrl}: ${response.status} ${response.statusText}`);
       return { textContent: '', imageUrls: [], videoUrls: [], title: '', description: '' };
     }
     
     const html = await response.text();
-    console.log(`📄 HTML length: ${html.length} characters from ${url}`);
+    console.log(`📄 HTML length: ${html.length} characters from ${normalizedUrl}`);
     
     // Extract ALL images aggressively
     const imageRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
@@ -313,16 +322,16 @@ async function fetchWebsiteContentBasic(url: string): Promise<ScrapedContent> {
       // Convert relative URLs to absolute
       const originalUrl = imageUrl;
       if (imageUrl.startsWith('//')) {
-        const urlObj = new URL(url);
+        const urlObj = new URL(normalizedUrl);
         imageUrl = `${urlObj.protocol}${imageUrl}`;
       } else if (imageUrl.startsWith('/')) {
-        const urlObj = new URL(url);
+        const urlObj = new URL(normalizedUrl);
         imageUrl = `${urlObj.protocol}//${urlObj.host}${imageUrl}`;
       } else if (imageUrl.startsWith('./')) {
-        const urlObj = new URL(url);
+        const urlObj = new URL(normalizedUrl);
         imageUrl = `${urlObj.protocol}//${urlObj.host}${imageUrl.substring(1)}`;
       } else if (!imageUrl.startsWith('http')) {
-        const urlObj = new URL(url);
+        const urlObj = new URL(normalizedUrl);
         imageUrl = `${urlObj.protocol}//${urlObj.host}/${imageUrl}`;
       }
       

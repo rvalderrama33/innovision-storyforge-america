@@ -117,9 +117,6 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                           <h3 className="text-3xl font-bold mb-3 leading-tight">
                             {featuredStories[0].full_name}
                           </h3>
-                          <p className="text-white/90 text-lg leading-relaxed">
-                            {featuredStories[0].description}
-                          </p>
                           <p className="text-white/75 text-sm mt-2">
                             by America Innovates Magazine
                           </p>
@@ -195,9 +192,6 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                         <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors leading-tight">
                           {story.full_name}
                         </h3>
-                        <p className="text-gray-600 mb-3 line-clamp-2 text-sm">
-                          {story.description}
-                        </p>
                         <p className="text-sm text-gray-500">
                           by America Innovates Magazine
                         </p>

@@ -39,7 +39,12 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
         formats: ['markdown', 'html'],
         includeTags: ['img', 'video', 'source'],
         onlyMainContent: false,
-        includeRawHtml: true
+        includeRawHtml: true,
+        waitFor: 3000, // Wait for dynamic content
+        extractorOptions: {
+          extractImages: true,
+          extractVideos: true
+        }
       })
     });
 
@@ -50,6 +55,7 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
 
     const firecrawlData = await firecrawlResponse.json();
     console.log(`🔥 Firecrawl response received for ${url}`);
+    console.log(`🔥 Firecrawl data keys:`, Object.keys(firecrawlData));
     
     if (!firecrawlData.success) {
       console.log(`❌ Firecrawl failed: ${firecrawlData.error}, falling back to basic scraping`);
@@ -59,62 +65,114 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
     const html = firecrawlData.data.html || '';
     const markdown = firecrawlData.data.markdown || '';
     
-    // Extract images from Firecrawl data
+    console.log(`📄 HTML length: ${html.length}, Markdown length: ${markdown.length}`);
+    
+    // Extract images from Firecrawl data more aggressively
     const imageUrls: string[] = [];
     const videoUrls: string[] = [];
     
-    // Extract images from HTML
-    const imageRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
-    let match;
-    while ((match = imageRegex.exec(html)) !== null) {
-      let imageUrl = match[1];
-      
-      // Skip non-product images
-      if (imageUrl.startsWith('data:') || 
-          imageUrl.includes('favicon') || 
-          imageUrl.includes('.svg') ||
-          imageUrl.endsWith('.gif') ||
-          (imageUrl.includes('logo') && imageUrl.includes('header'))) {
-        continue;
-      }
-      
-      // Convert relative URLs to absolute
-      if (imageUrl.startsWith('//')) {
-        const urlObj = new URL(url);
-        imageUrl = `${urlObj.protocol}${imageUrl}`;
-      } else if (imageUrl.startsWith('/')) {
-        const urlObj = new URL(url);
-        imageUrl = `${urlObj.protocol}//${urlObj.host}${imageUrl}`;
-      } else if (!imageUrl.startsWith('http')) {
-        const urlObj = new URL(url);
-        imageUrl = `${urlObj.protocol}//${urlObj.host}/${imageUrl}`;
-      }
-      
-      if (imageUrl.match(/\.(jpg|jpeg|png|webp)(\?.*)?$/i) && imageUrl.length < 1000) {
-        imageUrls.push(imageUrl);
-      }
+    // Check if Firecrawl extracted images directly
+    if (firecrawlData.data.images && Array.isArray(firecrawlData.data.images)) {
+      console.log(`🔥 Firecrawl provided ${firecrawlData.data.images.length} images directly`);
+      imageUrls.push(...firecrawlData.data.images);
     }
     
-    // Extract videos from HTML
-    const youtubePatterns = [
+    // Extract images from HTML with multiple patterns
+    const imagePatterns = [
+      /<img[^>]+src=["']([^"']+)["'][^>]*>/gi,
+      /<img[^>]+data-src=["']([^"']+)["'][^>]*>/gi, // Lazy loading
+      /<source[^>]+src=["']([^"']+)["'][^>]*>/gi,
+      /<source[^>]+srcset=["']([^"']+)["'][^>]*>/gi,
+      /data-image-src=["']([^"']+)["']/gi, // Amazon specific
+      /data-old-hires=["']([^"']+)["']/gi, // Amazon high-res
+      /data-a-dynamic-image=["']([^"']+)["']/gi // Amazon dynamic
+    ];
+    
+    let totalImgTags = 0;
+    imagePatterns.forEach((pattern, index) => {
+      let match;
+      while ((match = pattern.exec(html)) !== null) {
+        totalImgTags++;
+        let imageUrl = match[1];
+        
+        // Handle srcset (comma-separated URLs with sizes)
+        if (imageUrl.includes(',')) {
+          // Take the highest resolution image from srcset
+          const urls = imageUrl.split(',').map(s => s.trim().split(' ')[0]);
+          imageUrl = urls[urls.length - 1] || urls[0];
+        }
+        
+        console.log(`🔍 Pattern ${index + 1} found img #${totalImgTags}: ${imageUrl.substring(0, 100)}...`);
+        
+        // Skip obvious non-product images
+        if (imageUrl.startsWith('data:') || 
+            imageUrl.includes('favicon') || 
+            imageUrl.includes('spacer.gif') ||
+            imageUrl.includes('tracking') ||
+            imageUrl.includes('analytics') ||
+            (imageUrl.includes('logo') && imageUrl.includes('header'))) {
+          console.log(`⏭️ Skipping non-product image: ${imageUrl.substring(0, 50)}...`);
+          continue;
+        }
+        
+        // Convert relative URLs to absolute
+        if (imageUrl.startsWith('//')) {
+          const urlObj = new URL(url);
+          imageUrl = `${urlObj.protocol}${imageUrl}`;
+        } else if (imageUrl.startsWith('/')) {
+          const urlObj = new URL(url);
+          imageUrl = `${urlObj.protocol}//${urlObj.host}${imageUrl}`;
+        } else if (!imageUrl.startsWith('http')) {
+          const urlObj = new URL(url);
+          imageUrl = `${urlObj.protocol}//${urlObj.host}/${imageUrl}`;
+        }
+        
+        // Accept more image formats and be less restrictive
+        if ((imageUrl.match(/\.(jpg|jpeg|png|webp|avif)(\?.*)?$/i) || 
+             imageUrl.includes('images-amazon.com') ||
+             imageUrl.includes('ssl-images-amazon.com') ||
+             imageUrl.includes('m.media-amazon.com')) && 
+            imageUrl.length < 2000) {
+          console.log(`✅ Adding image: ${imageUrl.substring(0, 100)}...`);
+          imageUrls.push(imageUrl);
+        } else {
+          console.log(`❌ Rejected image: ${imageUrl.substring(0, 100)}...`);
+        }
+      }
+    });
+    
+    console.log(`📊 Image extraction summary: ${totalImgTags} total patterns matched, ${imageUrls.length} images accepted`);
+    
+    // Extract videos with enhanced patterns
+    const videoPatterns = [
       /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/gi,
-      /src=["']([^"']*youtube[^"']*)["']/gi
-    ];
-    
-    const vimeoPatterns = [
+      /src=["']([^"']*youtube[^"']*)["']/gi,
+      /href=["']([^"']*youtube[^"']*)["']/gi,
       /(?:vimeo\.com\/)(\d+)/gi,
-      /src=["']([^"']*vimeo[^"']*)["']/gi
+      /src=["']([^"']*vimeo[^"']*)["']/gi,
+      /src=["']([^"']*\.(mp4|webm|ogg|mov|avi)(\?[^"']*)?)["']/gi,
+      /data-video-url=["']([^"']+)["']/gi, // Common e-commerce pattern
+      /video.*src=["']([^"']+)["']/gi
     ];
     
-    [...youtubePatterns, ...vimeoPatterns].forEach(pattern => {
+    videoPatterns.forEach(pattern => {
       let match;
       while ((match = pattern.exec(html)) !== null) {
         let videoUrl = match[1] || match[0];
-        if (videoUrl.includes('youtube') || videoUrl.includes('vimeo')) {
+        if (match[1] && match[1].length === 11 && pattern.toString().includes('youtube')) {
+          videoUrl = `https://www.youtube.com/watch?v=${match[1]}`;
+        }
+        if (match[1] && /^\d+$/.test(match[1]) && pattern.toString().includes('vimeo')) {
+          videoUrl = `https://vimeo.com/${match[1]}`;
+        }
+        if (videoUrl && (videoUrl.includes('youtube') || videoUrl.includes('vimeo') || videoUrl.includes('.mp4') || videoUrl.includes('.webm'))) {
+          console.log(`🎬 Found video: ${videoUrl}`);
           videoUrls.push(videoUrl);
         }
       }
     });
+    
+    console.log(`🎬 Video extraction summary: ${videoUrls.length} videos found`);
     
     // Extract title and description
     const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
@@ -123,7 +181,10 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
     const descMatch = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["'][^>]*>/i);
     const description = descMatch ? descMatch[1].trim() : firecrawlData.data.description || '';
     
-    console.log(`🔥 Firecrawl extracted: ${imageUrls.length} images, ${videoUrls.length} videos`);
+    console.log(`🔥 Final extraction results: ${imageUrls.length} images, ${videoUrls.length} videos`);
+    if (imageUrls.length > 0) {
+      console.log(`🖼️ Sample images: ${imageUrls.slice(0, 3).map(img => img.substring(0, 80)).join(', ')}`);
+    }
     
     return {
       textContent: markdown.substring(0, 3000),

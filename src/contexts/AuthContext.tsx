@@ -9,6 +9,7 @@ interface AuthContextType {
   loading: boolean;
   isSubscriber: boolean;
   isAdmin: boolean;
+  isVendor: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signUp: (email: string, password: string, fullName: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
@@ -22,6 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [isSubscriber, setIsSubscriber] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [isVendor, setIsVendor] = useState(false);
 
   const checkUserRole = async (userId: string) => {
     try {
@@ -34,7 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       if (error) {
         console.error('Error checking user role:', error);
         // If there's an error checking roles, treat authenticated users as subscribers
-        return { isSubscriber: true, isAdmin: false };
+        return { isSubscriber: true, isAdmin: false, isVendor: false };
       }
 
       console.log('User roles data:', data);
@@ -43,12 +45,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       // Check for specific roles
       const hasSubscriberRole = roles.includes('subscriber');
       const hasAdminRole = roles.includes('admin');
+      const hasVendorRole = roles.includes('vendor');
       
       // For authenticated users, if they have no roles or only subscriber role, treat as subscriber
       // If they have admin role, they're also a subscriber (admins can read articles)
       const result = {
         isSubscriber: hasSubscriberRole || hasAdminRole || roles.length === 0, // Default to subscriber for authenticated users
-        isAdmin: hasAdminRole
+        isAdmin: hasAdminRole,
+        isVendor: hasVendorRole
       };
       
       console.log('User role result for', userId, ':', result);
@@ -56,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     } catch (error) {
       console.error('Error in checkUserRole:', error);
       // On error, treat authenticated users as subscribers
-      return { isSubscriber: true, isAdmin: false };
+      return { isSubscriber: true, isAdmin: false, isVendor: false };
     }
   };
 
@@ -200,15 +204,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     if (user) {
       console.log('User changed, checking roles for:', user.email, 'ID:', user.id);
-      checkUserRole(user.id).then(({ isSubscriber: sub, isAdmin: admin }) => {
-        console.log('Setting subscriber status:', sub, 'admin status:', admin, 'for user:', user.email);
+      checkUserRole(user.id).then(({ isSubscriber: sub, isAdmin: admin, isVendor: vendor }) => {
+        console.log('Setting subscriber status:', sub, 'admin status:', admin, 'vendor status:', vendor, 'for user:', user.email);
         setIsSubscriber(sub);
         setIsAdmin(admin);
+        setIsVendor(vendor);
       });
     } else {
       console.log('No user, clearing roles');
       setIsSubscriber(false);
       setIsAdmin(false);
+      setIsVendor(false);
     }
   }, [user]);
 
@@ -217,6 +223,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loading,
     isSubscriber,
     isAdmin,
+    isVendor,
     signIn,
     signUp,
     signOut,

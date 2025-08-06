@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Link } from "react-router-dom";
 import { useSEO } from "@/hooks/useSEO";
 import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
+import { BecomeVendorButton } from "@/components/BecomeVendorButton";
 
 interface MarketplaceProduct {
   id: string;
@@ -100,7 +101,8 @@ const Marketplace = () => {
             <p className="text-muted-foreground">Discover innovative products from our featured entrepreneurs</p>
           </div>
           
-          <div className="space-x-4">
+          <div className="flex flex-wrap gap-4">
+            <BecomeVendorButton />
             <Link to="/marketplace/add">
               <Button>Add Product</Button>
             </Link>
@@ -109,6 +111,9 @@ const Marketplace = () => {
             </Link>
             <Link to="/marketplace/orders">
               <Button variant="outline">Orders & Tracking</Button>
+            </Link>
+            <Link to="/vendor/dashboard">
+              <Button variant="outline">Vendor Dashboard</Button>
             </Link>
           </div>
         </div>

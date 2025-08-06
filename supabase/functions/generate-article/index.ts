@@ -372,7 +372,7 @@ IMPORTANT: Do NOT use markdown headers (# symbols) in your response. Write the a
         source_links: allSources,
         slug: slug
       })
-      .eq('id', formData.submissionId);
+      .eq('id', formData.id);
     
     if (updateError) {
       console.error('Failed to save article to database:', updateError);

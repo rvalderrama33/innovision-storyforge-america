@@ -196,7 +196,6 @@ const Header = () => {
             <>
               <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
               <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Browse Stories</Link>
-              <SearchDialog />
               <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
               <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Recommend Someone</Link>
               {isAdmin && (
@@ -214,6 +213,7 @@ const Header = () => {
         </div>
         
         <div className="flex items-center space-x-4">
+          <SearchDialog />
           {user ? (
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-700">

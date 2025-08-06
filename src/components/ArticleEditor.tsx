@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Save, Plus, X, ImageIcon, Star, User, Building, Upload } from 'lucide-react';
+import { ArrowLeft, Save, Plus, X, ImageIcon, Star, User, Building, Upload, Sparkles } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface BannerImageSettings {
@@ -61,6 +61,7 @@ const ArticleEditor = () => {
   const [newImageUrl, setNewImageUrl] = useState('');
   const [newSourceLink, setNewSourceLink] = useState('');
   const [uploading, setUploading] = useState(false);
+  const [generating, setGenerating] = useState(false);
 
   const categories = [
     'Technology', 'Health & Wellness', 'Food & Beverage', 'Fashion', 
@@ -360,6 +361,58 @@ const ArticleEditor = () => {
     }
   };
 
+  const handleGenerateStory = async () => {
+    if (!article) return;
+
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-article', {
+        body: {
+          id: article.id,
+          full_name: article.full_name,
+          product_name: article.product_name,
+          description: article.description,
+          category: article.category,
+          background: article.background,
+          website: article.website,
+          social_media: article.social_media,
+          problem_solved: article.problem_solved,
+          stage: article.stage,
+          idea_origin: article.idea_origin,
+          biggest_challenge: article.biggest_challenge,
+          proudest_moment: article.proudest_moment,
+          inspiration: article.inspiration,
+          motivation: article.motivation,
+          source_links: article.source_links || [],
+          isManual: true
+        }
+      });
+
+      if (error) throw error;
+
+      if (data?.generated_article) {
+        setArticle({
+          ...article,
+          generated_article: data.generated_article
+        });
+        
+        toast({
+          title: "Success",
+          description: "Story generated successfully!",
+        });
+      }
+    } catch (error) {
+      console.error('Error generating story:', error);
+      toast({
+        title: "Error",
+        description: "Failed to generate story. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setGenerating(false);
+    }
+  };
+
   if (authLoading || loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -625,7 +678,18 @@ const ArticleEditor = () => {
           <TabsContent value="content" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Article Content</CardTitle>
+                <div className="flex justify-between items-center">
+                  <CardTitle>Article Content</CardTitle>
+                  <Button
+                    onClick={handleGenerateStory}
+                    disabled={generating}
+                    variant="outline"
+                    className="gap-2"
+                  >
+                    <Sparkles className="w-4 h-4" />
+                    {generating ? 'Generating...' : article.generated_article ? 'Regenerate Story' : 'Generate Story'}
+                  </Button>
+                </div>
               </CardHeader>
               <CardContent>
                 <div>
@@ -636,7 +700,7 @@ const ArticleEditor = () => {
                     onChange={(e) => handleInputChange('generated_article', e.target.value)}
                     rows={20}
                     className="mt-2"
-                    placeholder="Enter the article content here..."
+                    placeholder="Enter the article content here or click 'Generate Story' to create it automatically..."
                   />
                 </div>
               </CardContent>

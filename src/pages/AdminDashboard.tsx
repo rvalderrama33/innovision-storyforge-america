@@ -28,6 +28,7 @@ import SecurityMonitor from "@/components/SecurityMonitor";
 import { TestFeaturedEmailSender } from '@/components/TestFeaturedEmailSender';
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
+import { FollowUpEmailDialog } from "@/components/FollowUpEmailDialog";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -51,6 +52,8 @@ const AdminDashboard = () => {
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
   const [selectedDrafts, setSelectedDrafts] = useState<string[]>([]);
+  const [followUpEmailOpen, setFollowUpEmailOpen] = useState(false);
+  const [followUpSubmission, setFollowUpSubmission] = useState<any>(null);
 
   useEffect(() => {
     if (user && isAdmin) {
@@ -363,6 +366,11 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleSendFollowUpEmail = (submissionData: any) => {
+    setFollowUpSubmission(submissionData);
+    setFollowUpEmailOpen(true);
+  };
+
   const handleEditUser = (user: any) => {
     setEditingUser(user);
     setEditUserData({
@@ -582,61 +590,64 @@ const AdminDashboard = () => {
 
                 <TabsContent value="all" className="space-y-6">
                   <div className="grid gap-6">
-                    {submissions.map((submission) => (
-                      <SubmissionCard 
-                        key={submission.id} 
-                        submission={submission}
-                        onPreview={() => {
-                          setSelectedSubmission(submission);
-                          setPreviewDialogOpen(true);
-                        }}
-                        onUpdateStatus={updateSubmissionStatus}
-                        onToggleFeatured={toggleFeatured}
-                        onTogglePinned={togglePinned}
-                        onDelete={deleteSubmission}
-                        onSendUpgradeEmail={sendUpgradeEmailToArticle}
-                      />
-                    ))}
+                     {submissions.map((submission) => (
+                       <SubmissionCard 
+                         key={submission.id} 
+                         submission={submission}
+                         onPreview={() => {
+                           setSelectedSubmission(submission);
+                           setPreviewDialogOpen(true);
+                         }}
+                         onUpdateStatus={updateSubmissionStatus}
+                         onToggleFeatured={toggleFeatured}
+                         onTogglePinned={togglePinned}
+                         onDelete={deleteSubmission}
+                         onSendUpgradeEmail={sendUpgradeEmailToArticle}
+                         onSendFollowUpEmail={handleSendFollowUpEmail}
+                       />
+                     ))}
                   </div>
                 </TabsContent>
 
                 <TabsContent value="pending" className="space-y-6">
                   <div className="grid gap-6">
-                    {submissions.filter(s => s.status === 'pending').map((submission) => (
-                      <SubmissionCard 
-                        key={submission.id} 
-                        submission={submission}
-                        onPreview={() => {
-                          setSelectedSubmission(submission);
-                          setPreviewDialogOpen(true);
-                        }}
-                        onUpdateStatus={updateSubmissionStatus}
-                        onToggleFeatured={toggleFeatured}
-                        onTogglePinned={togglePinned}
-                        onDelete={deleteSubmission}
-                        onSendUpgradeEmail={sendUpgradeEmailToArticle}
-                      />
-                    ))}
+                     {submissions.filter(s => s.status === 'pending').map((submission) => (
+                       <SubmissionCard 
+                         key={submission.id} 
+                         submission={submission}
+                         onPreview={() => {
+                           setSelectedSubmission(submission);
+                           setPreviewDialogOpen(true);
+                         }}
+                         onUpdateStatus={updateSubmissionStatus}
+                         onToggleFeatured={toggleFeatured}
+                         onTogglePinned={togglePinned}
+                         onDelete={deleteSubmission}
+                         onSendUpgradeEmail={sendUpgradeEmailToArticle}
+                         onSendFollowUpEmail={handleSendFollowUpEmail}
+                       />
+                     ))}
                   </div>
                 </TabsContent>
 
                 <TabsContent value="approved" className="space-y-6">
                   <div className="grid gap-6">
-                    {submissions.filter(s => s.status === 'approved').map((submission) => (
-                      <SubmissionCard 
-                        key={submission.id} 
-                        submission={submission}
-                        onPreview={() => {
-                          setSelectedSubmission(submission);
-                          setPreviewDialogOpen(true);
-                        }}
-                        onUpdateStatus={updateSubmissionStatus}
-                        onToggleFeatured={toggleFeatured}
-                        onTogglePinned={togglePinned}
-                        onDelete={deleteSubmission}
-                        onSendUpgradeEmail={sendUpgradeEmailToArticle}
-                      />
-                    ))}
+                     {submissions.filter(s => s.status === 'approved').map((submission) => (
+                       <SubmissionCard 
+                         key={submission.id} 
+                         submission={submission}
+                         onPreview={() => {
+                           setSelectedSubmission(submission);
+                           setPreviewDialogOpen(true);
+                         }}
+                         onUpdateStatus={updateSubmissionStatus}
+                         onToggleFeatured={toggleFeatured}
+                         onTogglePinned={togglePinned}
+                         onDelete={deleteSubmission}
+                         onSendUpgradeEmail={sendUpgradeEmailToArticle}
+                         onSendFollowUpEmail={handleSendFollowUpEmail}
+                       />
+                     ))}
                   </div>
                 </TabsContent>
 
@@ -722,18 +733,19 @@ const AdminDashboard = () => {
                             className="mt-6 rounded"
                           />
                           <div className="flex-1">
-                            <SubmissionCard 
-                              submission={submission}
-                              onPreview={() => {
-                                setSelectedSubmission(submission);
-                                setPreviewDialogOpen(true);
-                              }}
-                              onUpdateStatus={updateSubmissionStatus}
-                              onToggleFeatured={toggleFeatured}
-                              onTogglePinned={togglePinned}
-                              onDelete={deleteSubmission}
-                              onSendUpgradeEmail={sendUpgradeEmailToArticle}
-                            />
+                             <SubmissionCard 
+                               submission={submission}
+                               onPreview={() => {
+                                 setSelectedSubmission(submission);
+                                 setPreviewDialogOpen(true);
+                               }}
+                               onUpdateStatus={updateSubmissionStatus}
+                               onToggleFeatured={toggleFeatured}
+                               onTogglePinned={togglePinned}
+                               onDelete={deleteSubmission}
+                               onSendUpgradeEmail={sendUpgradeEmailToArticle}
+                               onSendFollowUpEmail={handleSendFollowUpEmail}
+                             />
                           </div>
                         </div>
                       ))}
@@ -743,21 +755,22 @@ const AdminDashboard = () => {
 
                 <TabsContent value="featured" className="space-y-6">
                   <div className="grid gap-6">
-                    {submissions.filter(s => s.featured).map((submission) => (
-                      <SubmissionCard 
-                        key={submission.id} 
-                        submission={submission}
-                        onPreview={() => {
-                          setSelectedSubmission(submission);
-                          setPreviewDialogOpen(true);
-                        }}
-                        onUpdateStatus={updateSubmissionStatus}
-                        onToggleFeatured={toggleFeatured}
-                        onTogglePinned={togglePinned}
-                        onDelete={deleteSubmission}
-                        onSendUpgradeEmail={sendUpgradeEmailToArticle}
-                      />
-                    ))}
+                     {submissions.filter(s => s.featured).map((submission) => (
+                       <SubmissionCard 
+                         key={submission.id} 
+                         submission={submission}
+                         onPreview={() => {
+                           setSelectedSubmission(submission);
+                           setPreviewDialogOpen(true);
+                         }}
+                         onUpdateStatus={updateSubmissionStatus}
+                         onToggleFeatured={toggleFeatured}
+                         onTogglePinned={togglePinned}
+                         onDelete={deleteSubmission}
+                         onSendUpgradeEmail={sendUpgradeEmailToArticle}
+                         onSendFollowUpEmail={handleSendFollowUpEmail}
+                       />
+                     ))}
                   </div>
                 </TabsContent>
 
@@ -768,21 +781,22 @@ const AdminDashboard = () => {
                         <CardTitle>{category} ({submissions.filter(s => s.category === category).length})</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-4">
-                        {submissions.filter(s => s.category === category).map((submission) => (
-                          <SubmissionCard 
-                            key={submission.id} 
-                            submission={submission}
-                            onPreview={() => {
-                              setSelectedSubmission(submission);
-                              setPreviewDialogOpen(true);
-                            }}
-                            onUpdateStatus={updateSubmissionStatus}
-                            onToggleFeatured={toggleFeatured}
-                            onTogglePinned={togglePinned}
-                            onDelete={deleteSubmission}
-                            onSendUpgradeEmail={sendUpgradeEmailToArticle}
-                          />
-                        ))}
+                         {submissions.filter(s => s.category === category).map((submission) => (
+                           <SubmissionCard 
+                             key={submission.id} 
+                             submission={submission}
+                             onPreview={() => {
+                               setSelectedSubmission(submission);
+                               setPreviewDialogOpen(true);
+                             }}
+                             onUpdateStatus={updateSubmissionStatus}
+                             onToggleFeatured={toggleFeatured}
+                             onTogglePinned={togglePinned}
+                             onDelete={deleteSubmission}
+                             onSendUpgradeEmail={sendUpgradeEmailToArticle}
+                             onSendFollowUpEmail={handleSendFollowUpEmail}
+                           />
+                         ))}
                       </CardContent>
                     </Card>
                   ))}
@@ -1038,6 +1052,12 @@ const AdminDashboard = () => {
           onApprove={(id) => updateSubmissionStatus(id, 'approved')}
           onReject={(id) => updateSubmissionStatus(id, 'rejected')}
           onRegenerate={regenerateStory}
+        />
+
+        <FollowUpEmailDialog
+          open={followUpEmailOpen}
+          onClose={() => setFollowUpEmailOpen(false)}
+          submission={followUpSubmission}
         />
       </div>
     </SidebarProvider>

@@ -15,6 +15,7 @@ interface SubmissionCardProps {
   onTogglePinned: (id: string, pinned: boolean) => void;
   onDelete: (id: string) => void;
   onSendUpgradeEmail?: (submissionId: string, submissionData: any) => void;
+  onSendFollowUpEmail?: (submissionData: any) => void;
   onPaymentSuccess?: () => void;
 }
 
@@ -27,7 +28,7 @@ const getStatusVariant = (status: string) => {
   }
 };
 
-export const SubmissionCard = ({ submission, onPreview, onUpdateStatus, onToggleFeatured, onTogglePinned, onDelete, onSendUpgradeEmail }: SubmissionCardProps) => {
+export const SubmissionCard = ({ submission, onPreview, onUpdateStatus, onToggleFeatured, onTogglePinned, onDelete, onSendUpgradeEmail, onSendFollowUpEmail }: SubmissionCardProps) => {
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader>
@@ -112,6 +113,17 @@ export const SubmissionCard = ({ submission, onPreview, onUpdateStatus, onToggle
             >
               <Mail className="w-4 h-4 mr-2" />
               Send Upgrade Email
+            </Button>
+          )}
+          
+          {submission.email && onSendFollowUpEmail && (
+            <Button
+              onClick={() => onSendFollowUpEmail(submission)}
+              size="sm"
+              variant="outline"
+            >
+              <Mail className="w-4 h-4 mr-2" />
+              Email Submitter
             </Button>
           )}
           

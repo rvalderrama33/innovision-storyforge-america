@@ -579,6 +579,13 @@ serve(async (req) => {
     if (salesLinks && salesLinks.length > 0) {
       for (const link of salesLinks.slice(0, 3)) { // Limit to 3 links
         console.log('Processing link:', link);
+        
+        // Skip Amazon URLs as they actively block scraping
+        if (link.includes('amazon.com')) {
+          console.log(`⚠️ Skipping Amazon URL (anti-bot protection): ${link}`);
+          continue;
+        }
+        
         const content = await fetchWebsiteContentWithFirecrawl(link);
         console.log('Extracted content from', link, ':', {
           textLength: content.textContent.length,

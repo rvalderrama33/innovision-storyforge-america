@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import Header from "@/components/Header";
+import SearchBar from "@/components/SearchBar";
 import { useSEO } from "@/hooks/useSEO";
 
 interface Story {
@@ -31,6 +32,7 @@ const getStoryTeaser = (story: Story) => {
 
 const Stories = () => {
   const [stories, setStories] = useState<Story[]>([]);
+  const [filteredStories, setFilteredStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
 
   useSEO({
@@ -51,12 +53,30 @@ const Stories = () => {
         console.error('Error fetching stories:', error);
       } else {
         setStories(data || []);
+        setFilteredStories(data || []);
       }
       setLoading(false);
     };
 
     fetchStories();
   }, []);
+
+  const handleSearch = (query: string) => {
+    if (!query.trim()) {
+      setFilteredStories(stories);
+      return;
+    }
+
+    const searchResults = stories.filter(story => 
+      story.full_name?.toLowerCase().includes(query.toLowerCase()) ||
+      story.product_name?.toLowerCase().includes(query.toLowerCase()) ||
+      story.description?.toLowerCase().includes(query.toLowerCase()) ||
+      story.category?.toLowerCase().includes(query.toLowerCase()) ||
+      story.generated_article?.toLowerCase().includes(query.toLowerCase())
+    );
+    
+    setFilteredStories(searchResults);
+  };
 
   if (loading) {
     return (
@@ -84,19 +104,30 @@ const Stories = () => {
               In these pages, you'll discover how ordinary people transformed simple ideas into extraordinary products that millions now use daily. Learn from their mistakes, celebrate their victories, and perhaps find the inspiration to turn your own spark of innovation into the next breakthrough that changes the world.
             </p>
           </div>
+          
+          {/* Search Bar */}
+          <div className="mt-8">
+            <SearchBar 
+              onSearch={handleSearch}
+              placeholder="Search by entrepreneur, product, or topic..."
+              className="max-w-md"
+            />
+          </div>
         </div>
       </div>
 
       {/* Stories Grid */}
       <div className="py-16 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
-          {stories.length === 0 ? (
+          {filteredStories.length === 0 && !loading ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">No stories available yet.</p>
+              <p className="text-gray-500 text-lg">
+                {stories.length === 0 ? "No stories available yet." : "No stories match your search."}
+              </p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {stories.map((story) => {
+              {filteredStories.map((story) => {
                 // Use headshot image for Michael Jon Smith, otherwise use first image
                 const imageUrl = story.full_name === "Michael Jon Smith" && story.headshot_image 
                   ? story.headshot_image 

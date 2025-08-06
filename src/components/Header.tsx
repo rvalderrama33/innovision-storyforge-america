@@ -6,6 +6,7 @@ import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SearchDialog from "@/components/SearchDialog";
+import { BecomeVendorButton } from "@/components/BecomeVendorButton";
 
 const LogoComponent = ({ isMobile = false, isMarketplace = false }: { isMobile?: boolean; isMarketplace?: boolean }) => {
   const [imageError, setImageError] = useState(false);
@@ -149,12 +150,15 @@ const Header = () => {
                       Marketplace
                     </Link>
                   )}
-                  <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                    About
-                  </Link>
-                </>
-              )}
-              {isAdmin && (
+                   <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                     About
+                   </Link>
+                 </>
+               )}
+               <div onClick={closeMobileMenu} className="py-2">
+                 <BecomeVendorButton />
+               </div>
+               {isAdmin && (
                 <Link to="/admin" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                   <Settings className="inline h-4 w-4 mr-1" />
                   Admin
@@ -225,10 +229,11 @@ const Header = () => {
               {isAdmin && (
                 <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Marketplace</Link>
               )}
-              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">About</Link>
-            </>
-          )}
-          {isAdmin && (
+               <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">About</Link>
+             </>
+           )}
+           <BecomeVendorButton />
+           {isAdmin && (
             <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
               <Settings className="inline h-4 w-4 mr-1" />
               Admin

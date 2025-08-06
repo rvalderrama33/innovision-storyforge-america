@@ -175,67 +175,73 @@ const Header = () => {
 
   // Desktop Layout
   return (
-    <nav className="bg-white border-b border-gray-200 px-4 py-1.5 lg:px-12">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Link to={isMarketplacePage ? "/marketplace" : "/"}>
-            <LogoComponent isMobile={false} isMarketplace={isMarketplacePage} />
-          </Link>
+    <nav className="bg-white border-b border-gray-200">
+      {/* Top section with logo and auth */}
+      <div className="px-4 py-1.5 lg:px-12">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-3">
+            <Link to={isMarketplacePage ? "/marketplace" : "/"}>
+              <LogoComponent isMobile={false} isMarketplace={isMarketplacePage} />
+            </Link>
+          </div>
+          
+          <div className="flex flex-col items-end space-y-2">
+            <div className="flex items-center space-x-4">
+              {user ? (
+                <div className="flex items-center space-x-4">
+                  <span className="text-sm text-gray-700">
+                    Welcome, {user.user_metadata?.full_name || user.email}
+                  </span>
+                  <Button onClick={signOut} variant="outline" size="sm">
+                    <LogOut className="h-4 w-4 mr-1" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Link to="/auth">
+                    <Button variant="outline">Sign In</Button>
+                  </Link>
+                  <Link to="/auth">
+                    <Button>Subscribe</Button>
+                  </Link>
+                </>
+              )}
+            </div>
+            <SearchDialog />
+          </div>
         </div>
-        
-        <div className="flex items-center space-x-8">
+      </div>
+      
+      {/* Bottom section with navigation menu */}
+      <div className="bg-gray-50 border-t border-gray-100 px-4 py-2 lg:px-12">
+        <div className="flex items-center justify-center space-x-8">
           {isMarketplacePage ? (
             <>
-              <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
-              <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Product Categories</Link>
-              <Link to="/marketplace/add" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Your Product</Link>
-              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">How We Work</Link>
-              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
+              <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Magazine</Link>
+              <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Product Categories</Link>
+              <Link to="/marketplace/add" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Submit Your Product</Link>
+              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">How We Work</Link>
+              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">About</Link>
             </>
           ) : (
             <>
-              <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
-              <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Browse Stories</Link>
-              <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
-              <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Recommend Someone</Link>
+              <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Magazine</Link>
+              <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Browse Stories</Link>
+              <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Submit Story</Link>
+              <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Recommend Someone</Link>
               {isAdmin && (
-                <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Marketplace</Link>
+                <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Marketplace</Link>
               )}
-              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
+              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">About</Link>
             </>
           )}
           {isAdmin && (
-            <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">
+            <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
               <Settings className="inline h-4 w-4 mr-1" />
               Admin
             </Link>
           )}
-        </div>
-        
-        <div className="flex flex-col items-end space-y-2">
-          <div className="flex items-center space-x-4">
-            {user ? (
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-700">
-                  Welcome, {user.user_metadata?.full_name || user.email}
-                </span>
-                <Button onClick={signOut} variant="outline" size="sm">
-                  <LogOut className="h-4 w-4 mr-1" />
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <>
-                <Link to="/auth">
-                  <Button variant="outline">Sign In</Button>
-                </Link>
-                <Link to="/auth">
-                  <Button>Subscribe</Button>
-                </Link>
-              </>
-            )}
-          </div>
-          <SearchDialog />
         </div>
       </div>
     </nav>

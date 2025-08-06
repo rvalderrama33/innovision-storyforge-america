@@ -2,6 +2,7 @@ import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+const firecrawlApiKey = Deno.env.get('FIRECRAWL_API_KEY');
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,8 +20,127 @@ interface ScrapedContent {
   reviewCount?: number;
 }
 
-async function fetchWebsiteContent(url: string): Promise<ScrapedContent> {
-  console.log(`🔍 Starting to scrape: ${url}`);
+async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedContent> {
+  console.log(`🔥 Starting Firecrawl scrape: ${url}`);
+  try {
+    if (!firecrawlApiKey) {
+      console.log('⚠️ Firecrawl API key not found, falling back to basic scraping');
+      return await fetchWebsiteContentBasic(url);
+    }
+    
+    const firecrawlResponse = await fetch('https://api.firecrawl.dev/v0/scrape', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${firecrawlApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        url: url,
+        formats: ['markdown', 'html'],
+        includeTags: ['img', 'video', 'source'],
+        onlyMainContent: false,
+        includeRawHtml: true
+      })
+    });
+
+    if (!firecrawlResponse.ok) {
+      console.log(`❌ Firecrawl API error: ${firecrawlResponse.status}, falling back to basic scraping`);
+      return await fetchWebsiteContentBasic(url);
+    }
+
+    const firecrawlData = await firecrawlResponse.json();
+    console.log(`🔥 Firecrawl response received for ${url}`);
+    
+    if (!firecrawlData.success) {
+      console.log(`❌ Firecrawl failed: ${firecrawlData.error}, falling back to basic scraping`);
+      return await fetchWebsiteContentBasic(url);
+    }
+
+    const html = firecrawlData.data.html || '';
+    const markdown = firecrawlData.data.markdown || '';
+    
+    // Extract images from Firecrawl data
+    const imageUrls: string[] = [];
+    const videoUrls: string[] = [];
+    
+    // Extract images from HTML
+    const imageRegex = /<img[^>]+src=["']([^"']+)["'][^>]*>/gi;
+    let match;
+    while ((match = imageRegex.exec(html)) !== null) {
+      let imageUrl = match[1];
+      
+      // Skip non-product images
+      if (imageUrl.startsWith('data:') || 
+          imageUrl.includes('favicon') || 
+          imageUrl.includes('.svg') ||
+          imageUrl.endsWith('.gif') ||
+          (imageUrl.includes('logo') && imageUrl.includes('header'))) {
+        continue;
+      }
+      
+      // Convert relative URLs to absolute
+      if (imageUrl.startsWith('//')) {
+        const urlObj = new URL(url);
+        imageUrl = `${urlObj.protocol}${imageUrl}`;
+      } else if (imageUrl.startsWith('/')) {
+        const urlObj = new URL(url);
+        imageUrl = `${urlObj.protocol}//${urlObj.host}${imageUrl}`;
+      } else if (!imageUrl.startsWith('http')) {
+        const urlObj = new URL(url);
+        imageUrl = `${urlObj.protocol}//${urlObj.host}/${imageUrl}`;
+      }
+      
+      if (imageUrl.match(/\.(jpg|jpeg|png|webp)(\?.*)?$/i) && imageUrl.length < 1000) {
+        imageUrls.push(imageUrl);
+      }
+    }
+    
+    // Extract videos from HTML
+    const youtubePatterns = [
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/gi,
+      /src=["']([^"']*youtube[^"']*)["']/gi
+    ];
+    
+    const vimeoPatterns = [
+      /(?:vimeo\.com\/)(\d+)/gi,
+      /src=["']([^"']*vimeo[^"']*)["']/gi
+    ];
+    
+    [...youtubePatterns, ...vimeoPatterns].forEach(pattern => {
+      let match;
+      while ((match = pattern.exec(html)) !== null) {
+        let videoUrl = match[1] || match[0];
+        if (videoUrl.includes('youtube') || videoUrl.includes('vimeo')) {
+          videoUrls.push(videoUrl);
+        }
+      }
+    });
+    
+    // Extract title and description
+    const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    const title = titleMatch ? titleMatch[1].trim() : firecrawlData.data.title || '';
+    
+    const descMatch = html.match(/<meta[^>]+name=["']description["'][^>]+content=["']([^"']+)["'][^>]*>/i);
+    const description = descMatch ? descMatch[1].trim() : firecrawlData.data.description || '';
+    
+    console.log(`🔥 Firecrawl extracted: ${imageUrls.length} images, ${videoUrls.length} videos`);
+    
+    return {
+      textContent: markdown.substring(0, 3000),
+      imageUrls: [...new Set(imageUrls)],
+      videoUrls: [...new Set(videoUrls)],
+      title,
+      description
+    };
+    
+  } catch (error) {
+    console.error('Firecrawl error, falling back to basic scraping:', error);
+    return await fetchWebsiteContentBasic(url);
+  }
+}
+
+async function fetchWebsiteContentBasic(url: string): Promise<ScrapedContent> {
+  console.log(`🔍 Starting basic scrape: ${url}`);
   try {
     console.log(`📡 Fetching ${url}...`);
     const response = await fetch(url);
@@ -319,7 +439,7 @@ serve(async (req) => {
     if (salesLinks && salesLinks.length > 0) {
       for (const link of salesLinks.slice(0, 3)) { // Limit to 3 links
         console.log('Processing link:', link);
-        const content = await fetchWebsiteContent(link);
+        const content = await fetchWebsiteContentWithFirecrawl(link);
         console.log('Extracted content from', link, ':', {
           textLength: content.textContent.length,
           imageCount: content.imageUrls.length,

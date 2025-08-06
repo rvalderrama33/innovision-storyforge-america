@@ -37,13 +37,33 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
       body: JSON.stringify({
         url: url,
         formats: ['markdown', 'html'],
-        includeTags: ['img', 'video', 'source'],
+        includeTags: ['img', 'video', 'source', 'picture'],
         onlyMainContent: false,
         includeRawHtml: true,
-        waitFor: 3000, // Wait for dynamic content
+        waitFor: 5000, // Wait longer for dynamic content
+        actions: [
+          { type: 'wait', milliseconds: 2000 },
+          { type: 'screenshot' }
+        ],
         extractorOptions: {
           extractImages: true,
-          extractVideos: true
+          extractVideos: true,
+          mode: 'llm-extraction',
+          extractionSchema: {
+            type: 'object',
+            properties: {
+              images: {
+                type: 'array',
+                items: { type: 'string' },
+                description: 'All image URLs found on the page'
+              },
+              videos: {
+                type: 'array', 
+                items: { type: 'string' },
+                description: 'All video URLs found on the page'
+              }
+            }
+          }
         }
       })
     });

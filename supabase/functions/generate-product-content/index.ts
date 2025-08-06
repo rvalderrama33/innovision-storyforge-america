@@ -37,33 +37,13 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
       body: JSON.stringify({
         url: url,
         formats: ['markdown', 'html'],
-        includeTags: ['img', 'video', 'source', 'picture'],
         onlyMainContent: false,
         includeRawHtml: true,
-        waitFor: 5000, // Wait longer for dynamic content
-        actions: [
-          { type: 'wait', milliseconds: 2000 },
-          { type: 'screenshot' }
-        ],
+        waitFor: 3000,
+        screenshot: true,
         extractorOptions: {
           extractImages: true,
-          extractVideos: true,
-          mode: 'llm-extraction',
-          extractionSchema: {
-            type: 'object',
-            properties: {
-              images: {
-                type: 'array',
-                items: { type: 'string' },
-                description: 'All image URLs found on the page'
-              },
-              videos: {
-                type: 'array', 
-                items: { type: 'string' },
-                description: 'All video URLs found on the page'
-              }
-            }
-          }
+          extractVideos: true
         }
       })
     });
@@ -76,6 +56,9 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
     const firecrawlData = await firecrawlResponse.json();
     console.log(`🔥 Firecrawl response received for ${url}`);
     console.log(`🔥 Firecrawl data keys:`, Object.keys(firecrawlData));
+    if (firecrawlData.data) {
+      console.log(`🔥 Firecrawl data.data keys:`, Object.keys(firecrawlData.data));
+    }
     console.log(`🔥 Firecrawl full response:`, JSON.stringify(firecrawlData, null, 2));
     
     if (!firecrawlData.success) {
@@ -102,6 +85,17 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
     if (firecrawlData.data.images && Array.isArray(firecrawlData.data.images)) {
       console.log(`🔥 Firecrawl provided ${firecrawlData.data.images.length} images directly`);
       imageUrls.push(...firecrawlData.data.images);
+    }
+    
+    // Also check for other possible image fields
+    if (firecrawlData.data.extractedImages && Array.isArray(firecrawlData.data.extractedImages)) {
+      console.log(`🔥 Firecrawl provided ${firecrawlData.data.extractedImages.length} extracted images`);
+      imageUrls.push(...firecrawlData.data.extractedImages);
+    }
+    
+    if (firecrawlData.data.scrapeResult?.images && Array.isArray(firecrawlData.data.scrapeResult.images)) {
+      console.log(`🔥 Firecrawl provided ${firecrawlData.data.scrapeResult.images.length} scrape result images`);
+      imageUrls.push(...firecrawlData.data.scrapeResult.images);
     }
     
     // Extract images from HTML with multiple patterns

@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: 'innovision-storyforge-america',
   webDir: 'dist',
   server: {
-    url: 'https://c87a1b82-b6a6-4aa2-ad6a-ba5512d06ce3.lovableproject.com?forceHideBadge=true',
+    url: 'https://americainnovates.us?forceHideBadge=true',
     cleartext: true
   },
   plugins: {

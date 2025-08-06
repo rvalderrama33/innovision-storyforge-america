@@ -125,9 +125,6 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                           <h3 className="text-3xl font-bold mb-3 leading-tight">
                             {featuredStories[0].full_name}
                           </h3>
-                          <p className="text-white/90 text-lg leading-relaxed">
-                            {getStoryTeaser(featuredStories[0])}
-                          </p>
                           <p className="text-white/75 text-sm mt-2">
                             by America Innovates Magazine
                           </p>

@@ -261,7 +261,7 @@ const Article = () => {
                     Back to Home
                   </Button>
                 </Link>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-bold text-white mb-4 leading-tight">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl font-bold text-white mb-4 leading-tight">
                   {article.generated_article ? article.generated_article.split('\n')[0].replace(/^#+\s*/, '').trim() : article.product_name}
                 </h1>
                 <div className="flex flex-wrap items-center gap-4 text-white/90">
@@ -293,7 +293,7 @@ const Article = () => {
                   Back to Home
                 </Button>
               </Link>
-              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-6 leading-tight">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl font-bold text-foreground mb-6 leading-tight">
                 {article.generated_article ? article.generated_article.split('\n')[0].replace(/^#+\s*/, '').trim() : article.product_name}
               </h1>
               <div className="flex flex-wrap items-center gap-4 text-muted-foreground">

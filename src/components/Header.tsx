@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut, Settings, X } from "lucide-react";
+import { Menu, LogOut, Settings, X, Search, User } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -16,11 +15,11 @@ const LogoComponent = ({ isMobile = false, isMarketplace = false }: { isMobile?:
 
   if (imageError) {
     return (
-      <div className={`text-center ${isMobile ? 'py-4' : ''}`}>
-        <h1 className={`font-bold text-blue-600 ${isMobile ? 'text-xl' : 'text-lg lg:text-2xl'}`}>
+      <div className={`text-center ${isMobile ? 'py-2' : ''}`}>
+        <h1 className={`font-bold text-primary ${isMobile ? 'text-lg' : 'text-xl'}`}>
           America Innovates
         </h1>
-        <p className={`text-gray-600 ${isMobile ? 'text-sm' : 'text-xs lg:text-sm'}`}>
+        <p className={`text-muted-foreground ${isMobile ? 'text-xs' : 'text-sm'}`}>
           {isMarketplace ? 'Marketplace' : 'Magazine'}
         </p>
       </div>
@@ -40,8 +39,8 @@ const LogoComponent = ({ isMobile = false, isMarketplace = false }: { isMobile?:
       src={logoSrc} 
       alt={altText} 
       className={isMobile 
-        ? "h-16 w-auto max-w-[280px] object-contain" 
-        : "h-32 w-auto object-contain"
+        ? "h-12 w-auto max-w-[200px] object-contain" 
+        : "h-16 w-auto object-contain"
       }
       onError={handleImageError}
       style={{ display: 'block' }}
@@ -54,6 +53,7 @@ const Header = () => {
   const isMobile = useIsMobile();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   
   const isMarketplacePage = location.pathname.startsWith('/marketplace');
 
@@ -67,178 +67,230 @@ const Header = () => {
 
   if (isMobile) {
     return (
-      <nav className="bg-white border-b border-gray-200 px-4 py-1.5">
-        {/* Mobile Layout: Logo centered at top */}
-        <div className="flex justify-center mb-3">
-          <Link to={isMarketplacePage ? "/marketplace" : "/"} className="block">
-            <LogoComponent isMobile={true} isMarketplace={isMarketplacePage} />
-          </Link>
-        </div>
-        
-        {/* Mobile: Auth buttons and menu toggle */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            {user ? (
-              <div className="flex items-center space-x-2">
-                <span className="text-xs text-gray-700 truncate max-w-[120px]">
-                  {user.user_metadata?.full_name || user.email}
-                </span>
-                <Button onClick={signOut} variant="outline" size="sm">
-                  <LogOut className="h-3 w-3" />
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center space-x-2">
-                <Link to="/auth">
-                  <Button variant="outline" size="sm">Sign In</Button>
-                </Link>
-                <Link to="/auth">
-                  <Button size="sm">Subscribe</Button>
-                </Link>
-              </div>
-            )}
+      <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+        <nav className="px-4 py-3">
+          {/* Mobile: Logo centered at top */}
+          <div className="flex justify-center mb-3">
+            <Link to={isMarketplacePage ? "/marketplace" : "/"} className="block">
+              <LogoComponent isMobile={true} isMarketplace={isMarketplacePage} />
+            </Link>
           </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={toggleMobileMenu}
-            className="p-2"
-          >
-            {mobileMenuOpen ? <X className="h-6 w-6 text-gray-700" /> : <Menu className="h-6 w-6 text-gray-700" />}
-          </Button>
-        </div>
-
-        {/* Mobile Menu Overlay */}
-        {mobileMenuOpen && (
-          <div className="fixed inset-0 z-50 bg-white">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h2 className="text-lg font-semibold">Menu</h2>
-              <Button variant="ghost" size="sm" onClick={closeMobileMenu}>
-                <X className="h-6 w-6" />
+          
+          {/* Mobile: Utility icons and menu toggle */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground truncate max-w-[120px]">
+                    {user.user_metadata?.full_name || user.email}
+                  </span>
+                  <Button onClick={signOut} variant="outline" size="sm">
+                    <LogOut className="h-3 w-3" />
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <Link to="/auth">
+                    <Button variant="outline" size="sm">Sign In</Button>
+                  </Link>
+                  <Link to="/auth">
+                    <Button size="sm">Subscribe</Button>
+                  </Link>
+                </div>
+              )}
+            </div>
+            
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchOpen(true)}
+                className="p-2"
+              >
+                <Search className="h-5 w-5" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleMobileMenu}
+                className="p-2"
+              >
+                {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
               </Button>
             </div>
-            <div className="flex flex-col space-y-4 p-4">
+          </div>
+
+          {/* Mobile Menu Overlay */}
+          {mobileMenuOpen && (
+            <div className="fixed inset-0 z-50 bg-background">
+              <div className="flex justify-between items-center p-4 border-b border-border">
+                <h2 className="text-lg font-semibold">Menu</h2>
+                <Button variant="ghost" size="sm" onClick={closeMobileMenu}>
+                  <X className="h-6 w-6" />
+                </Button>
+              </div>
+              <div className="flex flex-col space-y-4 p-4">
+                {isMarketplacePage ? (
+                  <>
+                    <Link to="/" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                      Magazine
+                    </Link>
+                    <Link to="/marketplace" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                      Product Categories
+                    </Link>
+                    <Link to="/marketplace/add" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                      Submit Your Product
+                    </Link>
+                    <Link to="/about" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                      How We Work
+                    </Link>
+                    <Link to="/about" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                      About
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link to="/" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                      Magazine
+                    </Link>
+                    <Link to="/stories" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                      Browse Stories
+                    </Link>
+                    <Link to="/submit" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                      Submit Story
+                    </Link>
+                    <Link to="/recommend" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                      Recommend Someone
+                    </Link>
+                    {isAdmin && (
+                      <Link to="/marketplace" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                        Marketplace
+                      </Link>
+                    )}
+                    <Link to="/about" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                      About
+                    </Link>
+                  </>
+                )}
+                {isAdmin && (
+                  <Link to="/admin" className="text-foreground hover:text-primary py-2 transition-colors" onClick={closeMobileMenu}>
+                    <Settings className="inline h-4 w-4 mr-1" />
+                    Admin
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {searchOpen && <SearchDialog />}
+        </nav>
+      </header>
+    );
+  }
+
+  // Desktop Layout: Full-width sticky header with three sections
+  return (
+    <header className="sticky top-0 z-40 w-full bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border">
+      <nav className="px-6 py-4">
+        <div className="grid grid-cols-3 items-center w-full">
+          {/* Left: Brand Logo */}
+          <div className="flex items-center">
+            <Link to={isMarketplacePage ? "/marketplace" : "/"}>
+              <LogoComponent isMobile={false} isMarketplace={isMarketplacePage} />
+            </Link>
+          </div>
+          
+          {/* Center: Operational Navigation Menu */}
+          <div className="flex items-center justify-center">
+            <nav className="flex items-center space-x-6">
               {isMarketplacePage ? (
                 <>
-                  <Link to="/" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                  <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">
                     Magazine
                   </Link>
-                  <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                    Product Categories
+                  <Link to="/marketplace" className="text-foreground hover:text-primary transition-colors font-medium">
+                    Categories
                   </Link>
-                  <Link to="/marketplace/add" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                    Submit Your Product
+                  <Link to="/marketplace/add" className="text-foreground hover:text-primary transition-colors font-medium">
+                    Submit Product
                   </Link>
-                  <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                    How We Work
-                  </Link>
-                  <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                  <Link to="/about" className="text-foreground hover:text-primary transition-colors font-medium">
                     About
                   </Link>
                 </>
               ) : (
                 <>
-                  <Link to="/" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                  <Link to="/" className="text-foreground hover:text-primary transition-colors font-medium">
                     Magazine
                   </Link>
-                  <Link to="/stories" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                    Browse Stories
+                  <Link to="/stories" className="text-foreground hover:text-primary transition-colors font-medium">
+                    Stories
                   </Link>
-                  <Link to="/submit" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                    Submit Story
+                  <Link to="/submit" className="text-foreground hover:text-primary transition-colors font-medium">
+                    Submit
                   </Link>
-                  <Link to="/recommend" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                    Recommend Someone
+                  <Link to="/recommend" className="text-foreground hover:text-primary transition-colors font-medium">
+                    Recommend
                   </Link>
                   {isAdmin && (
-                    <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    <Link to="/marketplace" className="text-foreground hover:text-primary transition-colors font-medium">
                       Marketplace
                     </Link>
                   )}
-                  <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                  <Link to="/about" className="text-foreground hover:text-primary transition-colors font-medium">
                     About
                   </Link>
                 </>
               )}
               {isAdmin && (
-                <Link to="/admin" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                <Link to="/admin" className="text-foreground hover:text-primary transition-colors font-medium">
                   <Settings className="inline h-4 w-4 mr-1" />
                   Admin
                 </Link>
               )}
-            </div>
+            </nav>
           </div>
-        )}
-      </nav>
-    );
-  }
-
-  // Desktop Layout
-  return (
-    <nav className="bg-white border-b border-gray-200 px-4 py-1.5 lg:px-12">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-3">
-          <Link to={isMarketplacePage ? "/marketplace" : "/"}>
-            <LogoComponent isMobile={false} isMarketplace={isMarketplacePage} />
-          </Link>
-        </div>
-        
-        <div className="flex items-center space-x-8">
-          {isMarketplacePage ? (
-            <>
-              <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
-              <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Product Categories</Link>
-              <Link to="/marketplace/add" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Your Product</Link>
-              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">How We Work</Link>
-              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
-            </>
-          ) : (
-            <>
-              <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
-              <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Browse Stories</Link>
-              <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
-              <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Recommend Someone</Link>
-              {isAdmin && (
-                <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Marketplace</Link>
-              )}
-              <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">About</Link>
-            </>
-          )}
-          {isAdmin && (
-            <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">
-              <Settings className="inline h-4 w-4 mr-1" />
-              Admin
-            </Link>
-          )}
-        </div>
-        
-        <div className="flex flex-col items-end space-y-2">
-          <div className="flex items-center space-x-4">
+          
+          {/* Right: Utility Icons */}
+          <div className="flex items-center justify-end space-x-3">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSearchOpen(true)}
+              className="h-9 w-9 p-0"
+            >
+              <Search className="h-4 w-4" />
+            </Button>
+            
             {user ? (
-              <div className="flex items-center space-x-4">
-                <span className="text-sm text-gray-700">
-                  Welcome, {user.user_metadata?.full_name || user.email}
-                </span>
+              <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2">
+                  <User className="h-4 w-4 text-muted-foreground" />
+                  <span className="text-sm text-foreground">
+                    {user.user_metadata?.full_name || user.email?.split('@')[0]}
+                  </span>
+                </div>
                 <Button onClick={signOut} variant="outline" size="sm">
                   <LogOut className="h-4 w-4 mr-1" />
                   Sign Out
                 </Button>
               </div>
             ) : (
-              <>
+              <div className="flex items-center space-x-2">
                 <Link to="/auth">
                   <Button variant="outline">Sign In</Button>
                 </Link>
                 <Link to="/auth">
                   <Button>Subscribe</Button>
                 </Link>
-              </>
+              </div>
             )}
           </div>
-          <SearchDialog />
         </div>
-      </div>
-    </nav>
+        
+        {searchOpen && <SearchDialog />}
+      </nav>
+    </header>
   );
 };
 

@@ -193,6 +193,16 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
       console.log(`🖼️ Sample images: ${imageUrls.slice(0, 3).map(img => img.substring(0, 80)).join(', ')}`);
     }
     
+    // If no images found with Firecrawl, try basic scraping as fallback
+    if (imageUrls.length === 0) {
+      console.log(`⚠️ Firecrawl found no images, trying basic scraping fallback`);
+      const basicResult = await fetchWebsiteContentBasic(url);
+      if (basicResult.imageUrls.length > 0) {
+        console.log(`✅ Basic scraping found ${basicResult.imageUrls.length} images`);
+        return basicResult;
+      }
+    }
+    
     return {
       textContent: markdown.substring(0, 3000),
       imageUrls: [...new Set(imageUrls)],
@@ -210,8 +220,18 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
 async function fetchWebsiteContentBasic(url: string): Promise<ScrapedContent> {
   console.log(`🔍 Starting basic scrape: ${url}`);
   try {
-    console.log(`📡 Fetching ${url}...`);
-    const response = await fetch(url);
+    // Add headers to mimic a real browser
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Accept-Encoding': 'gzip, deflate',
+        'Connection': 'keep-alive',
+        'Upgrade-Insecure-Requests': '1'
+      }
+    });
+    
     console.log(`📊 Response status: ${response.status} for ${url}`);
     
     if (!response.ok) {

@@ -124,9 +124,6 @@ const Header = () => {
                   <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                     Product Categories
                   </Link>
-                  <Link to="/marketplace/add" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                    Submit Your Product
-                  </Link>
                   <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                     How We Work
                   </Link>
@@ -217,7 +214,6 @@ const Header = () => {
           {isMarketplacePage ? (
             <>
               <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Product Categories</Link>
-              <Link to="/marketplace/add" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Submit Your Product</Link>
               <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">How We Work</Link>
               <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">About</Link>
             </>

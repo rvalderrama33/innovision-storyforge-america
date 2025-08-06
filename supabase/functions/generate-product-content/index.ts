@@ -41,13 +41,18 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
         includeTags: ['img', 'video', 'source', 'picture', 'a'],
         excludeTags: ['script', 'style'],
         waitFor: 5000,
-        timeout: 30000,
+        timeout: 45000,
         mobile: false,
         skipTlsVerification: false,
+        // Enable headless mode for better anti-bot protection bypass
+        pageOptions: {
+          headless: 'new',
+          userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        },
         actions: [
           {
             type: 'wait',
-            milliseconds: 3000
+            milliseconds: 5000
           },
           {
             type: 'scroll',
@@ -55,7 +60,7 @@ async function fetchWebsiteContentWithFirecrawl(url: string): Promise<ScrapedCon
           },
           {
             type: 'wait', 
-            milliseconds: 2000
+            milliseconds: 3000
           }
         ]
       })
@@ -580,10 +585,9 @@ serve(async (req) => {
       for (const link of salesLinks.slice(0, 3)) { // Limit to 3 links
         console.log('Processing link:', link);
         
-        // Skip Amazon URLs as they actively block scraping
+        // Try Amazon URLs with headless mode now enabled
         if (link.includes('amazon.com')) {
-          console.log(`⚠️ Skipping Amazon URL (anti-bot protection): ${link}`);
-          continue;
+          console.log(`🤖 Processing Amazon URL with headless mode: ${link}`);
         }
         
         const content = await fetchWebsiteContentWithFirecrawl(link);

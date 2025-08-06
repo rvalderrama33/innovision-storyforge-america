@@ -5,8 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import Header from "@/components/Header";
-// Temporarily comment out SearchBar to test
-// import SearchBar from "@/components/SearchBar";
 import { useSEO } from "@/hooks/useSEO";
 
 interface Story {
@@ -33,7 +31,6 @@ const getStoryTeaser = (story: Story) => {
 
 const Stories = () => {
   const [stories, setStories] = useState<Story[]>([]);
-  const [filteredStories, setFilteredStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
 
   useSEO({
@@ -54,33 +51,12 @@ const Stories = () => {
         console.error('Error fetching stories:', error);
       } else {
         setStories(data || []);
-        setFilteredStories(data || []);
       }
       setLoading(false);
     };
 
     fetchStories();
   }, []);
-
-  // Temporarily disable search functionality
-  /*
-  const handleSearch = (query: string) => {
-    if (!query.trim()) {
-      setFilteredStories(stories);
-      return;
-    }
-
-    const searchResults = stories.filter(story => 
-      story.full_name?.toLowerCase().includes(query.toLowerCase()) ||
-      story.product_name?.toLowerCase().includes(query.toLowerCase()) ||
-      story.description?.toLowerCase().includes(query.toLowerCase()) ||
-      story.category?.toLowerCase().includes(query.toLowerCase()) ||
-      story.generated_article?.toLowerCase().includes(query.toLowerCase())
-    );
-    
-    setFilteredStories(searchResults);
-  };
-  */
 
   if (loading) {
     return (
@@ -108,22 +84,13 @@ const Stories = () => {
               In these pages, you'll discover how ordinary people transformed simple ideas into extraordinary products that millions now use daily. Learn from their mistakes, celebrate their victories, and perhaps find the inspiration to turn your own spark of innovation into the next breakthrough that changes the world.
             </p>
           </div>
-          
-          {/* Search Bar - Temporarily commented out */}
-          {/* <div className="mt-8">
-            <SearchBar 
-              onSearch={handleSearch}
-              placeholder="Search by entrepreneur, product, or topic..."
-              className="max-w-md"
-            />
-          </div> */}
         </div>
       </div>
 
       {/* Stories Grid */}
       <div className="py-16 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
-          {stories.length === 0 && !loading ? (
+          {stories.length === 0 ? (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">No stories available yet.</p>
             </div>

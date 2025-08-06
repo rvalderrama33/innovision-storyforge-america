@@ -1,12 +1,10 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut, Settings, X, Search } from "lucide-react";
+import { Menu, LogOut, Settings, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
-// Temporarily comment out SearchDialog to test if this is the issue
-// import SearchDialog from "./SearchDialog";
 
 const LogoComponent = ({ isMobile = false, isMarketplace = false }: { isMobile?: boolean; isMarketplace?: boolean }) => {
   const [imageError, setImageError] = useState(false);
@@ -55,7 +53,6 @@ const Header = () => {
   const isMobile = useIsMobile();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [searchOpen, setSearchOpen] = useState(false);
   
   const isMarketplacePage = location.pathname.startsWith('/marketplace');
 
@@ -80,15 +77,6 @@ const Header = () => {
         {/* Mobile: Auth buttons and menu toggle */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            {/* Mobile Search Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSearchOpen(true)}
-              className="p-2"
-            >
-              <Search className="h-4 w-4" />
-            </Button>
             {user ? (
               <div className="flex items-center space-x-2">
                 <span className="text-xs text-gray-700 truncate max-w-[120px]">
@@ -180,9 +168,6 @@ const Header = () => {
             </div>
           </div>
         )}
-        
-        {/* Search Dialog - Temporarily commented out */}
-        {/* <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} /> */}
       </nav>
     );
   }
@@ -227,16 +212,6 @@ const Header = () => {
         </div>
         
         <div className="flex items-center space-x-4">
-          {/* Desktop Search Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setSearchOpen(true)}
-            className="hidden sm:flex items-center gap-2"
-          >
-            <Search className="w-4 h-4" />
-            Search
-          </Button>
           {user ? (
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-700">
@@ -259,9 +234,6 @@ const Header = () => {
           )}
         </div>
       </div>
-      
-      {/* Search Dialog - Temporarily commented out */}
-      {/* <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} /> */}
     </nav>
   );
 };

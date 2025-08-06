@@ -120,9 +120,6 @@ const Header = () => {
             <div className="flex flex-col space-y-4 p-4">
               {isMarketplacePage ? (
                 <>
-                  <Link to="/" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                    Magazine
-                  </Link>
                   <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                     Product Categories
                   </Link>
@@ -138,9 +135,6 @@ const Header = () => {
                 </>
               ) : (
                 <>
-                  <Link to="/" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                    Magazine
-                  </Link>
                   <Link to="/stories" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                     Browse Stories
                   </Link>
@@ -218,7 +212,6 @@ const Header = () => {
         <div className="flex items-center justify-center space-x-8">
           {isMarketplacePage ? (
             <>
-              <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Magazine</Link>
               <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Product Categories</Link>
               <Link to="/marketplace/add" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Submit Your Product</Link>
               <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">How We Work</Link>
@@ -226,7 +219,6 @@ const Header = () => {
             </>
           ) : (
             <>
-              <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Magazine</Link>
               <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Browse Stories</Link>
               <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Submit Story</Link>
               <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Recommend Someone</Link>

@@ -212,28 +212,30 @@ const Header = () => {
           )}
         </div>
         
-        <div className="flex items-center space-x-4">
+        <div className="flex flex-col items-end space-y-2">
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <span className="text-sm text-gray-700">
+                  Welcome, {user.user_metadata?.full_name || user.email}
+                </span>
+                <Button onClick={signOut} variant="outline" size="sm">
+                  <LogOut className="h-4 w-4 mr-1" />
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <>
+                <Link to="/auth">
+                  <Button variant="outline">Sign In</Button>
+                </Link>
+                <Link to="/auth">
+                  <Button>Subscribe</Button>
+                </Link>
+              </>
+            )}
+          </div>
           <SearchDialog />
-          {user ? (
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">
-                Welcome, {user.user_metadata?.full_name || user.email}
-              </span>
-              <Button onClick={signOut} variant="outline" size="sm">
-                <LogOut className="h-4 w-4 mr-1" />
-                Sign Out
-              </Button>
-            </div>
-          ) : (
-            <>
-              <Link to="/auth">
-                <Button variant="outline">Sign In</Button>
-              </Link>
-              <Link to="/auth">
-                <Button>Subscribe</Button>
-              </Link>
-            </>
-          )}
         </div>
       </div>
     </nav>

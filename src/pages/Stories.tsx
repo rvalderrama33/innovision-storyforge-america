@@ -5,7 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { Loader2 } from "lucide-react";
 import Header from "@/components/Header";
-import SearchBar from "@/components/SearchBar";
+// Temporarily comment out SearchBar to test
+// import SearchBar from "@/components/SearchBar";
 import { useSEO } from "@/hooks/useSEO";
 
 interface Story {
@@ -61,6 +62,8 @@ const Stories = () => {
     fetchStories();
   }, []);
 
+  // Temporarily disable search functionality
+  /*
   const handleSearch = (query: string) => {
     if (!query.trim()) {
       setFilteredStories(stories);
@@ -77,6 +80,7 @@ const Stories = () => {
     
     setFilteredStories(searchResults);
   };
+  */
 
   if (loading) {
     return (
@@ -105,29 +109,27 @@ const Stories = () => {
             </p>
           </div>
           
-          {/* Search Bar */}
-          <div className="mt-8">
+          {/* Search Bar - Temporarily commented out */}
+          {/* <div className="mt-8">
             <SearchBar 
               onSearch={handleSearch}
               placeholder="Search by entrepreneur, product, or topic..."
               className="max-w-md"
             />
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* Stories Grid */}
       <div className="py-16 px-6 lg:px-12">
         <div className="max-w-7xl mx-auto">
-          {filteredStories.length === 0 && !loading ? (
+          {stories.length === 0 && !loading ? (
             <div className="text-center py-12">
-              <p className="text-gray-500 text-lg">
-                {stories.length === 0 ? "No stories available yet." : "No stories match your search."}
-              </p>
+              <p className="text-gray-500 text-lg">No stories available yet.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {filteredStories.map((story) => {
+              {stories.map((story) => {
                 // Use headshot image for Michael Jon Smith, otherwise use first image
                 const imageUrl = story.full_name === "Michael Jon Smith" && story.headshot_image 
                   ? story.headshot_image 

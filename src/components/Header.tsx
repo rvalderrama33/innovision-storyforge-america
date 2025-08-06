@@ -5,7 +5,8 @@ import { Menu, LogOut, Settings, X, Search } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
-import SearchDialog from "./SearchDialog";
+// Temporarily comment out SearchDialog to test if this is the issue
+// import SearchDialog from "./SearchDialog";
 
 const LogoComponent = ({ isMobile = false, isMarketplace = false }: { isMobile?: boolean; isMarketplace?: boolean }) => {
   const [imageError, setImageError] = useState(false);
@@ -180,8 +181,8 @@ const Header = () => {
           </div>
         )}
         
-        {/* Search Dialog */}
-        <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+        {/* Search Dialog - Temporarily commented out */}
+        {/* <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} /> */}
       </nav>
     );
   }
@@ -259,8 +260,8 @@ const Header = () => {
         </div>
       </div>
       
-      {/* Search Dialog */}
-      <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} />
+      {/* Search Dialog - Temporarily commented out */}
+      {/* <SearchDialog open={searchOpen} onOpenChange={setSearchOpen} /> */}
     </nav>
   );
 };

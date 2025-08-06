@@ -5,6 +5,7 @@ import { Menu, LogOut, Settings, X } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import SearchDialog from "@/components/SearchDialog";
 
 const LogoComponent = ({ isMobile = false, isMarketplace = false }: { isMobile?: boolean; isMarketplace?: boolean }) => {
   const [imageError, setImageError] = useState(false);
@@ -195,6 +196,7 @@ const Header = () => {
             <>
               <Link to="/" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Magazine</Link>
               <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Browse Stories</Link>
+              <SearchDialog />
               <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Submit Story</Link>
               <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium">Recommend Someone</Link>
               {isAdmin && (

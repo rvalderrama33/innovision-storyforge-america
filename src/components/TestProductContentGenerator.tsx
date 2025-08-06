@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 export const TestProductContentGenerator = () => {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<any>(null);
-  const [testUrl, setTestUrl] = useState('https://www.amazon.com/dp/B08N5WRWNW');
+  const [testUrl, setTestUrl] = useState('https://unsplash.com/photos/a-close-up-of-a-camera-with-a-blurry-background-8Hjx3GNZYeA');
   const { toast } = useToast();
 
   const testFunction = async () => {

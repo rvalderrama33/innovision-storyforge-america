@@ -25,8 +25,6 @@ import PaymentCancelled from "./pages/PaymentCancelled";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
-import TrendingSidebar from "./components/TrendingSidebar";
-import { useIsMobile } from "./hooks/use-mobile";
 
 // Lazy load marketplace components for better performance
 const Marketplace = lazy(() => import("./pages/Marketplace"));
@@ -52,19 +50,6 @@ const SecurityInitializer = ({ children }: { children: React.ReactNode }) => {
   return <>{children}</>;
 };
 
-const AppLayout = ({ children }: { children: React.ReactNode }) => {
-  const isMobile = useIsMobile();
-  
-  return (
-    <div className="min-h-screen flex w-full">
-      <main className="flex-1">
-        {children}
-      </main>
-      {!isMobile && <TrendingSidebar />}
-    </div>
-  );
-};
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -73,62 +58,60 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <AppLayout>
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/mobile" element={<MobileIndex />} />
-              <Route path="/submit" element={<ProtectedRoute><Submit /></ProtectedRoute>} />
-              <Route path="/about" element={<About />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/admin/*" element={<AdminDashboard />} />
-              <Route path="/article/:slug" element={<Article />} />
-              <Route path="/admin/edit/:id" element={<ArticleEditor />} />
-              <Route path="/stories" element={<Stories />} />
-              <Route path="/recommend" element={<Recommend />} />
-              <Route path="/email-preview" element={<EmailPreview />} />
-              <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/terms-of-service" element={<TermsOfService />} />
-              <Route path="/payment-success" element={<PaymentSuccess />} />
-              <Route path="/payment-cancelled" element={<PaymentCancelled />} />
-              
-              {/* Marketplace Routes - Lazy loaded for performance */}
-              <Route path="/marketplace" element={
-                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
-                  <Marketplace />
-                </Suspense>
-              } />
-              <Route path="/marketplace/add" element={
-                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
-                  <MarketplaceAdd />
-                </Suspense>
-              } />
-              <Route path="/marketplace/product/:id" element={
-                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
-                  <MarketplaceProduct />
-                </Suspense>
-              } />
-              <Route path="/marketplace/manage" element={
-                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
-                  <MarketplaceManage />
-                </Suspense>
-              } />
-              <Route path="/marketplace/orders" element={
-                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
-                  <MarketplaceOrders />
-                </Suspense>
-              } />
-              <Route path="/marketplace/edit/:id" element={
-                <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
-                  <MarketplaceEdit />
-                </Suspense>
-              } />
-              
-              <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />
-              <Route path="/test-openai" element={<TestOpenAI />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AppLayout>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/mobile" element={<MobileIndex />} />
+            <Route path="/submit" element={<ProtectedRoute><Submit /></ProtectedRoute>} />
+            <Route path="/about" element={<About />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/admin/*" element={<AdminDashboard />} />
+            <Route path="/article/:slug" element={<Article />} />
+            <Route path="/admin/edit/:id" element={<ArticleEditor />} />
+            <Route path="/stories" element={<Stories />} />
+            <Route path="/recommend" element={<Recommend />} />
+            <Route path="/email-preview" element={<EmailPreview />} />
+            <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+            <Route path="/terms-of-service" element={<TermsOfService />} />
+            <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+            
+            {/* Marketplace Routes - Lazy loaded for performance */}
+            <Route path="/marketplace" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <Marketplace />
+              </Suspense>
+            } />
+            <Route path="/marketplace/add" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <MarketplaceAdd />
+              </Suspense>
+            } />
+            <Route path="/marketplace/product/:id" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <MarketplaceProduct />
+              </Suspense>
+            } />
+            <Route path="/marketplace/manage" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <MarketplaceManage />
+              </Suspense>
+            } />
+            <Route path="/marketplace/orders" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <MarketplaceOrders />
+              </Suspense>
+            } />
+            <Route path="/marketplace/edit/:id" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <MarketplaceEdit />
+              </Suspense>
+            } />
+            
+            <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />
+            <Route path="/test-openai" element={<TestOpenAI />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
         </SecurityInitializer>
       </AuthProvider>

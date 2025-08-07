@@ -53,8 +53,8 @@ const AdminDashboardChoice = () => {
           {/* Magazine Dashboard */}
           <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-blue-200">
             <CardHeader className="text-center pb-4">
-              <div className="mx-auto mb-4">
-                <img src="/lovable-uploads/2108e82a-9d65-4ee6-b974-51aa5bc01a16.png" alt="America Innovates Magazine Logo" className="h-24 w-24 object-contain mx-auto" />
+              <div className="mx-auto mb-4 flex justify-center">
+                <img src="/lovable-uploads/2108e82a-9d65-4ee6-b974-51aa5bc01a16.png" alt="America Innovates Magazine Logo" className="h-48 w-48 object-contain" />
               </div>
               <CardTitle className="text-2xl font-bold">Magazine Dashboard</CardTitle>
               <CardDescription className="text-base">
@@ -103,8 +103,8 @@ const AdminDashboardChoice = () => {
           {/* Marketplace Dashboard */}
           <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-green-200">
             <CardHeader className="text-center pb-4">
-              <div className="mx-auto mb-4">
-                <img src="/lovable-uploads/25521c59-14bd-4565-990e-aa4d304aa849.png" alt="America Innovates Marketplace Logo" className="h-24 w-24 object-contain mx-auto" />
+              <div className="mx-auto mb-4 flex justify-center">
+                <img src="/lovable-uploads/25521c59-14bd-4565-990e-aa4d304aa849.png" alt="America Innovates Marketplace Logo" className="h-48 w-48 object-contain" />
               </div>
               <CardTitle className="text-2xl font-bold">Marketplace Dashboard</CardTitle>
               <CardDescription className="text-base">

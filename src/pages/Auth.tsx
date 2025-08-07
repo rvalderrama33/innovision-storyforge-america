@@ -41,11 +41,15 @@ const Auth = () => {
   });
 
   useEffect(() => {
+    console.log('Auth redirect useEffect triggered:', { user: !!user, authLoading, isAdmin, from });
     if (user && !authLoading) {
+      console.log('User authenticated and not loading, checking redirect conditions');
       // Check if user has admin privileges and redirect to admin choice page if no specific destination
       if (from === '/' && isAdmin) {
+        console.log('Redirecting admin to /admin/choice');
         navigate('/admin/choice', { replace: true });
       } else {
+        console.log('Redirecting to:', from);
         navigate(from, { replace: true });
       }
     }

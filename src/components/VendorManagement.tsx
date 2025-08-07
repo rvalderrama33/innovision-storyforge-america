@@ -52,7 +52,20 @@ export const VendorManagement = () => {
   const [activeTab, setActiveTab] = useState('pending');
 
   const fetchApplications = async () => {
+    console.log('Fetching vendor applications...');
     try {
+      // First try without joins to see if RLS is the issue
+      const { data: simpleData, error: simpleError } = await supabase
+        .from('vendor_applications')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
+      console.log('Simple query result:', { simpleData, simpleError });
+      
+      if (simpleError) {
+        throw simpleError;
+      }
+
       const { data, error } = await supabase
         .from('vendor_applications')
         .select(`
@@ -67,7 +80,11 @@ export const VendorManagement = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      console.log('Vendor applications query result:', { data, error });
+      if (error) {
+        console.error('Supabase error details:', error);
+        throw error;
+      }
 
       setApplications((data || []) as any[]);
       

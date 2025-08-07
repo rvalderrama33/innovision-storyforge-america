@@ -26,7 +26,8 @@ import {
 } from "@/components/ui/sidebar";
 
 const adminMenuItems = [
-  { title: "Overview", url: "/admin", icon: Home, exact: true },
+  { title: "Admin Home", url: "/admin/choice", icon: Home, exact: true },
+  { title: "Overview", url: "/admin", icon: BarChart3, exact: true },
   { title: "Submissions", url: "/admin/submissions", icon: FileText },
   { title: "Reports", url: "/admin/reports", icon: Database },
   { title: "Create Article", url: "/admin/create", icon: Plus },
@@ -38,9 +39,6 @@ const adminMenuItems = [
   { title: "Vendor Management", url: "/admin/vendors", icon: Store },
   { title: "Security", url: "/admin/security", icon: Shield },
   { title: "Email Center", url: "/admin/emails", icon: Mail },
-  { title: "Dashboard Choice", url: "/admin/choice", icon: Menu },
-  { title: "Marketplace Admin", url: "/admin/marketplace", icon: Store },
-  { title: "Vendor Dashboard", url: "/vendor/dashboard", icon: Store },
 ];
 
 export function AdminSidebar() {

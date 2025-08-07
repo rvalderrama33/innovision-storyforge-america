@@ -159,16 +159,10 @@ const Header = () => {
                  <BecomeVendorButton />
                </div>
                {isAdmin && (
-                <>
-                 <Link to="/admin/choice" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                   <Home className="inline h-4 w-4 mr-1" />
-                   Admin Home
-                 </Link>
-                 <Link to="/admin" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                   <Settings className="inline h-4 w-4 mr-1" />
-                   Admin Dashboard
-                 </Link>
-                </>
+                <Link to="/admin/choice" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                  <Home className="inline h-4 w-4 mr-1" />
+                  Admin Home
+                </Link>
                )}
             </div>
           </div>
@@ -240,16 +234,10 @@ const Header = () => {
            )}
            <BecomeVendorButton />
            {isAdmin && (
-            <>
-             <Link to="/admin/choice" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
-               <Home className="inline h-4 w-4 mr-1" />
-               Admin Home
-             </Link>
-             <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
-               <Settings className="inline h-4 w-4 mr-1" />
-               Admin Dashboard
-             </Link>
-            </>
+            <Link to="/admin/choice" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
+              <Home className="inline h-4 w-4 mr-1" />
+              Admin Home
+            </Link>
            )}
         </div>
       </div>

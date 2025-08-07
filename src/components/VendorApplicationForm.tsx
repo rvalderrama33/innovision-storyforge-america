@@ -56,39 +56,32 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
     setIsSubmitting(true);
 
     try {
-      // Add vendor role to user_roles table
-      const { error: roleError } = await supabase
-        .from('user_roles')
+      // Submit vendor application for admin review
+      const { error: applicationError } = await supabase
+        .from('vendor_applications')
         .insert([
           {
             user_id: user.id,
-            role: 'vendor'
+            business_name: data.businessName,
+            contact_email: data.contactEmail,
+            contact_phone: data.contactPhone || null,
+            shipping_country: data.shippingCountry || null,
+            vendor_bio: data.vendorBio || null,
+            status: 'pending'
           }
         ]);
 
-      if (roleError) {
-        throw roleError;
+      if (applicationError) {
+        throw applicationError;
       }
 
-      // Update user profile with vendor information
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          full_name: data.businessName,
-        })
-        .eq('id', user.id);
-
-      if (profileError) {
-        console.warn('Could not update profile:', profileError);
-      }
-
-      toast.success('Vendor application submitted successfully! Welcome to our marketplace.');
+      toast.success('Vendor application submitted successfully! Your application is pending admin review.');
       onSuccess();
     } catch (error: any) {
       console.error('Error submitting vendor application:', error);
       
       if (error.code === '23505') {
-        toast.error('You are already a vendor in our marketplace');
+        toast.error('You have already submitted a vendor application');
       } else {
         toast.error('Failed to submit vendor application. Please try again.');
       }

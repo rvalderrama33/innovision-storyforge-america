@@ -34,6 +34,7 @@ const adminMenuItems = [
   { title: "Analytics", url: "/admin/analytics", icon: TrendingUp },
   { title: "Recommendations", url: "/admin/recommendations", icon: Users },
   { title: "Users", url: "/admin/users", icon: Users },
+  { title: "Vendor Management", url: "/admin/vendors", icon: Store },
   { title: "Security", url: "/admin/security", icon: Shield },
   { title: "Email Center", url: "/admin/emails", icon: Mail },
   { title: "Vendor Dashboard", url: "/vendor/dashboard", icon: Store },

@@ -29,6 +29,7 @@ import { TestFeaturedEmailSender } from '@/components/TestFeaturedEmailSender';
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { FollowUpEmailDialog } from "@/components/FollowUpEmailDialog";
+import { VendorManagement } from "@/components/VendorManagement";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -1013,6 +1014,8 @@ const AdminDashboard = () => {
             </CardContent>
           </Card>
         );
+      case 'vendors':
+        return <VendorManagement />;
       default:
         return <div>Page not found</div>;
     }

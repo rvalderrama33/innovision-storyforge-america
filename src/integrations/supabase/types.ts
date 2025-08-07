@@ -820,6 +820,54 @@ export type Database = {
         }
         Relationships: []
       }
+      vendor_applications: {
+        Row: {
+          business_name: string
+          contact_email: string
+          contact_phone: string | null
+          created_at: string
+          id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          shipping_country: string | null
+          status: string
+          updated_at: string
+          user_id: string
+          vendor_bio: string | null
+        }
+        Insert: {
+          business_name: string
+          contact_email: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          shipping_country?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+          vendor_bio?: string | null
+        }
+        Update: {
+          business_name?: string
+          contact_email?: string
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          shipping_country?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vendor_bio?: string | null
+        }
+        Relationships: []
+      }
       vendor_payouts: {
         Row: {
           commission_amount: number
@@ -867,6 +915,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_vendor_application: {
+        Args: { _application_id: string }
+        Returns: boolean
+      }
       assign_admin_role: {
         Args: { _target_user_id: string }
         Returns: boolean
@@ -911,6 +963,10 @@ export type Database = {
               _user_agent?: string
             }
         Returns: undefined
+      }
+      reject_vendor_application: {
+        Args: { _application_id: string; _reason?: string }
+        Returns: boolean
       }
       reset_login_attempts: {
         Args: { _email: string }

@@ -26,7 +26,6 @@ import {
 } from "@/components/ui/sidebar";
 
 const adminMenuItems = [
-  { title: "Admin Home", url: "/admin/choice", icon: Home, exact: true },
   { title: "Overview", url: "/admin", icon: BarChart3, exact: true },
   { title: "Submissions", url: "/admin/submissions", icon: FileText },
   { title: "Reports", url: "/admin/reports", icon: Database },

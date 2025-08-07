@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut, Settings, X } from "lucide-react";
+import { Menu, LogOut, Settings, X, Home } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -159,11 +159,17 @@ const Header = () => {
                  <BecomeVendorButton />
                </div>
                {isAdmin && (
-                <Link to="/admin" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                  <Settings className="inline h-4 w-4 mr-1" />
-                  Admin
-                </Link>
-              )}
+                <>
+                 <Link to="/admin/choice" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                   <Home className="inline h-4 w-4 mr-1" />
+                   Admin Home
+                 </Link>
+                 <Link to="/admin" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                   <Settings className="inline h-4 w-4 mr-1" />
+                   Admin Dashboard
+                 </Link>
+                </>
+               )}
             </div>
           </div>
         )}
@@ -234,11 +240,17 @@ const Header = () => {
            )}
            <BecomeVendorButton />
            {isAdmin && (
-            <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
-              <Settings className="inline h-4 w-4 mr-1" />
-              Admin
-            </Link>
-          )}
+            <>
+             <Link to="/admin/choice" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
+               <Home className="inline h-4 w-4 mr-1" />
+               Admin Home
+             </Link>
+             <Link to="/admin" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
+               <Settings className="inline h-4 w-4 mr-1" />
+               Admin Dashboard
+             </Link>
+            </>
+           )}
         </div>
       </div>
     </nav>

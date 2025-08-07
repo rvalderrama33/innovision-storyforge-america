@@ -1,4 +1,5 @@
 
+import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import FeaturedArticles from "@/components/FeaturedArticles";
@@ -37,6 +38,23 @@ const Index = () => {
         </div>
       )}
       
+      
+      {/* Marketplace Section */}
+      <section className="max-w-6xl mx-auto px-4 py-16">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4">America Innovates Marketplace</h2>
+          <p className="text-lg text-gray-600 mb-8">
+            Supporting American entrepreneurs and creators through our multi-vendor e-commerce platform
+          </p>
+          <Link 
+            to="/marketplace-info" 
+            className="inline-flex items-center px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-colors"
+          >
+            Explore Marketplace
+          </Link>
+        </div>
+      </section>
+
       <Newsletter />
     </div>
   );

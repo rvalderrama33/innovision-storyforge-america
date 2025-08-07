@@ -1040,11 +1040,6 @@ const AdminDashboard = () => {
                     Switch Dashboard
                   </Button>
                 </Link>
-                <Link to="/admin/marketplace">
-                  <Button variant="outline" size="sm">
-                    Marketplace Admin
-                  </Button>
-                </Link>
               </div>
               <Link 
                 to="/" 

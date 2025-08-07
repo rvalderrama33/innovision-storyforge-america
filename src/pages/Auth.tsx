@@ -26,7 +26,7 @@ const Auth = () => {
     resetTime: number;
     remaining: number;
   }>({ isLimited: false, resetTime: 0, remaining: 5 });
-  const { signIn, signUp, signInWithGoogle, user } = useAuth();
+  const { signIn, signUp, signInWithGoogle, user, isAdmin } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -42,9 +42,14 @@ const Auth = () => {
 
   useEffect(() => {
     if (user) {
-      navigate(from, { replace: true });
+      // Check if user has admin privileges and redirect to admin choice page if no specific destination
+      if (from === '/' && isAdmin) {
+        navigate('/admin/choice', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
     }
-  }, [user, navigate, from]);
+  }, [user, navigate, from, isAdmin]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();

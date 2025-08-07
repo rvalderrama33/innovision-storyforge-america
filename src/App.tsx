@@ -68,9 +68,9 @@ const App = () => (
             <Route path="/submit" element={<ProtectedRoute><Submit /></ProtectedRoute>} />
             <Route path="/about" element={<About />} />
             <Route path="/auth" element={<Auth />} />
-            <Route path="/admin/choice" element={<AdminDashboardChoice />} />
-            <Route path="/admin/marketplace/*" element={<MarketplaceAdminDashboard />} />
-            <Route path="/admin/*" element={<AdminDashboard />} />
+            <Route path="/admin/choice" element={<ProtectedRoute><AdminDashboardChoice /></ProtectedRoute>} />
+            <Route path="/admin/marketplace/*" element={<ProtectedRoute><MarketplaceAdminDashboard /></ProtectedRoute>} />
+            <Route path="/admin/*" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
             <Route path="/article/:slug" element={<Article />} />
             <Route path="/admin/edit/:id" element={<ArticleEditor />} />
             <Route path="/stories" element={<Stories />} />

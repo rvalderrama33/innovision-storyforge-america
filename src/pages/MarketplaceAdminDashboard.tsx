@@ -353,11 +353,6 @@ const MarketplaceAdminDashboard = () => {
                     Switch Dashboard
                   </Button>
                 </Link>
-                <Link to="/admin">
-                  <Button variant="outline" size="sm">
-                    Magazine Admin
-                  </Button>
-                </Link>
               </div>
             </div>
           </header>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Navigate, Link } from "react-router-dom";
+import { Navigate, Link, useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -30,8 +30,12 @@ const MarketplaceManage = () => {
   const { user, isAdmin } = useAuth();
   const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const { toast } = useToast();
+  const location = useLocation();
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  // Check if we're in admin context
+  const isInAdminContext = location.pathname.includes('/admin/marketplace');
 
   useSEO({
     title: "Manage Products | Marketplace",
@@ -42,11 +46,17 @@ const MarketplaceManage = () => {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const { data, error } = await supabase
+        let query = supabase
           .from('marketplace_products')
           .select('*')
-          .eq('vendor_id', user.id)
           .order('created_at', { ascending: false });
+
+        // If in admin context, fetch all products; otherwise only user's products
+        if (!isInAdminContext && user?.id) {
+          query = query.eq('vendor_id', user.id);
+        }
+
+        const { data, error } = await query;
 
         if (error) throw error;
         setProducts(data || []);
@@ -62,10 +72,10 @@ const MarketplaceManage = () => {
       }
     };
 
-    if (user?.id) {
+    if (isInAdminContext || user?.id) {
       fetchProducts();
     }
-  }, [user?.id, toast]);
+  }, [user?.id, isInAdminContext, toast]);
 
   // NOW WE CAN HAVE CONDITIONAL RETURNS
   if (configLoading) {
@@ -134,35 +144,57 @@ const MarketplaceManage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
+    <div className={isInAdminContext ? "" : "min-h-screen bg-background"}>
+      {!isInAdminContext && <Header />}
       
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold mb-2">Manage Products</h1>
-            <p className="text-muted-foreground">View and manage your marketplace listings</p>
+      <div className={isInAdminContext ? "" : "container mx-auto px-4 py-8"}>
+        {!isInAdminContext && (
+          <div className="flex justify-between items-center mb-8">
+            <div>
+              <h1 className="text-3xl font-bold mb-2">Manage Products</h1>
+              <p className="text-muted-foreground">View and manage your marketplace listings</p>
+            </div>
+            
+            <div className="space-x-4">
+              <Link to="/marketplace/add">
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Product
+                </Button>
+              </Link>
+              <Link to="/marketplace/orders">
+                <Button variant="outline">
+                  Orders & Tracking
+                </Button>
+              </Link>
+            </div>
           </div>
-          
-          <div className="space-x-4">
-            <Link to="/marketplace/add">
-              <Button>
-                <Plus className="mr-2 h-4 w-4" />
-                Add Product
-              </Button>
-            </Link>
-            <Link to="/marketplace/orders">
-              <Button variant="outline">
-                Orders & Tracking
-              </Button>
-            </Link>
-          </div>
-        </div>
+        )}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Your Products ({products.length})</CardTitle>
-          </CardHeader>
+        {isInAdminContext && (
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-2xl font-bold mb-1">All Marketplace Products</h2>
+              <p className="text-muted-foreground">Manage products from all vendors</p>
+            </div>
+            
+            <div className="space-x-4">
+              <Link to="/marketplace/add">
+                <Button>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add Product
+                </Button>
+              </Link>
+            </div>
+          </div>
+        )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            {isInAdminContext ? `All Products (${products.length})` : `Your Products (${products.length})`}
+          </CardTitle>
+        </CardHeader>
           
           <CardContent>
             {loading ? (
@@ -173,8 +205,15 @@ const MarketplaceManage = () => {
               </div>
             ) : products.length === 0 ? (
               <div className="text-center py-8">
-                <h3 className="text-lg font-semibold mb-2">No Products Yet</h3>
-                <p className="text-muted-foreground mb-4">Start by adding your first product to the marketplace.</p>
+                <h3 className="text-lg font-semibold mb-2">
+                  {isInAdminContext ? "No Products Found" : "No Products Yet"}
+                </h3>
+                <p className="text-muted-foreground mb-4">
+                  {isInAdminContext 
+                    ? "No products have been added to the marketplace yet."
+                    : "Start by adding your first product to the marketplace."
+                  }
+                </p>
                 <Link to="/marketplace/add">
                   <Button>
                     <Plus className="mr-2 h-4 w-4" />

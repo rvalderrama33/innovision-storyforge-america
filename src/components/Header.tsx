@@ -159,7 +159,7 @@ const Header = () => {
                   <BecomeVendorButton />
                 </div>
                 {isVendor && (
-                  <Link to="/vendor-dashboard" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                  <Link to="/vendor/dashboard" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                     <Store className="inline h-4 w-4 mr-1" />
                     Vendor Dashboard
                   </Link>
@@ -240,7 +240,7 @@ const Header = () => {
            )}
             <BecomeVendorButton />
             {isVendor && (
-              <Link to="/vendor-dashboard" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
+              <Link to="/vendor/dashboard" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
                 <Store className="inline h-4 w-4 mr-1" />
                 Vendor Dashboard
               </Link>

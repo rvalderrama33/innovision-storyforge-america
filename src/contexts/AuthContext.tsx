@@ -180,19 +180,31 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       console.log('Initial session:', session?.user?.email);
-      setUser(session?.user ?? null);
-      setLoading(false);
+      if (session?.user) {
+        setUser(session.user);
+        // Loading will be set to false after roles are checked in the other useEffect
+      } else {
+        setUser(null);
+        setLoading(false);
+      }
     });
 
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event: AuthChangeEvent, session) => {
         console.log('Auth event:', event, session?.user?.email);
-        setUser(session?.user ?? null);
-        setLoading(false);
-
-        if (event === 'SIGNED_IN' && session?.user) {
+        
+        if (session?.user) {
+          setUser(session.user);
+          // Keep loading true until roles are checked
           console.log('User signed in:', session.user.email);
+          // Roles will be checked in the separate useEffect
+        } else {
+          setUser(null);
+          setIsSubscriber(false);
+          setIsAdmin(false);
+          setIsVendor(false);
+          setLoading(false);
         }
       }
     );
@@ -203,18 +215,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Check user role when user changes
   useEffect(() => {
     if (user) {
+      setLoading(true); // Keep loading while checking roles
       console.log('User changed, checking roles for:', user.email, 'ID:', user.id);
       checkUserRole(user.id).then(({ isSubscriber: sub, isAdmin: admin, isVendor: vendor }) => {
         console.log('Setting subscriber status:', sub, 'admin status:', admin, 'vendor status:', vendor, 'for user:', user.email);
         setIsSubscriber(sub);
         setIsAdmin(admin);
         setIsVendor(vendor);
+        setLoading(false); // Done loading after roles are set
       });
     } else {
       console.log('No user, clearing roles');
       setIsSubscriber(false);
       setIsAdmin(false);
       setIsVendor(false);
+      setLoading(false);
     }
   }, [user]);
 

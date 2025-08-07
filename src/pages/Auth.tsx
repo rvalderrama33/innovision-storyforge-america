@@ -26,7 +26,7 @@ const Auth = () => {
     resetTime: number;
     remaining: number;
   }>({ isLimited: false, resetTime: 0, remaining: 5 });
-  const { signIn, signUp, signInWithGoogle, user, isAdmin } = useAuth();
+  const { signIn, signUp, signInWithGoogle, user, isAdmin, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -41,7 +41,7 @@ const Auth = () => {
   });
 
   useEffect(() => {
-    if (user) {
+    if (user && !authLoading) {
       // Check if user has admin privileges and redirect to admin choice page if no specific destination
       if (from === '/' && isAdmin) {
         navigate('/admin/choice', { replace: true });
@@ -49,7 +49,7 @@ const Auth = () => {
         navigate(from, { replace: true });
       }
     }
-  }, [user, navigate, from, isAdmin]);
+  }, [user, navigate, from, isAdmin, authLoading]);
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +107,7 @@ const Auth = () => {
           title: "Welcome back!",
           description: "You have been signed in successfully.",
         });
-        navigate(from, { replace: true });
+        // Redirect will be handled by useEffect after roles are loaded
       }
     } catch (error) {
       console.error('Sign in error:', error);

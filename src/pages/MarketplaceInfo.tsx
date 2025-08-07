@@ -115,21 +115,19 @@ const MarketplaceInfo = () => {
         </div>
       </section>
 
-      {/* Current Marketplace Link */}
-      <section className="py-16 border-t">
+      {/* Coming Soon Notice */}
+      <section className="py-16 border-t bg-gradient-to-r from-primary/5 to-accent/5">
         <div className="max-w-4xl mx-auto px-4 text-center">
           <h3 className="text-2xl font-semibold text-gray-900 mb-4">
-            Explore Current Marketplace
+            🚀 Launching Soon
           </h3>
           <p className="text-gray-600 mb-6">
-            Browse existing products from our featured vendors and see what's possible on our platform.
+            The America Innovates Marketplace is currently in development. Be among the first to join our community of innovative vendors and help shape the future of American entrepreneurship.
           </p>
-          <Link to="/marketplace">
-            <Button variant="outline" size="lg">
-              <Store className="h-5 w-5 mr-2" />
-              Browse Products
-            </Button>
-          </Link>
+          <div className="bg-white p-6 rounded-lg shadow-sm border max-w-md mx-auto">
+            <p className="text-sm text-gray-500 mb-2">Ready to get started?</p>
+            <p className="font-medium text-gray-900">Submit your vendor application today!</p>
+          </div>
         </div>
       </section>
     </div>

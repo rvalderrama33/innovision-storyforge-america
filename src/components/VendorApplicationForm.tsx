@@ -48,7 +48,10 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
   });
 
   const onSubmit = async (data: VendorApplicationData) => {
+    console.log('Starting vendor application submission...', { data, user: user?.id });
+    
     if (!user) {
+      console.error('No user found for vendor application');
       toast.error('You must be logged in to apply as a vendor');
       return;
     }
@@ -56,8 +59,18 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
     setIsSubmitting(true);
 
     try {
+      console.log('Submitting to Supabase with:', {
+        user_id: user.id,
+        business_name: data.businessName,
+        contact_email: data.contactEmail,
+        contact_phone: data.contactPhone || null,
+        shipping_country: data.shippingCountry || null,
+        vendor_bio: data.vendorBio || null,
+        status: 'pending'
+      });
+
       // Submit vendor application for admin review
-      const { error: applicationError } = await supabase
+      const { data: insertData, error: applicationError } = await supabase
         .from('vendor_applications')
         .insert([
           {
@@ -69,16 +82,26 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
             vendor_bio: data.vendorBio || null,
             status: 'pending'
           }
-        ]);
+        ])
+        .select();
+
+      console.log('Supabase response:', { insertData, applicationError });
 
       if (applicationError) {
         throw applicationError;
       }
 
+      console.log('Application submitted successfully');
       toast.success('Vendor application submitted successfully! Your application is pending admin review.');
       onSuccess();
     } catch (error: any) {
       console.error('Error submitting vendor application:', error);
+      console.error('Error details:', {
+        code: error.code,
+        message: error.message,
+        details: error.details,
+        hint: error.hint
+      });
       
       if (error.code === '23505') {
         toast.error('You have already submitted a vendor application');

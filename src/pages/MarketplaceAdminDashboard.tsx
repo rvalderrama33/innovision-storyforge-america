@@ -9,6 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VendorManagement } from '@/components/VendorManagement';
 import { Link, useLocation } from 'react-router-dom';
 import { toast } from "sonner";
+import { Suspense, lazy } from 'react';
+
+// Lazy load MarketplaceManage component  
+const MarketplaceManage = lazy(() => import('./MarketplaceManage'));
 import { 
   Store, 
   Package, 
@@ -235,9 +239,16 @@ const MarketplaceAdminDashboard = () => {
                     </Button>
                   </Link>
                   
-                  <Link to="/marketplace" className="block">
+                  <Link to="/admin/marketplace/products" className="block">
                     <Button variant="outline" className="w-full justify-start">
                       <Package className="h-4 w-4 mr-2" />
+                      Manage Products
+                    </Button>
+                  </Link>
+                  
+                  <Link to="/marketplace" className="block">
+                    <Button variant="outline" className="w-full justify-start">
+                      <Eye className="h-4 w-4 mr-2" />
                       View Marketplace
                     </Button>
                   </Link>
@@ -288,6 +299,17 @@ const MarketplaceAdminDashboard = () => {
 
       case 'vendors':
         return <VendorManagement />;
+
+      case 'products':
+        return (
+          <Suspense fallback={
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+            </div>
+          }>
+            <MarketplaceManage />
+          </Suspense>
+        );
 
       case 'orders':
         return (
@@ -350,12 +372,15 @@ const MarketplaceAdminDashboard = () => {
 
       <main className="p-6">
         <Tabs value={currentTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview" asChild>
               <Link to="/admin/marketplace">Overview</Link>
             </TabsTrigger>
             <TabsTrigger value="vendors" asChild>
               <Link to="/admin/marketplace/vendors">Vendors</Link>
+            </TabsTrigger>
+            <TabsTrigger value="products" asChild>
+              <Link to="/admin/marketplace/products">Products</Link>
             </TabsTrigger>
             <TabsTrigger value="orders" asChild>
               <Link to="/admin/marketplace/orders">Orders</Link>

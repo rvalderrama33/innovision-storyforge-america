@@ -26,8 +26,6 @@ import SubmissionReports from "@/components/SubmissionReports";
 import { SubmissionCard } from "@/components/SubmissionCard";
 import SecurityMonitor from "@/components/SecurityMonitor";
 import { TestFeaturedEmailSender } from '@/components/TestFeaturedEmailSender';
-import { AdminSidebar } from "@/components/AdminSidebar";
-import { SidebarProvider, SidebarTrigger, SidebarInset } from "@/components/ui/sidebar";
 import { FollowUpEmailDialog } from "@/components/FollowUpEmailDialog";
 import { VendorManagement } from "@/components/VendorManagement";
 
@@ -1022,55 +1020,48 @@ const AdminDashboard = () => {
   };
 
   return (
-    <SidebarProvider defaultOpen={false}>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 to-blue-50/20">
-        <AdminSidebar />
-        
-        <SidebarInset className="flex-1">
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
-            <SidebarTrigger className="md:hidden" />
-            <div className="flex flex-1 items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">Magazine Admin</h1>
-                <p className="text-sm text-muted-foreground hidden sm:block">Manage submissions and communications</p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Link to="/admin/choice">
-                  <Button variant="outline" size="sm">
-                    Switch Dashboard
-                  </Button>
-                </Link>
-              </div>
-              <Link 
-                to="/" 
-                className="inline-flex items-center px-3 py-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-              >
-                ← Home
-              </Link>
-            </div>
-          </header>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/20">
+      <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50">
+        <div className="flex h-16 items-center justify-between px-6">
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">Magazine Admin</h1>
+            <p className="text-sm text-muted-foreground hidden sm:block">Manage submissions and communications</p>
+          </div>
+          <div className="flex items-center gap-4">
+            <Link to="/admin/choice">
+              <Button variant="outline" size="sm">
+                Admin Home
+              </Button>
+            </Link>
+            <Link 
+              to="/" 
+              className="inline-flex items-center px-3 py-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              ← Home
+            </Link>
+          </div>
+        </div>
+      </header>
 
-          <main className="flex-1 p-6">
-            {renderTabContent()}
-          </main>
-        </SidebarInset>
+      <main className="p-6">
+        {renderTabContent()}
+      </main>
 
-        <ArticlePreviewDialog
-          isOpen={previewDialogOpen}
-          onClose={() => setPreviewDialogOpen(false)}
-          submission={selectedSubmission}
-          onApprove={(id) => updateSubmissionStatus(id, 'approved')}
-          onReject={(id) => updateSubmissionStatus(id, 'rejected')}
-          onRegenerate={regenerateStory}
-        />
+      <ArticlePreviewDialog
+        isOpen={previewDialogOpen}
+        onClose={() => setPreviewDialogOpen(false)}
+        submission={selectedSubmission}
+        onApprove={(id) => updateSubmissionStatus(id, 'approved')}
+        onReject={(id) => updateSubmissionStatus(id, 'rejected')}
+        onRegenerate={regenerateStory}
+      />
 
-        <FollowUpEmailDialog
-          open={followUpEmailOpen}
-          onClose={() => setFollowUpEmailOpen(false)}
-          submission={followUpSubmission}
-        />
-      </div>
-    </SidebarProvider>
+      <FollowUpEmailDialog
+        open={followUpEmailOpen}
+        onClose={() => setFollowUpEmailOpen(false)}
+        submission={followUpSubmission}
+      />
+    </div>
   );
 };
 

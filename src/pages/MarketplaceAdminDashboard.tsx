@@ -7,8 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { VendorManagement } from '@/components/VendorManagement';
-import { AdminSidebar } from '@/components/AdminSidebar';
-import { SidebarProvider, SidebarTrigger, SidebarInset } from '@/components/ui/sidebar';
 import { Link, useLocation } from 'react-router-dom';
 import { toast } from "sonner";
 import { 
@@ -329,59 +327,50 @@ const MarketplaceAdminDashboard = () => {
   };
 
   return (
-    <SidebarProvider defaultOpen={false}>
-      <div className="min-h-screen flex w-full bg-gradient-to-br from-slate-50 to-green-50/20">
-        <AdminSidebar />
-        
-        <SidebarInset className="flex-1">
-          <header className="flex h-16 shrink-0 items-center gap-2 border-b border-border/50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 px-6">
-            <SidebarTrigger className="md:hidden" />
-            <div className="flex flex-1 items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div>
-                  <h1 className="text-2xl font-bold text-foreground flex items-center">
-                    <Store className="h-6 w-6 mr-2 text-green-600" />
-                    Marketplace Admin
-                  </h1>
-                  <p className="text-sm text-muted-foreground hidden sm:block">Manage vendors, products, and orders</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Link to="/admin/choice">
-                  <Button variant="outline" size="sm">
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Switch Dashboard
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </header>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-green-50/20">
+      <header className="bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b border-border/50">
+        <div className="flex h-16 items-center justify-between px-6">
+          <div className="flex items-center gap-4">
+            <h1 className="text-2xl font-bold text-foreground flex items-center">
+              <Store className="h-6 w-6 mr-2 text-green-600" />
+              Marketplace Admin
+            </h1>
+            <p className="text-sm text-muted-foreground hidden sm:block">Manage vendors, products, and orders</p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Link to="/admin/choice">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Admin Home
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </header>
 
-          <main className="flex-1 p-6">
-            <Tabs value={currentTab} className="space-y-6">
-              <TabsList className="grid w-full grid-cols-4">
-                <TabsTrigger value="overview" asChild>
-                  <Link to="/admin/marketplace">Overview</Link>
-                </TabsTrigger>
-                <TabsTrigger value="vendors" asChild>
-                  <Link to="/admin/marketplace/vendors">Vendors</Link>
-                </TabsTrigger>
-                <TabsTrigger value="orders" asChild>
-                  <Link to="/admin/marketplace/orders">Orders</Link>
-                </TabsTrigger>
-                <TabsTrigger value="analytics" asChild>
-                  <Link to="/admin/marketplace/analytics">Analytics</Link>
-                </TabsTrigger>
-              </TabsList>
+      <main className="p-6">
+        <Tabs value={currentTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview" asChild>
+              <Link to="/admin/marketplace">Overview</Link>
+            </TabsTrigger>
+            <TabsTrigger value="vendors" asChild>
+              <Link to="/admin/marketplace/vendors">Vendors</Link>
+            </TabsTrigger>
+            <TabsTrigger value="orders" asChild>
+              <Link to="/admin/marketplace/orders">Orders</Link>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" asChild>
+              <Link to="/admin/marketplace/analytics">Analytics</Link>
+            </TabsTrigger>
+          </TabsList>
 
-              <TabsContent value={currentTab}>
-                {renderTabContent()}
-              </TabsContent>
-            </Tabs>
-          </main>
-        </SidebarInset>
-      </div>
-    </SidebarProvider>
+          <TabsContent value={currentTab}>
+            {renderTabContent()}
+          </TabsContent>
+        </Tabs>
+      </main>
+    </div>
   );
 };
 

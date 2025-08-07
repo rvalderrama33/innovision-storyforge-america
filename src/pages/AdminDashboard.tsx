@@ -1031,8 +1031,20 @@ const AdminDashboard = () => {
             <SidebarTrigger className="md:hidden" />
             <div className="flex flex-1 items-center justify-between">
               <div>
-                <h1 className="text-2xl font-bold text-foreground">Admin Dashboard</h1>
+                <h1 className="text-2xl font-bold text-foreground">Magazine Admin</h1>
                 <p className="text-sm text-muted-foreground hidden sm:block">Manage submissions and communications</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <Link to="/admin/choice">
+                  <Button variant="outline" size="sm">
+                    Switch Dashboard
+                  </Button>
+                </Link>
+                <Link to="/admin/marketplace">
+                  <Button variant="outline" size="sm">
+                    Marketplace Admin
+                  </Button>
+                </Link>
               </div>
               <Link 
                 to="/" 

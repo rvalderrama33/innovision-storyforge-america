@@ -8,7 +8,8 @@ import {
   Users, 
   Shield, 
   Home,
-  Store
+  Store,
+  Menu
 } from "lucide-react";
 import { NavLink, useLocation } from "react-router-dom";
 import {
@@ -37,6 +38,8 @@ const adminMenuItems = [
   { title: "Vendor Management", url: "/admin/vendors", icon: Store },
   { title: "Security", url: "/admin/security", icon: Shield },
   { title: "Email Center", url: "/admin/emails", icon: Mail },
+  { title: "Dashboard Choice", url: "/admin/choice", icon: Menu },
+  { title: "Marketplace Admin", url: "/admin/marketplace", icon: Store },
   { title: "Vendor Dashboard", url: "/vendor/dashboard", icon: Store },
 ];
 

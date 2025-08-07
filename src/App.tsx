@@ -14,6 +14,8 @@ import Submit from "./pages/Submit";
 import About from "./pages/About";
 import Auth from "./pages/Auth";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminDashboardChoice from "./pages/AdminDashboardChoice";
+import MarketplaceAdminDashboard from "./pages/MarketplaceAdminDashboard";
 import Article from "./pages/Article";
 import ArticleEditor from "./components/ArticleEditor";
 import Stories from "./pages/Stories";
@@ -66,6 +68,8 @@ const App = () => (
             <Route path="/submit" element={<ProtectedRoute><Submit /></ProtectedRoute>} />
             <Route path="/about" element={<About />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/admin/choice" element={<AdminDashboardChoice />} />
+            <Route path="/admin/marketplace/*" element={<MarketplaceAdminDashboard />} />
             <Route path="/admin/*" element={<AdminDashboard />} />
             <Route path="/article/:slug" element={<Article />} />
             <Route path="/admin/edit/:id" element={<ArticleEditor />} />

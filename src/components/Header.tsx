@@ -139,17 +139,20 @@ const Header = () => {
                   <Link to="/submit" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
                     Submit Story
                   </Link>
-                  <Link to="/recommend" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                    Recommend Someone
-                  </Link>
-                  {isAdmin && (
-                    <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                      Marketplace
-                    </Link>
-                  )}
-                   <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                     About
+                   <Link to="/recommend" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                     Recommend Someone
                    </Link>
+                   <Link to="/marketplace-info" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                     Marketplace
+                   </Link>
+                   {isAdmin && (
+                     <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                       Browse Products
+                     </Link>
+                   )}
+                    <Link to="/about" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                      About
+                    </Link>
                  </>
                )}
                <div onClick={closeMobileMenu} className="py-2">
@@ -219,13 +222,14 @@ const Header = () => {
             </>
           ) : (
             <>
-              <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Browse Stories</Link>
-              <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Submit Story</Link>
-              <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Recommend Someone</Link>
-              {isAdmin && (
-                <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Marketplace</Link>
-              )}
-               <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">About</Link>
+               <Link to="/stories" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Browse Stories</Link>
+               <Link to="/submit" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Submit Story</Link>
+               <Link to="/recommend" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Recommend Someone</Link>
+               <Link to="/marketplace-info" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Marketplace</Link>
+               {isAdmin && (
+                 <Link to="/marketplace" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">Browse Products</Link>
+               )}
+                <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">About</Link>
              </>
            )}
            <BecomeVendorButton />

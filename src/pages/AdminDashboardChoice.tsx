@@ -54,7 +54,7 @@ const AdminDashboardChoice = () => {
           <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-blue-200">
             <CardHeader className="text-center pb-4">
               <div className="mx-auto mb-4 p-4 bg-blue-100 rounded-full w-fit group-hover:bg-blue-200 transition-colors">
-                <img src="/lovable-uploads/841cd47d-53a5-4d25-9e58-3ab51a099cf8.png" alt="America Innovates Logo" className="h-12 w-12 object-contain" />
+                <img src="/lovable-uploads/2108e82a-9d65-4ee6-b974-51aa5bc01a16.png" alt="America Innovates Magazine Logo" className="h-12 w-12 object-contain" />
               </div>
               <CardTitle className="text-2xl font-bold">Magazine Dashboard</CardTitle>
               <CardDescription className="text-base">
@@ -67,7 +67,7 @@ const AdminDashboardChoice = () => {
                 <h4 className="font-semibold text-gray-900 mb-3">Key Features:</h4>
                 <div className="grid grid-cols-1 gap-2">
                   <div className="flex items-center text-sm text-gray-600">
-                    <img src="/lovable-uploads/841cd47d-53a5-4d25-9e58-3ab51a099cf8.png" alt="" className="h-4 w-4 mr-2 object-contain" />
+                    <img src="/lovable-uploads/2108e82a-9d65-4ee6-b974-51aa5bc01a16.png" alt="" className="h-4 w-4 mr-2 object-contain" />
                     Article submissions & approvals
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
@@ -104,7 +104,7 @@ const AdminDashboardChoice = () => {
           <Card className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-green-200">
             <CardHeader className="text-center pb-4">
               <div className="mx-auto mb-4 p-4 bg-green-100 rounded-full w-fit group-hover:bg-green-200 transition-colors">
-                <img src="/lovable-uploads/43bba682-71b1-45de-bb29-fcef128fb045.png" alt="Marketplace Logo" className="h-12 w-12 object-contain" />
+                <img src="/lovable-uploads/25521c59-14bd-4565-990e-aa4d304aa849.png" alt="America Innovates Marketplace Logo" className="h-12 w-12 object-contain" />
               </div>
               <CardTitle className="text-2xl font-bold">Marketplace Dashboard</CardTitle>
               <CardDescription className="text-base">
@@ -117,7 +117,7 @@ const AdminDashboardChoice = () => {
                 <h4 className="font-semibold text-gray-900 mb-3">Key Features:</h4>
                 <div className="grid grid-cols-1 gap-2">
                   <div className="flex items-center text-sm text-gray-600">
-                    <img src="/lovable-uploads/43bba682-71b1-45de-bb29-fcef128fb045.png" alt="" className="h-4 w-4 mr-2 object-contain" />
+                    <img src="/lovable-uploads/25521c59-14bd-4565-990e-aa4d304aa849.png" alt="" className="h-4 w-4 mr-2 object-contain" />
                     Vendor application management
                   </div>
                   <div className="flex items-center text-sm text-gray-600">

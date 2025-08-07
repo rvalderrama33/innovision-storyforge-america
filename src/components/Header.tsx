@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut, Settings, X, Home } from "lucide-react";
+import { Menu, LogOut, Settings, X, Home, Store } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -51,7 +51,7 @@ const LogoComponent = ({ isMobile = false, isMarketplace = false }: { isMobile?:
 };
 
 const Header = () => {
-  const { user, isAdmin, signOut } = useAuth();
+  const { user, isAdmin, isVendor, signOut } = useAuth();
   const isMobile = useIsMobile();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -155,15 +155,21 @@ const Header = () => {
                     </Link>
                  </>
                )}
-               <div onClick={closeMobileMenu} className="py-2">
-                 <BecomeVendorButton />
-               </div>
-               {isAdmin && (
-                <Link to="/admin/choice" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
-                  <Home className="inline h-4 w-4 mr-1" />
-                  Admin Home
-                </Link>
-               )}
+                <div onClick={closeMobileMenu} className="py-2">
+                  <BecomeVendorButton />
+                </div>
+                {isVendor && (
+                  <Link to="/vendor-dashboard" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                    <Store className="inline h-4 w-4 mr-1" />
+                    Vendor Dashboard
+                  </Link>
+                )}
+                {isAdmin && (
+                 <Link to="/admin/choice" className="text-gray-700 hover:text-gray-900 py-2" onClick={closeMobileMenu}>
+                   <Home className="inline h-4 w-4 mr-1" />
+                   Admin Home
+                 </Link>
+                )}
             </div>
           </div>
         )}
@@ -232,13 +238,19 @@ const Header = () => {
                 <Link to="/about" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">About</Link>
              </>
            )}
-           <BecomeVendorButton />
-           {isAdmin && (
-            <Link to="/admin/choice" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
-              <Home className="inline h-4 w-4 mr-1" />
-              Admin Home
-            </Link>
-           )}
+            <BecomeVendorButton />
+            {isVendor && (
+              <Link to="/vendor-dashboard" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
+                <Store className="inline h-4 w-4 mr-1" />
+                Vendor Dashboard
+              </Link>
+            )}
+            {isAdmin && (
+             <Link to="/admin/choice" className="text-gray-700 hover:text-gray-900 transition-colors font-medium py-1">
+               <Home className="inline h-4 w-4 mr-1" />
+               Admin Home
+             </Link>
+            )}
         </div>
       </div>
     </nav>

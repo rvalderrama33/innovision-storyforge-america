@@ -94,6 +94,38 @@ export const VendorManagement = () => {
       if (error) throw error;
 
       if (data) {
+        // Send congratulations email
+        try {
+          const { data: applicationData } = await supabase
+            .from('vendor_applications')
+            .select('contact_email, business_name')
+            .eq('id', applicationId)
+            .single();
+
+          if (applicationData) {
+            await supabase.functions.invoke('send-email', {
+              body: {
+                type: 'notification',
+                to: applicationData.contact_email,
+                subject: 'Congratulations! Your Vendor Application Has Been Approved',
+                message: `
+                  Congratulations ${applicationData.business_name}!<br><br>
+                  Your vendor application has been approved and you can now start selling on America Innovates Marketplace.<br><br>
+                  <strong>Next Steps:</strong><br>
+                  • Log into your account to access your vendor dashboard<br>
+                  • Add your first product to get started<br>
+                  • Complete your vendor profile<br><br>
+                  We're excited to have you as part of our marketplace community!
+                `,
+                name: applicationData.business_name
+              }
+            });
+          }
+        } catch (emailError) {
+          console.error('Error sending approval email:', emailError);
+          // Don't fail the approval if email fails
+        }
+
         toast.success('Vendor application approved successfully');
         fetchApplications();
       } else {

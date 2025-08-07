@@ -56,7 +56,7 @@ const Header = () => {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
-  const isMarketplacePage = location.pathname.startsWith('/marketplace');
+  const isMarketplacePage = location.pathname.startsWith('/marketplace') || location.pathname.startsWith('/vendor');
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);

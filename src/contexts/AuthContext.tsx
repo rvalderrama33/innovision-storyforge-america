@@ -182,7 +182,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       console.log('Initial session:', session?.user?.email);
       if (session?.user) {
         setUser(session.user);
-        // Loading will be set to false after roles are checked in the other useEffect
+        setLoading(true); // Keep loading while we check roles
       } else {
         setUser(null);
         setLoading(false);
@@ -196,9 +196,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (session?.user) {
           setUser(session.user);
-          // Keep loading true until roles are checked
+          setLoading(true); // Keep loading while we check roles
           console.log('User signed in:', session.user.email);
-          // Roles will be checked in the separate useEffect
         } else {
           setUser(null);
           setIsSubscriber(false);
@@ -215,7 +214,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   // Check user role when user changes
   useEffect(() => {
     if (user) {
-      setLoading(true); // Keep loading while checking roles
       console.log('User changed, checking roles for:', user.email, 'ID:', user.id);
       checkUserRole(user.id).then(({ isSubscriber: sub, isAdmin: admin, isVendor: vendor }) => {
         console.log('Setting subscriber status:', sub, 'admin status:', admin, 'vendor status:', vendor, 'for user:', user.email);
@@ -223,6 +221,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         setIsAdmin(admin);
         setIsVendor(vendor);
         setLoading(false); // Done loading after roles are set
+      }).catch((error) => {
+        console.error('Error checking user roles:', error);
+        setLoading(false); // Set loading false even on error
       });
     } else {
       console.log('No user, clearing roles');

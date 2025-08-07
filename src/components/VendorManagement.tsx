@@ -52,41 +52,19 @@ export const VendorManagement = () => {
   const [activeTab, setActiveTab] = useState('pending');
 
   const fetchApplications = async () => {
-    console.log('Fetching vendor applications...');
     try {
-      // First try without joins to see if RLS is the issue
-      const { data: simpleData, error: simpleError } = await supabase
+      // Fetch vendor applications without joins since foreign key relationships aren't properly set up
+      const { data, error } = await supabase
         .from('vendor_applications')
         .select('*')
         .order('created_at', { ascending: false });
-      
-      console.log('Simple query result:', { simpleData, simpleError });
-      
-      if (simpleError) {
-        throw simpleError;
-      }
 
-      const { data, error } = await supabase
-        .from('vendor_applications')
-        .select(`
-          *,
-          profiles:user_id (
-            full_name,
-            email
-          ),
-          reviewer_profile:reviewed_by (
-            full_name
-          )
-        `)
-        .order('created_at', { ascending: false });
-
-      console.log('Vendor applications query result:', { data, error });
       if (error) {
-        console.error('Supabase error details:', error);
+        console.error('Error fetching vendor applications:', error);
         throw error;
       }
 
-      setApplications((data || []) as any[]);
+      setApplications((data || []) as VendorApplication[]);
       
       // Calculate stats
       const total = data?.length || 0;

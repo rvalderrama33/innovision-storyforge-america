@@ -1044,7 +1044,32 @@ const AdminDashboard = () => {
       </header>
 
       <main className="p-6">
-        {renderTabContent()}
+        <Tabs value={currentTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-6">
+            <TabsTrigger value="overview" asChild>
+              <Link to="/admin">Overview</Link>
+            </TabsTrigger>
+            <TabsTrigger value="submissions" asChild>
+              <Link to="/admin/submissions">Submissions</Link>
+            </TabsTrigger>
+            <TabsTrigger value="newsletter" asChild>
+              <Link to="/admin/newsletter">Newsletter</Link>
+            </TabsTrigger>
+            <TabsTrigger value="analytics" asChild>
+              <Link to="/admin/analytics">Analytics</Link>
+            </TabsTrigger>
+            <TabsTrigger value="emails" asChild>
+              <Link to="/admin/emails">Email Templates</Link>
+            </TabsTrigger>
+            <TabsTrigger value="users" asChild>
+              <Link to="/admin/users">Users</Link>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value={currentTab}>
+            {renderTabContent()}
+          </TabsContent>
+        </Tabs>
       </main>
 
       <ArticlePreviewDialog

@@ -16,6 +16,7 @@ import { useSEO } from "@/hooks/useSEO";
 import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
 import { Upload, X, Plus, Sparkles, Star, Video } from "lucide-react";
 import { TestProductContentGenerator } from "@/components/TestProductContentGenerator";
+import { ProductVariantManager } from "@/components/ProductVariantManager";
 
 
 const categories = [
@@ -61,7 +62,10 @@ const MarketplaceAdd = () => {
     sales_links: [] as string[],
     video_urls: [] as string[],
     isAffiliate: false,
-    affiliateUrl: ""
+    affiliateUrl: "",
+    hasVariants: false,
+    variants: [] as any[],
+    variantOptions: {} as Record<string, string[]>
   });
 
   useSEO({
@@ -372,7 +376,10 @@ const MarketplaceAdd = () => {
           sales_links: formData.sales_links,
           video_urls: formData.video_urls,
           is_affiliate: formData.isAffiliate,
-          affiliate_url: formData.isAffiliate ? formData.affiliateUrl : null
+          affiliate_url: formData.isAffiliate ? formData.affiliateUrl : null,
+          has_variants: formData.hasVariants,
+          variants: formData.variants,
+          variant_options: formData.variantOptions
         })
         .select()
         .single();
@@ -779,6 +786,17 @@ const MarketplaceAdd = () => {
                   </SelectContent>
                 </Select>
               </div>
+
+              {/* Product Variants */}
+              <ProductVariantManager
+                hasVariants={formData.hasVariants}
+                variants={formData.variants}
+                variantOptions={formData.variantOptions}
+                basePrice={formData.isAffiliate ? 0 : (parseFloat(formData.price) * 100) || 0}
+                onVariantsChange={(variants) => setFormData({ ...formData, variants })}
+                onVariantOptionsChange={(options) => setFormData({ ...formData, variantOptions: options })}
+                onHasVariantsChange={(hasVariants) => setFormData({ ...formData, hasVariants })}
+              />
 
               <div className="flex items-center space-x-2">
                 <Switch

@@ -323,6 +323,7 @@ export type Database = {
           currency: string
           description: string | null
           featured: boolean | null
+          has_variants: boolean | null
           id: string
           images: string[] | null
           is_affiliate: boolean | null
@@ -337,6 +338,8 @@ export type Database = {
           stock_quantity: number | null
           tags: string[] | null
           updated_at: string
+          variant_options: Json | null
+          variants: Json | null
           vendor_id: string
           video_urls: string[] | null
         }
@@ -348,6 +351,7 @@ export type Database = {
           currency?: string
           description?: string | null
           featured?: boolean | null
+          has_variants?: boolean | null
           id?: string
           images?: string[] | null
           is_affiliate?: boolean | null
@@ -362,6 +366,8 @@ export type Database = {
           stock_quantity?: number | null
           tags?: string[] | null
           updated_at?: string
+          variant_options?: Json | null
+          variants?: Json | null
           vendor_id: string
           video_urls?: string[] | null
         }
@@ -373,6 +379,7 @@ export type Database = {
           currency?: string
           description?: string | null
           featured?: boolean | null
+          has_variants?: boolean | null
           id?: string
           images?: string[] | null
           is_affiliate?: boolean | null
@@ -387,6 +394,8 @@ export type Database = {
           stock_quantity?: number | null
           tags?: string[] | null
           updated_at?: string
+          variant_options?: Json | null
+          variants?: Json | null
           vendor_id?: string
           video_urls?: string[] | null
         }

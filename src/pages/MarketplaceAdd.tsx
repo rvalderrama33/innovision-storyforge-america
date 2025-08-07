@@ -339,7 +339,11 @@ const MarketplaceAdd = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submission started by user:', user?.id, 'isVendor:', isVendor);
+    console.log('Form data:', formData);
+    
     if (!formData.name || !formData.description || (!formData.isAffiliate && !formData.price) || (formData.isAffiliate && !formData.affiliateUrl)) {
+      console.log('Validation failed - missing required fields');
       toast({
         title: "Error",
         description: "Please fill in all required fields.",
@@ -351,40 +355,51 @@ const MarketplaceAdd = () => {
     setLoading(true);
 
     try {
+      console.log('Generating slug for:', formData.name);
       const slug = await generateSlug(formData.name);
+      console.log('Generated slug:', slug);
+      
       const priceInCents = Math.round(parseFloat(formData.price) * 100);
+      console.log('Price in cents:', priceInCents);
 
-        const { data, error } = await supabase
+      const insertData = {
+        vendor_id: user.id,
+        name: formData.name,
+        description: formData.description,
+        price: formData.isAffiliate ? 0 : priceInCents,
+        currency: formData.currency,
+        category: formData.category,
+        status: formData.status,
+        featured: formData.featured,
+        stock_quantity: formData.isAffiliate ? 0 : parseInt(formData.stock_quantity) || 0,
+        slug,
+        images: formData.images,
+        primary_image_index: formData.primaryImageIndex,
+        specifications: formData.specifications,
+        shipping_info: formData.shipping_info,
+        tags: formData.tags,
+        sales_links: formData.sales_links,
+        video_urls: formData.video_urls,
+        is_affiliate: formData.isAffiliate,
+        affiliate_url: formData.isAffiliate ? formData.affiliateUrl : null,
+        has_variants: formData.hasVariants,
+        variants: formData.variants,
+        variant_options: formData.variantOptions
+      };
+      
+      console.log('About to insert product with data:', insertData);
+
+      const { data, error } = await supabase
         .from('marketplace_products')
-        .insert({
-          vendor_id: user.id,
-          name: formData.name,
-          description: formData.description,
-          price: formData.isAffiliate ? 0 : priceInCents,
-          currency: formData.currency,
-          category: formData.category,
-          status: formData.status,
-          featured: formData.featured,
-          stock_quantity: formData.isAffiliate ? 0 : parseInt(formData.stock_quantity) || 0,
-          slug,
-          images: formData.images,
-          primary_image_index: formData.primaryImageIndex,
-          specifications: formData.specifications,
-          shipping_info: formData.shipping_info,
-          tags: formData.tags,
-          sales_links: formData.sales_links,
-          video_urls: formData.video_urls,
-          is_affiliate: formData.isAffiliate,
-          affiliate_url: formData.isAffiliate ? formData.affiliateUrl : null,
-          has_variants: formData.hasVariants,
-          variants: formData.variants,
-          variant_options: formData.variantOptions
-        })
+        .insert(insertData)
         .select()
         .single();
 
+      console.log('Insert result - data:', data, 'error:', error);
+
       if (error) throw error;
 
+      console.log('Product created successfully:', data);
       toast({
         title: "Success",
         description: "Product added successfully!"
@@ -393,6 +408,12 @@ const MarketplaceAdd = () => {
       navigate('/marketplace/manage');
     } catch (error: any) {
       console.error('Error adding product:', error);
+      console.error('Error details:', {
+        message: error.message,
+        code: error.code,
+        details: error.details,
+        hint: error.hint
+      });
       toast({
         title: "Error",
         description: error.message || "Failed to add product. Please try again.",

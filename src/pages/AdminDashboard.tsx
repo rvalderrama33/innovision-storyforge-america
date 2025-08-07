@@ -25,7 +25,7 @@ import RecommendationAnalytics from "@/components/RecommendationAnalytics";
 import SubmissionReports from "@/components/SubmissionReports";
 import { SubmissionCard } from "@/components/SubmissionCard";
 import SecurityMonitor from "@/components/SecurityMonitor";
-import { TestFeaturedEmailSender } from '@/components/TestFeaturedEmailSender';
+
 import { FollowUpEmailDialog } from "@/components/FollowUpEmailDialog";
 import { VendorManagement } from "@/components/VendorManagement";
 
@@ -560,10 +560,6 @@ const AdminDashboard = () => {
                   <p className="text-muted-foreground">Highlighted articles</p>
                 </CardContent>
                 </Card>
-              </div>
-              
-              <div className="mt-6">
-                <TestFeaturedEmailSender />
               </div>
             </div>
         );

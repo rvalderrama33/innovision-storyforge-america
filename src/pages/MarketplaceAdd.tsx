@@ -15,7 +15,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useSEO } from "@/hooks/useSEO";
 import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
 import { Upload, X, Plus, Sparkles, Star, Video } from "lucide-react";
-import { TestProductContentGenerator } from "@/components/TestProductContentGenerator";
 import { ProductVariantManager } from "@/components/ProductVariantManager";
 
 
@@ -820,11 +819,6 @@ const MarketplaceAdd = () => {
             </form>
           </CardContent>
         </Card>
-        
-        {/* Debug Test Component */}
-        <div className="mt-8">
-          <TestProductContentGenerator />
-        </div>
       </div>
     </div>
   );

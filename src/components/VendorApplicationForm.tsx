@@ -146,6 +146,23 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
       }
 
       console.log('Application submitted successfully');
+
+      // Send admin notification email
+      try {
+        const { sendVendorApplicationNotification, sendVendorApplicationConfirmation } = await import('@/lib/emailService');
+        
+        // Send notification to admin
+        await sendVendorApplicationNotification(insertData[0]);
+        console.log('Admin notification email sent successfully');
+        
+        // Send confirmation to applicant
+        await sendVendorApplicationConfirmation(insertData[0]);
+        console.log('Vendor confirmation email sent successfully');
+      } catch (emailError) {
+        console.error('Failed to send notification emails:', emailError);
+        // Don't fail the application if email fails
+      }
+
       toast.success('Vendor application submitted successfully! Your application is pending admin review.');
       onSuccess();
     } catch (error: any) {

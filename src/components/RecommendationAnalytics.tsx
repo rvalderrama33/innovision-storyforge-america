@@ -33,7 +33,9 @@ const RecommendationAnalytics = () => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isBulkResending, setIsBulkResending] = useState(false);
   const [uploadProgress, setUploadProgress] = useState({ current: 0, total: 0 });
+  const [bulkResendProgress, setBulkResendProgress] = useState({ current: 0, total: 0 });
   const [newRecommendation, setNewRecommendation] = useState({
     recommenderName: "",
     name: "",
@@ -184,6 +186,81 @@ const RecommendationAnalytics = () => {
         description: "Failed to resend recommendation email",
         variant: "destructive"
       });
+    }
+  };
+
+  const bulkResendRecommendations = async () => {
+    if (!recommendations.length) {
+      toast({
+        title: "No recommendations",
+        description: "There are no recommendations to resend",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsBulkResending(true);
+    setBulkResendProgress({ current: 0, total: recommendations.length });
+
+    let successCount = 0;
+    let errorCount = 0;
+
+    try {
+      // Process recommendations in batches of 3 to avoid rate limiting
+      const batchSize = 3;
+      
+      for (let i = 0; i < recommendations.length; i += batchSize) {
+        const batch = recommendations.slice(i, i + batchSize);
+        
+        await Promise.all(batch.map(async (rec) => {
+          try {
+            // Send the recommendation email
+            await supabase.functions.invoke('send-email', {
+              body: {
+                type: 'recommendation',
+                to: rec.email,
+                name: rec.name,
+                recommenderName: rec.recommender_name || 'America Innovates Team'
+              }
+            });
+
+            // Update the email_sent_at timestamp
+            await supabase
+              .from('recommendations')
+              .update({ email_sent_at: new Date().toISOString() })
+              .eq('id', rec.id);
+
+            successCount++;
+          } catch (error) {
+            console.error(`Error resending to ${rec.name}:`, error);
+            errorCount++;
+          }
+
+          setBulkResendProgress(prev => ({ ...prev, current: prev.current + 1 }));
+        }));
+
+        // Add a small delay between batches
+        if (i + batchSize < recommendations.length) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+
+      toast({
+        title: "Bulk resend completed",
+        description: `Successfully resent ${successCount} emails. ${errorCount > 0 ? `${errorCount} failed.` : ''}`
+      });
+
+      fetchRecommendations();
+    } catch (error) {
+      console.error('Error in bulk resend:', error);
+      toast({
+        title: "Error",
+        description: "Failed to complete bulk resend operation",
+        variant: "destructive"
+      });
+    } finally {
+      setIsBulkResending(false);
+      setBulkResendProgress({ current: 0, total: 0 });
     }
   };
 
@@ -550,6 +627,49 @@ const RecommendationAnalytics = () => {
               </DialogFooter>
             </DialogContent>
           </Dialog>
+          
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" disabled={!recommendations.length || isBulkResending}>
+                <Mail className="h-4 w-4 mr-2" />
+                {isBulkResending ? 'Resending...' : 'Resend All Emails'}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Resend All Recommendation Emails</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will resend recommendation emails to all {recommendations.length} people in your list. 
+                  Are you sure you want to proceed?
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              {isBulkResending && (
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Sending emails...</span>
+                    <span>{bulkResendProgress.current}/{bulkResendProgress.total}</span>
+                  </div>
+                  <div className="w-full bg-secondary rounded-full h-2">
+                    <div 
+                      className="bg-primary h-2 rounded-full transition-all duration-300" 
+                      style={{ 
+                        width: bulkResendProgress.total > 0 ? `${(bulkResendProgress.current / bulkResendProgress.total) * 100}%` : '0%' 
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={isBulkResending}>Cancel</AlertDialogCancel>
+                <AlertDialogAction 
+                  onClick={bulkResendRecommendations}
+                  disabled={isBulkResending}
+                >
+                  {isBulkResending ? 'Sending...' : 'Resend All'}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
           
           <Button onClick={fetchRecommendations} variant="outline" disabled={loading}>
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />

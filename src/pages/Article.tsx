@@ -252,12 +252,12 @@ const Article = () => {
       {/* Hero Section */}
       <div className="relative">
         {hasBanner ? (
-          <div className="w-full h-[48vh] lg:h-[60vh] relative overflow-hidden">
+          <div className="w-full h-[35vh] lg:h-[45vh] relative overflow-hidden">
             <img
               src={bannerUrl}
               alt={article.product_name || "Innovation story featured image"}
-              className="w-full h-full"
-              style={getBannerImageStyle()}
+              className="w-full h-full object-cover object-top"
+              style={{ objectPosition: 'center 20%' }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-12">

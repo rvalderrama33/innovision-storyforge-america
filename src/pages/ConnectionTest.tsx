@@ -31,9 +31,8 @@ const ConnectionTest = () => {
       // Test 1: Database connection
       details += "1. Testing Database Connection...\n";
       const { data: testData, error: dbError } = await supabase
-        .from('submissions')
+        .from('published_articles_public')
         .select('id')
-        .eq('status', 'approved')
         .limit(1);
       
       if (dbError) {

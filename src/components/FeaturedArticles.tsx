@@ -46,9 +46,8 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
       try {
         setIsLoading(true);
         const { data, error } = await supabase
-          .from('submissions')
+          .from('published_articles_public')
           .select('*')
-          .eq('status', 'approved')
           .eq('featured', true)
           .order('pinned', { ascending: false })
           .order('created_at', { ascending: false })

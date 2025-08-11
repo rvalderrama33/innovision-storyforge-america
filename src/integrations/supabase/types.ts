@@ -250,6 +250,13 @@ export type Database = {
             foreignKeyName: "featured_story_payments_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
+            referencedRelation: "published_articles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "featured_story_payments_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
             referencedRelation: "submissions"
             referencedColumns: ["id"]
           },
@@ -658,7 +665,21 @@ export type Database = {
             foreignKeyName: "recommendations_submission_id_created_fkey"
             columns: ["submission_id_created"]
             isOneToOne: false
+            referencedRelation: "published_articles_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recommendations_submission_id_created_fkey"
+            columns: ["submission_id_created"]
+            isOneToOne: false
             referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recommendations_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "published_articles_public"
             referencedColumns: ["id"]
           },
           {
@@ -921,7 +942,105 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      published_articles_public: {
+        Row: {
+          approved_at: string | null
+          banner_image: string | null
+          biggest_challenge: string | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          description: string | null
+          display_name: string | null
+          featured: boolean | null
+          generated_article: string | null
+          headshot_image: string | null
+          id: string | null
+          idea_origin: string | null
+          image_urls: string[] | null
+          inspiration: string | null
+          is_manual_submission: boolean | null
+          logo_image: string | null
+          motivation: string | null
+          pinned: boolean | null
+          problem_solved: string | null
+          product_name: string | null
+          proudest_moment: string | null
+          selected_vendors: string[] | null
+          slug: string | null
+          social_media: string | null
+          source_links: string[] | null
+          stage: string | null
+          state: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          approved_at?: string | null
+          banner_image?: string | null
+          biggest_challenge?: string | null
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_name?: never
+          featured?: boolean | null
+          generated_article?: string | null
+          headshot_image?: string | null
+          id?: string | null
+          idea_origin?: string | null
+          image_urls?: string[] | null
+          inspiration?: string | null
+          is_manual_submission?: boolean | null
+          logo_image?: string | null
+          motivation?: string | null
+          pinned?: boolean | null
+          problem_solved?: string | null
+          product_name?: string | null
+          proudest_moment?: string | null
+          selected_vendors?: string[] | null
+          slug?: string | null
+          social_media?: string | null
+          source_links?: string[] | null
+          stage?: string | null
+          state?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          approved_at?: string | null
+          banner_image?: string | null
+          biggest_challenge?: string | null
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          display_name?: never
+          featured?: boolean | null
+          generated_article?: string | null
+          headshot_image?: string | null
+          id?: string | null
+          idea_origin?: string | null
+          image_urls?: string[] | null
+          inspiration?: string | null
+          is_manual_submission?: boolean | null
+          logo_image?: string | null
+          motivation?: string | null
+          pinned?: boolean | null
+          problem_solved?: string | null
+          product_name?: string | null
+          proudest_moment?: string | null
+          selected_vendors?: string[] | null
+          slug?: string | null
+          social_media?: string | null
+          source_links?: string[] | null
+          stage?: string | null
+          state?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       approve_vendor_application: {

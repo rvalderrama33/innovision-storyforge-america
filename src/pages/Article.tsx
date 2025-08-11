@@ -41,16 +41,15 @@ const Article = () => {
       
       // Optimize query to only select essential fields to reduce payload size
       const selectFields = `
-        id, full_name, city, state, product_name, category, description,
+        id, display_name, city, state, product_name, category, description,
         generated_article, image_urls, created_at, slug,
         banner_image, headshot_image, logo_image, website
       `.replace(/\s+/g, ' ').trim();
 
       // First try to find by slug with optimized query and timeout
       let { data, error } = await supabase
-        .from('submissions')
+        .from('published_articles_public')
         .select(selectFields)
-        .eq('status', 'approved')
         .eq('slug', slug)
         .abortSignal(controller.signal)
         .maybeSingle();
@@ -58,9 +57,8 @@ const Article = () => {
       // If not found by slug, try by ID (for articles without slugs)
       if (!data && !error) {
         const { data: dataById, error: errorById } = await supabase
-          .from('submissions')
+          .from('published_articles_public')
           .select(selectFields)
-          .eq('status', 'approved')
           .eq('id', slug)
           .abortSignal(controller.signal)
           .maybeSingle();
@@ -113,7 +111,7 @@ const Article = () => {
 
   useSEO({
     title: article ? `${article.product_name} | America Innovates Magazine` : "Article | America Innovates Magazine",
-    description: article ? (article.description || `Read about ${article.product_name} by ${article.full_name} - an inspiring innovation story from America Innovates Magazine.`) : "Discover inspiring innovation stories from entrepreneurs and creators building breakthrough consumer products.",
+    description: article ? (article.description || `Read about ${article.product_name} by ${article.display_name} - an inspiring innovation story from America Innovates Magazine.`) : "Discover inspiring innovation stories from entrepreneurs and creators building breakthrough consumer products.",
     url: `https://americainnovates.us/article/${slug}`,
     image: shareImage,
     type: "article"
@@ -341,10 +339,10 @@ const Article = () => {
                   className="object-cover"
                 />
                 <AvatarFallback className="bg-primary/10 text-primary text-2xl">
-                  {article.full_name?.split(' ').map(n => n[0]).join('')}
+                  {article.display_name?.split(' ').map(n => n[0]).join('')}
                 </AvatarFallback>
               </Avatar>
-              <h3 className="text-xl font-semibold mt-4 mb-1">{article.full_name}</h3>
+              <h3 className="text-xl font-semibold mt-4 mb-1">{article.display_name}</h3>
               <p className="text-muted-foreground text-sm">
                 {article.city && article.state ? `${article.city}, ${article.state}` : (article.city || article.state)}
               </p>
@@ -472,8 +470,8 @@ const Article = () => {
                     dangerouslySetInnerHTML={{
                       __html: DOMPurify.sanitize(
                         finalContent?.replace(
-                          new RegExp(`\\b${article.full_name}\\b`, 'gi'),
-                          `<span class="font-semibold text-primary">${article.full_name}</span>`
+                          new RegExp(`\\b${article.display_name}\\b`, 'gi'),
+                          `<span class="font-semibold text-primary">${article.display_name}</span>`
                         ).replace(/\n\n/g, '</p><p>').replace(/^/, '<p>').replace(/$/, '</p>') || ''
                       )
                     }}
@@ -499,8 +497,8 @@ const Article = () => {
                   // Add the current text chunk
                   if (currentParagraphs.length > 0) {
                     const textContent = currentParagraphs.join('\n\n')
-                      .replace(new RegExp(`\\b${article.full_name}\\b`, 'gi'), 
-                        `<span class="font-semibold text-primary">${article.full_name}</span>`);
+                      .replace(new RegExp(`\\b${article.display_name}\\b`, 'gi'), 
+                        `<span class="font-semibold text-primary">${article.display_name}</span>`);
                     
                     contentParts.push(
                       <div key={`text-${i}`} 
@@ -559,7 +557,7 @@ const Article = () => {
               <SocialShare 
                 url={`https://americainnovates.us/article/${slug}`}
                 title={article.product_name}
-                description={article.description || `Read about ${article.product_name} by ${article.full_name}`}
+                description={article.description || `Read about ${article.product_name} by ${article.display_name}`}
                 image={shareImage}
               />
             </div>

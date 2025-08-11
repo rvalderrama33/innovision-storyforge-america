@@ -42,9 +42,8 @@ const Stories = () => {
   useEffect(() => {
     const fetchStories = async () => {
       const { data, error } = await supabase
-        .from('submissions')
+        .from('published_articles_public')
         .select('*')
-        .eq('status', 'approved')
         .order('created_at', { ascending: false });
 
       if (error) {

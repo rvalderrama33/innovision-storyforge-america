@@ -35,7 +35,7 @@ const handler = async (req: Request): Promise<Response> => {
         </p>
         
         <p style="font-size: 16px; line-height: 1.6; color: #555;">
-          Thank you for applying to become a vendor with America Innovates Magazine. 
+          Thank you for applying to become a vendor with America Innovates Marketplace. 
           We have successfully received your application and are currently reviewing it.
         </p>
         
@@ -65,7 +65,7 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
         
         <p style="font-size: 16px; line-height: 1.6; color: #555;">
-          We appreciate your interest in partnering with America Innovates Magazine 
+          We appreciate your interest in partnering with America Innovates Marketplace 
           and look forward to potentially working together to showcase innovative products.
         </p>
         
@@ -73,7 +73,7 @@ const handler = async (req: Request): Promise<Response> => {
           <p style="color: #888; font-size: 14px; margin: 0;">
             Best regards,<br>
             <strong>The America Innovates Team</strong><br>
-            America Innovates Magazine
+            America Innovates Marketplace
           </p>
         </div>
       </div>

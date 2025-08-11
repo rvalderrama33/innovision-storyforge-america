@@ -944,71 +944,116 @@ export type Database = {
     Views: {
       published_articles: {
         Row: {
-          attribution: string | null
+          approved_at: string | null
+          approved_by: string | null
+          background: string | null
           banner_image: string | null
+          biggest_challenge: string | null
           category: string | null
           city: string | null
           created_at: string | null
           description: string | null
+          email: string | null
           featured: boolean | null
+          full_name: string | null
           generated_article: string | null
           headshot_image: string | null
           id: string | null
+          idea_origin: string | null
           image_urls: string[] | null
+          inspiration: string | null
+          is_manual_submission: boolean | null
           logo_image: string | null
+          motivation: string | null
+          phone_number: string | null
           pinned: boolean | null
           problem_solved: string | null
           product_name: string | null
+          proudest_moment: string | null
+          recommendations: Json | null
+          selected_vendors: string[] | null
           slug: string | null
           social_media: string | null
+          source_links: string[] | null
           stage: string | null
           state: string | null
+          status: string | null
           updated_at: string | null
           website: string | null
         }
         Insert: {
-          attribution?: never
+          approved_at?: string | null
+          approved_by?: string | null
+          background?: string | null
           banner_image?: string | null
+          biggest_challenge?: string | null
           category?: string | null
           city?: string | null
           created_at?: string | null
           description?: string | null
+          email?: string | null
           featured?: boolean | null
+          full_name?: string | null
           generated_article?: string | null
           headshot_image?: string | null
           id?: string | null
+          idea_origin?: string | null
           image_urls?: string[] | null
+          inspiration?: string | null
+          is_manual_submission?: boolean | null
           logo_image?: string | null
+          motivation?: string | null
+          phone_number?: string | null
           pinned?: boolean | null
           problem_solved?: string | null
           product_name?: string | null
+          proudest_moment?: string | null
+          recommendations?: Json | null
+          selected_vendors?: string[] | null
           slug?: string | null
           social_media?: string | null
+          source_links?: string[] | null
           stage?: string | null
           state?: string | null
+          status?: string | null
           updated_at?: string | null
           website?: string | null
         }
         Update: {
-          attribution?: never
+          approved_at?: string | null
+          approved_by?: string | null
+          background?: string | null
           banner_image?: string | null
+          biggest_challenge?: string | null
           category?: string | null
           city?: string | null
           created_at?: string | null
           description?: string | null
+          email?: string | null
           featured?: boolean | null
+          full_name?: string | null
           generated_article?: string | null
           headshot_image?: string | null
           id?: string | null
+          idea_origin?: string | null
           image_urls?: string[] | null
+          inspiration?: string | null
+          is_manual_submission?: boolean | null
           logo_image?: string | null
+          motivation?: string | null
+          phone_number?: string | null
           pinned?: boolean | null
           problem_solved?: string | null
           product_name?: string | null
+          proudest_moment?: string | null
+          recommendations?: Json | null
+          selected_vendors?: string[] | null
           slug?: string | null
           social_media?: string | null
+          source_links?: string[] | null
           stage?: string | null
           state?: string | null
+          status?: string | null
           updated_at?: string | null
           website?: string | null
         }

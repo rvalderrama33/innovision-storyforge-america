@@ -48,8 +48,9 @@ const Article = () => {
 
       // First try to find by slug with optimized query and timeout
       let { data, error } = await supabase
-        .from('published_articles')
+        .from('submissions')
         .select(selectFields)
+        .eq('status', 'approved')
         .eq('slug', slug)
         .abortSignal(controller.signal)
         .maybeSingle();
@@ -57,8 +58,9 @@ const Article = () => {
       // If not found by slug, try by ID (for articles without slugs)
       if (!data && !error) {
         const { data: dataById, error: errorById } = await supabase
-          .from('published_articles')
+          .from('submissions')
           .select(selectFields)
+          .eq('status', 'approved')
           .eq('id', slug)
           .abortSignal(controller.signal)
           .maybeSingle();

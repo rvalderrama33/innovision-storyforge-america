@@ -48,18 +48,13 @@ const Recommend = () => {
       if (insertError) throw insertError;
 
       // Send notification email
-      const { error: emailError } = await supabase.functions.invoke('send-recommendation-notification', {
+      const { error: emailError } = await supabase.functions.invoke('send-email', {
         body: {
-          recommendedPerson: {
-            name: formData.name,
-            email: formData.email,
-            reason: formData.reason,
-          },
-          recommender: {
-            name: formData.recommenderName,
-            email: formData.recommenderEmail,
-          },
-        },
+          type: 'recommendation',
+          to: formData.email,
+          name: formData.name,
+          recommenderName: formData.recommenderName
+        }
       });
 
       if (emailError) {

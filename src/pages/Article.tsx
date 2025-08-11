@@ -260,15 +260,15 @@ const Article = () => {
               style={{ objectPosition: 'center 20%' }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-8 lg:p-12">
+            <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-12">
               <div className="max-w-4xl mx-auto">
-                <Link to="/" className="inline-block mb-6">
+                <Link to="/" className="inline-block mb-3 sm:mb-6">
                   <Button variant="secondary" size="sm" className="gap-2 bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20">
                     <ArrowLeft className="w-4 h-4" />
                     Back to Home
                   </Button>
                 </Link>
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-5xl font-bold text-white mb-4 leading-tight">
+                <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold text-white mb-2 sm:mb-4 leading-tight">
                   {article.generated_article ? article.generated_article.split('\n')[0].replace(/^#+\s*/, '').trim() : article.product_name}
                 </h1>
                 <div className="flex flex-wrap items-center gap-4 text-white/90">

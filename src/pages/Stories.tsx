@@ -9,7 +9,7 @@ import { useSEO } from "@/hooks/useSEO";
 
 interface Story {
   id: string;
-  full_name: string;
+  attribution: string;
   product_name: string;
   description: string;
   category: string;
@@ -42,9 +42,8 @@ const Stories = () => {
   useEffect(() => {
     const fetchStories = async () => {
       const { data, error } = await supabase
-        .from('submissions')
+        .from('published_articles')
         .select('*')
-        .eq('status', 'approved')
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -97,10 +96,8 @@ const Stories = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {stories.map((story) => {
-                // Use headshot image for Michael Jon Smith, otherwise use first image
-                const imageUrl = story.full_name === "Michael Jon Smith" && story.headshot_image 
-                  ? story.headshot_image 
-                  : story.image_urls?.[0];
+                // Use headshot image or first image
+                const imageUrl = story.headshot_image || story.image_urls?.[0];
                 
                 return (
                   <Link key={story.id} to={`/article/${story.slug || story.id}`}>
@@ -110,14 +107,7 @@ const Stories = () => {
                           <img 
                             src={imageUrl} 
                             alt={story.product_name || 'Innovation story'}
-                            className={`w-full h-full object-cover ${
-                              story.full_name === "Ronald Droze" || 
-                              story.full_name === "William Kessel" || 
-                              story.full_name === "Lakesha Bowden" ||
-                              story.product_name === "Beeryards" 
-                                ? "object-center" : story.full_name === "David Harrington" 
-                                ? "object-top" : "object-top"
-                            } group-hover:scale-105 transition-transform duration-300`}
+                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                           />
                         ) : (
                           <div className="w-full h-full bg-gray-200 flex items-center justify-center">

@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface FeaturedStory {
   id: string;
-  full_name: string;
+  attribution: string;
   product_name: string;
   description: string;
   category: string;
@@ -46,9 +46,8 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
       try {
         setIsLoading(true);
         const { data, error } = await supabase
-          .from('submissions')
-          .select('*, generated_article')
-          .eq('status', 'approved')
+          .from('published_articles')
+          .select('*')
           .eq('featured', true)
           .order('pinned', { ascending: false })
           .order('created_at', { ascending: false })
@@ -108,14 +107,7 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                         <img 
                           src={featuredStories[0].image_urls?.[0] || "https://images.unsplash.com/photo-1523362628745-0c100150b504?w=600&h=400&fit=crop"} 
                           alt={featuredStories[0].product_name || "Featured innovation story"}
-                          className={`w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700 ${
-                            featuredStories[0].full_name === "Ronald Droze" || 
-                            featuredStories[0].full_name === "William Kessel" || 
-                            featuredStories[0].full_name === "Lakesha Bowden" ||
-                            featuredStories[0].product_name === "Beeryards" 
-                              ? "object-center" : featuredStories[0].full_name === "David Harrington" 
-                              ? "object-top" : "object-top"
-                          }`}
+                          className="w-full h-96 object-cover object-center group-hover:scale-105 transition-transform duration-700"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                         <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
@@ -123,7 +115,7 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                             {featuredStories[0].category || 'Featured Story'}
                           </Badge>
                           <h3 className="text-3xl font-bold mb-3 leading-tight">
-                            {featuredStories[0].full_name}
+                            {featuredStories[0].product_name}
                           </h3>
                           <p className="text-white/75 text-sm mt-2">
                             by America Innovates Magazine
@@ -146,14 +138,7 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                             <img 
                               src={story.image_urls?.[0] || "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop"} 
                               alt={story.product_name || "Innovation story"}
-                              className={`w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300 ${
-                                story.full_name === "Ronald Droze" || 
-                                story.full_name === "William Kessel" || 
-                                story.full_name === "Lakesha Bowden" ||
-                                story.product_name === "Beeryards" 
-                                  ? "object-center" : story.full_name === "David Harrington" 
-                                  ? "object-top" : "object-top"
-                              }`}
+                              className="w-full h-32 object-cover object-center group-hover:scale-105 transition-transform duration-300"
                             />
                           </div>
                           <CardContent className="w-2/3 p-6 flex flex-col justify-center">
@@ -161,7 +146,7 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                               {story.category || 'Featured'}
                             </Badge>
                             <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors leading-tight">
-                              {story.full_name}
+                              {story.product_name}
                             </h3>
                             <span className="text-sm text-gray-500">by America Innovates Magazine</span>
                           </CardContent>
@@ -183,14 +168,7 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                         <img 
                           src={story.image_urls?.[0] || "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop"} 
                           alt={story.product_name || "Innovation story"}
-                          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${
-                            story.full_name === "Ronald Droze" || 
-                            story.full_name === "William Kessel" || 
-                            story.full_name === "Lakesha Bowden" ||
-                            story.product_name === "Beeryards" 
-                              ? "object-center" : story.full_name === "David Harrington" 
-                              ? "object-top" : "object-top"
-                          }`}
+                          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>
                       <CardContent className="p-6">
@@ -198,7 +176,7 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                           {story.category || 'Featured'}
                         </Badge>
                         <h3 className="text-lg font-bold text-gray-900 mb-2 group-hover:text-gray-600 transition-colors leading-tight">
-                          {story.full_name}
+                          {story.product_name}
                         </h3>
                         <p className="text-gray-600 mb-3 line-clamp-2 text-sm">
                           {getStoryTeaser(story)}

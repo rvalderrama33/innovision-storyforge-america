@@ -250,6 +250,13 @@ export type Database = {
             foreignKeyName: "featured_story_payments_submission_id_fkey"
             columns: ["submission_id"]
             isOneToOne: false
+            referencedRelation: "published_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "featured_story_payments_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
             referencedRelation: "submissions"
             referencedColumns: ["id"]
           },
@@ -658,7 +665,21 @@ export type Database = {
             foreignKeyName: "recommendations_submission_id_created_fkey"
             columns: ["submission_id_created"]
             isOneToOne: false
+            referencedRelation: "published_articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recommendations_submission_id_created_fkey"
+            columns: ["submission_id_created"]
+            isOneToOne: false
             referencedRelation: "submissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "recommendations_submission_id_fkey"
+            columns: ["submission_id"]
+            isOneToOne: false
+            referencedRelation: "published_articles"
             referencedColumns: ["id"]
           },
           {
@@ -921,7 +942,78 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      published_articles: {
+        Row: {
+          attribution: string | null
+          banner_image: string | null
+          category: string | null
+          city: string | null
+          created_at: string | null
+          description: string | null
+          featured: boolean | null
+          generated_article: string | null
+          headshot_image: string | null
+          id: string | null
+          image_urls: string[] | null
+          logo_image: string | null
+          pinned: boolean | null
+          problem_solved: string | null
+          product_name: string | null
+          slug: string | null
+          social_media: string | null
+          stage: string | null
+          state: string | null
+          updated_at: string | null
+          website: string | null
+        }
+        Insert: {
+          attribution?: never
+          banner_image?: string | null
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          generated_article?: string | null
+          headshot_image?: string | null
+          id?: string | null
+          image_urls?: string[] | null
+          logo_image?: string | null
+          pinned?: boolean | null
+          problem_solved?: string | null
+          product_name?: string | null
+          slug?: string | null
+          social_media?: string | null
+          stage?: string | null
+          state?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Update: {
+          attribution?: never
+          banner_image?: string | null
+          category?: string | null
+          city?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          generated_article?: string | null
+          headshot_image?: string | null
+          id?: string | null
+          image_urls?: string[] | null
+          logo_image?: string | null
+          pinned?: boolean | null
+          problem_solved?: string | null
+          product_name?: string | null
+          slug?: string | null
+          social_media?: string | null
+          stage?: string | null
+          state?: string | null
+          updated_at?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       approve_vendor_application: {

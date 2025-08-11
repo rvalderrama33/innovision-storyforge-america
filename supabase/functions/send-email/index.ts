@@ -49,8 +49,8 @@ const loadEmailCustomizations = async (): Promise<EmailCustomizations> => {
     .single();
 
   return {
-    primaryColor: customizations?.primary_color || '#667eea',
-    accentColor: customizations?.accent_color || '#764ba2',
+    primaryColor: customizations?.primary_color || '#3b82f6',
+    accentColor: customizations?.accent_color || '#10b981',
     companyName: customizations?.company_name || 'America Innovates Magazine',
     logoUrl: customizations?.logo_url || '',
     footerText: customizations?.footer_text || 'America Innovates Magazine - Celebrating Innovation and Entrepreneurship'
@@ -64,8 +64,8 @@ const getEmailHeader = (customizations: EmailCustomizations, title: string, subt
       `<img src="${customizations.logoUrl}" alt="${customizations.companyName}" style="max-height: 180px; margin-bottom: 15px;" />` : 
       ''
     }
-    <h1 style="color: #1a202c; margin-bottom: 10px;">${title}</h1>
-    ${subtitle ? `<p style="color: #4a5568; font-size: 18px;">${subtitle}</p>` : ''}
+    <h1 style="color: #1f2937; margin-bottom: 10px;">${title}</h1>
+    ${subtitle ? `<p style="color: #374151; font-size: 18px;">${subtitle}</p>` : ''}
   </div>
 `;
 
@@ -100,16 +100,16 @@ const createWelcomeEmail = (customizations: EmailCustomizations, name: string, e
   const htmlContent = wrapEmailContent(`
     ${getEmailHeader(customizations, customizations.companyName, 'Discover the latest breakthrough consumer products from visionary entrepreneurs')}
     
-    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
-      <h2 style="margin: 0 0 15px 0; font-size: 24px;">Hello ${name || 'Innovator'}! 👋</h2>
-      <p style="margin: 0; font-size: 16px; line-height: 1.6;">
+    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: #1f2937; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+      <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #1f2937;">Hello ${name || 'Innovator'}! 👋</h2>
+      <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #374151;">
         Thank you for joining our community of entrepreneurs and innovators. You're now part of a network that celebrates creativity, innovation, and the entrepreneurial spirit.
       </p>
     </div>
     
     <div style="margin-bottom: 30px;">
-      <h3 style="color: #1a202c; margin-bottom: 15px;">What's Next?</h3>
-      <ul style="color: #4a5568; line-height: 1.8;">
+      <h3 style="color: #1f2937; margin-bottom: 15px;">What's Next?</h3>
+      <ul style="color: #374151; line-height: 1.8;">
         <li>📖 Read inspiring stories of successful entrepreneurs</li>
         <li>💡 Submit your own innovation story</li>
         <li>🤝 Connect with fellow innovators</li>
@@ -120,7 +120,7 @@ const createWelcomeEmail = (customizations: EmailCustomizations, name: string, e
     <div style="text-align: center; margin-bottom: 30px;">
       <a href="${baseUrl}" 
          class="button-link"
-         style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
+         style="background: ${customizations.primaryColor}; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
         Explore Stories
       </a>
     </div>
@@ -162,19 +162,19 @@ const createDraftFollowUpEmail = (customizations: EmailCustomizations, name: str
   const htmlContent = wrapEmailContent(`
     ${getEmailHeader(customizations, 'We\'re Here to Help!', 'Complete your innovation story submission')}
     
-    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
-      <h2 style="margin: 0 0 15px 0; font-size: 24px;">Hello ${name || 'Innovator'}! 👋</h2>
-      <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6;">
+    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: #1f2937; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+      <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #1f2937;">Hello ${name || 'Innovator'}! 👋</h2>
+      <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #374151;">
         We noticed you started submitting your innovation story${productName ? ` about "${productName}"` : ''} but haven't completed it yet. We understand that sharing your entrepreneurial journey can sometimes feel overwhelming.
       </p>
-      <p style="margin: 0; font-size: 16px; line-height: 1.6;">
+      <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #374151;">
         <strong>Are you experiencing any difficulties or have questions?</strong> Our team is here to help make the process as smooth as possible.
       </p>
     </div>
     
     <div style="margin-bottom: 30px;">
-      <h3 style="color: #1a202c; margin-bottom: 15px;">We're here to help with:</h3>
-      <ul style="color: #4a5568; line-height: 1.8;">
+      <h3 style="color: #1f2937; margin-bottom: 15px;">We're here to help with:</h3>
+      <ul style="color: #374151; line-height: 1.8;">
         <li>📝 Questions about what information to include</li>
         <li>📸 Help with image uploads or formatting</li>
         <li>💭 Guidance on telling your story effectively</li>
@@ -184,7 +184,7 @@ const createDraftFollowUpEmail = (customizations: EmailCustomizations, name: str
     </div>
     
     <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
-      <p style="margin: 0 0 15px 0; color: #4a5568; font-size: 16px;">
+      <p style="margin: 0 0 15px 0; color: #374151; font-size: 16px;">
         <strong>Need assistance?</strong> Simply reply to this email or contact our friendly staff at:
       </p>
       <p style="margin: 0; color: #2563eb; font-size: 16px; font-weight: 600;">
@@ -195,7 +195,7 @@ const createDraftFollowUpEmail = (customizations: EmailCustomizations, name: str
     <div style="text-align: center; margin-bottom: 30px;">
       <a href="${submitUrl}" 
          class="button-link"
-         style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
+         style="background: ${customizations.primaryColor}; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
         Continue Your Submission
       </a>
     </div>
@@ -249,9 +249,9 @@ const createNotificationEmail = (customizations: EmailCustomizations, name: stri
   const htmlContent = wrapEmailContent(`
     ${getEmailHeader(customizations, customizations.companyName)}
     
-    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
-      <h2 style="color: white; margin: 0 0 15px 0;">Hello ${name || 'Innovator'}!</h2>
-      <div style="color: white; line-height: 1.6;">
+    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: #1f2937; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+      <h2 style="color: #1f2937; margin: 0 0 15px 0;">Hello ${name || 'Innovator'}!</h2>
+      <div style="color: #374151; line-height: 1.6;">
         ${message || 'We have an exciting update to share with you!'}
       </div>
     </div>
@@ -259,7 +259,7 @@ const createNotificationEmail = (customizations: EmailCustomizations, name: stri
     <div style="text-align: center; margin-bottom: 30px;">
       <a href="${baseUrl}" 
          class="button-link"
-         style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
+         style="background: ${customizations.primaryColor}; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
         Visit ${customizations.companyName}
       </a>
     </div>
@@ -295,16 +295,16 @@ const createApprovalEmail = (customizations: EmailCustomizations, name: string, 
   const htmlContent = wrapEmailContent(`
     ${getEmailHeader(customizations, '🎉 Congratulations!', 'Your innovation story has been approved and published!')}
     
-    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
-      <h2 style="margin: 0 0 15px 0; font-size: 24px;">Great news, ${name}!</h2>
-      <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6;">
+    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: #1f2937; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+      <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #1f2937;">Great news, ${name}!</h2>
+      <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #374151;">
         Your innovation story about <strong>"${productName}"</strong> has been reviewed and approved by our editorial team. It's now live on ${customizations.companyName}!
       </p>
     </div>
     
     <div style="margin-bottom: 30px;">
-      <h3 style="color: #1a202c; margin-bottom: 15px;">What happens next?</h3>
-      <ul style="color: #4a5568; line-height: 1.8;">
+      <h3 style="color: #1f2937; margin-bottom: 15px;">What happens next?</h3>
+      <ul style="color: #374151; line-height: 1.8;">
         <li>📖 Your story is now visible to thousands of readers</li>
         <li>📈 Share it with your network to increase visibility</li>
         <li>🤝 Connect with fellow entrepreneurs who read your story</li>
@@ -315,7 +315,7 @@ const createApprovalEmail = (customizations: EmailCustomizations, name: string, 
     <div style="text-align: center; margin-bottom: 30px;">
       <a href="${articleUrl}" 
          class="button-link"
-         style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
+         style="background: ${customizations.primaryColor}; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
         View Your Published Story
       </a>
     </div>
@@ -392,16 +392,16 @@ const createFeaturedEmail = (customizations: EmailCustomizations, name: string, 
   const htmlContent = wrapEmailContent(`
     ${getEmailHeader(customizations, '⭐ You\'re Featured!', 'Your innovation story has been selected as a featured article!')}
     
-    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
-      <h2 style="margin: 0 0 15px 0; font-size: 24px;">Amazing news, ${name}! ⭐</h2>
-      <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6;">
+    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: #1f2937; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+      <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #1f2937;">Amazing news, ${name}! ⭐</h2>
+      <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #374151;">
         Your innovation story about <strong>"${productName}"</strong> has been selected as a featured article on ${customizations.companyName}! This means it will receive premium placement and increased visibility.
       </p>
     </div>
     
     <div style="margin-bottom: 30px;">
-      <h3 style="color: #1a202c; margin-bottom: 15px;">Featured Story Benefits:</h3>
-      <ul style="color: #4a5568; line-height: 1.8;">
+      <h3 style="color: #1f2937; margin-bottom: 15px;">Featured Story Benefits:</h3>
+      <ul style="color: #374151; line-height: 1.8;">
         <li>🏆 Premium placement on our homepage</li>
         <li>📧 Inclusion in our newsletter to subscribers</li>
         <li>📱 Social media promotion across our channels</li>
@@ -413,7 +413,7 @@ const createFeaturedEmail = (customizations: EmailCustomizations, name: string, 
     <div style="text-align: center; margin-bottom: 30px;">
       <a href="${articleUrl}" 
          class="button-link"
-         style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
+         style="background: ${customizations.primaryColor}; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block; margin-right: 10px;">
         View Featured Article
       </a>
     </div>
@@ -457,12 +457,12 @@ const createRecommendationEmail = (customizations: EmailCustomizations, name: st
   const htmlContent = wrapEmailContent(`
     ${getEmailHeader(customizations, customizations.companyName, 'Interview Recommendation')}
     
-    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
-      <h2 style="margin: 0 0 15px 0; font-size: 24px;">Hello ${name}!</h2>
-      <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6;">
+    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: #1f2937; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+      <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #1f2937;">Hello ${name}!</h2>
+      <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #374151;">
         ${recommenderName} thought you would be a great fit for our magazine. We're excited to learn more about you and share your story with our readers. There is no cost involved, but we'll of course need some of your time for the interview.
       </p>
-      <p style="margin: 0; font-size: 16px; line-height: 1.6;">
+      <p style="margin: 0; font-size: 16px; line-height: 1.6; color: #374151;">
         I'm sure our readers would love hearing your story and many would benefit from learning from your experiences.
       </p>
     </div>
@@ -470,7 +470,7 @@ const createRecommendationEmail = (customizations: EmailCustomizations, name: st
     <div style="text-align: center; margin-bottom: 30px;">
       <a href="${submitUrl}" 
          class="button-link"
-         style="background: ${customizations.primaryColor}; color: white !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
+         style="background: ${customizations.primaryColor}; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
         Click here to begin the interview process
       </a>
     </div>

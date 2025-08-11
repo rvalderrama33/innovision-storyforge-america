@@ -1028,6 +1028,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_user_email: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       handle_failed_login: {
         Args: { _email: string }
         Returns: boolean

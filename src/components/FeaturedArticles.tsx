@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface FeaturedStory {
   id: string;
-  attribution: string;
+  attribution?: string;
   product_name: string;
   description: string;
   category: string;

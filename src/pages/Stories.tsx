@@ -9,7 +9,7 @@ import { useSEO } from "@/hooks/useSEO";
 
 interface Story {
   id: string;
-  attribution: string;
+  attribution?: string;
   product_name: string;
   description: string;
   category: string;
@@ -107,7 +107,11 @@ const Stories = () => {
                           <img 
                             src={imageUrl} 
                             alt={story.product_name || 'Innovation story'}
-                            className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                            className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${
+                              story.slug === 'a-slice-of-innovation-how-a-family-tradition-sparked-a-culinary-revolution' 
+                                ? 'object-top' 
+                                : 'object-center'
+                            }`}
                           />
                         ) : (
                           <div className="w-full h-full bg-gray-200 flex items-center justify-center">

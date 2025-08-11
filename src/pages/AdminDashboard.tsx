@@ -51,6 +51,7 @@ const AdminDashboard = () => {
   const [previewDialogOpen, setPreviewDialogOpen] = useState(false);
   const [selectedSubmission, setSelectedSubmission] = useState<any>(null);
   const [selectedDrafts, setSelectedDrafts] = useState<string[]>([]);
+  const [selectedPending, setSelectedPending] = useState<string[]>([]);
   const [followUpEmailOpen, setFollowUpEmailOpen] = useState(false);
   const [followUpSubmission, setFollowUpSubmission] = useState<any>(null);
 
@@ -605,23 +606,105 @@ const AdminDashboard = () => {
                 </TabsContent>
 
                 <TabsContent value="pending" className="space-y-6">
-                  <div className="grid gap-6">
-                     {submissions.filter(s => s.status === 'pending').map((submission) => (
-                       <SubmissionCard 
-                         key={submission.id} 
-                         submission={submission}
-                         onPreview={() => {
-                           setSelectedSubmission(submission);
-                           setPreviewDialogOpen(true);
-                         }}
-                         onUpdateStatus={updateSubmissionStatus}
-                         onToggleFeatured={toggleFeatured}
-                         onTogglePinned={togglePinned}
-                         onDelete={deleteSubmission}
-                         onSendUpgradeEmail={sendUpgradeEmailToArticle}
-                         onSendFollowUpEmail={handleSendFollowUpEmail}
-                       />
-                     ))}
+                  <div className="space-y-4">
+                    {submissions.filter(s => s.status === 'pending').length > 0 && (
+                      <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedPending.length === submissions.filter(s => s.status === 'pending').length}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedPending(submissions.filter(s => s.status === 'pending').map(s => s.id));
+                              } else {
+                                setSelectedPending([]);
+                              }
+                            }}
+                            className="rounded"
+                          />
+                          <span className="text-sm font-medium">
+                            Select All ({selectedPending.length} selected)
+                          </span>
+                        </div>
+                        {selectedPending.length > 0 && (
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="destructive" size="sm">
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete Selected ({selectedPending.length})
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete Selected Pending Submissions</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Are you sure you want to delete {selectedPending.length} selected pending submission(s)? This action cannot be undone.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={async () => {
+                                  try {
+                                    for (const id of selectedPending) {
+                                      await supabase.from('submissions').delete().eq('id', id);
+                                    }
+                                    setSelectedPending([]);
+                                    fetchSubmissions();
+                                    toast({
+                                      title: "Pending submissions deleted",
+                                      description: `${selectedPending.length} pending submission(s) have been deleted`,
+                                    });
+                                  } catch (error) {
+                                    console.error('Error deleting pending submissions:', error);
+                                    toast({
+                                      title: "Error",
+                                      description: "Failed to delete some pending submissions",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}>
+                                  Delete Selected
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        )}
+                      </div>
+                    )}
+                    <div className="grid gap-6">
+                      {submissions.filter(s => s.status === 'pending').map((submission) => (
+                        <div key={submission.id} className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            checked={selectedPending.includes(submission.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedPending(prev => [...prev, submission.id]);
+                              } else {
+                                setSelectedPending(prev => prev.filter(id => id !== submission.id));
+                              }
+                            }}
+                            className="mt-6 rounded"
+                          />
+                          <div className="flex-1">
+                            <SubmissionCard 
+                              key={submission.id} 
+                              submission={submission}
+                              onPreview={() => {
+                                setSelectedSubmission(submission);
+                                setPreviewDialogOpen(true);
+                              }}
+                              onUpdateStatus={updateSubmissionStatus}
+                              onToggleFeatured={toggleFeatured}
+                              onTogglePinned={togglePinned}
+                              onDelete={deleteSubmission}
+                              onSendUpgradeEmail={sendUpgradeEmailToArticle}
+                              onSendFollowUpEmail={handleSendFollowUpEmail}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </TabsContent>
 

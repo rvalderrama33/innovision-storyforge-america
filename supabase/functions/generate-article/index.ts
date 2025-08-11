@@ -365,24 +365,57 @@ IMPORTANT: Do NOT use markdown headers (# symbols) in your response. Write the a
     const existingSources = formData.sourceLinks || [];
     const allSources = [...existingSources, ...defaultSources];
     
-    const { error: updateError } = await supabase
-      .from('submissions')
-      .update({ 
+    // Check if this is an update (has ID) or a new submission
+    if (formData.id) {
+      // Update existing submission
+      const { error: updateError } = await supabase
+        .from('submissions')
+        .update({ 
+          generated_article: article,
+          source_links: allSources,
+          slug: slug
+        })
+        .eq('id', formData.id);
+      
+      if (updateError) {
+        console.error('Failed to update article in database:', updateError);
+        return new Response(JSON.stringify({ 
+          error: 'Failed to save article',
+          details: updateError.message 
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+    } else {
+      // Create new submission for testing purposes
+      const submissionData = {
+        full_name: formData.fullName || 'Test User',
+        product_name: formData.productName || 'Test Product',
+        description: formData.description || 'Test description',
         generated_article: article,
         source_links: allSources,
-        slug: slug
-      })
-      .eq('id', formData.id);
-    
-    if (updateError) {
-      console.error('Failed to save article to database:', updateError);
-      return new Response(JSON.stringify({ 
-        error: 'Failed to save article',
-        details: updateError.message 
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      });
+        slug: slug,
+        status: 'pending',
+        is_manual_submission: formData.isManualSubmission || false,
+        // Don't set approved_by - let it be null
+        approved_at: null
+      };
+
+      const { error: insertError } = await supabase
+        .from('submissions')
+        .insert(submissionData);
+      
+      if (insertError) {
+        console.error('Failed to insert article into database:', insertError);
+        return new Response(JSON.stringify({ 
+          error: 'Failed to save article',
+          details: insertError.message 
+        }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
     }
     
     console.log("Article successfully saved to database");

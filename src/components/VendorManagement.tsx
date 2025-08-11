@@ -50,6 +50,8 @@ export const VendorManagement = () => {
   const [rejectionReason, setRejectionReason] = useState('');
   const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('pending');
+  const [bulkResending, setBulkResending] = useState(false);
+  const [bulkResendProgress, setBulkResendProgress] = useState({ sent: 0, total: 0 });
 
   const fetchApplications = async () => {
     try {
@@ -162,6 +164,77 @@ export const VendorManagement = () => {
     }
   };
 
+  const bulkResendApprovalEmails = async () => {
+    const approvedVendors = applications.filter(app => app.status === 'approved');
+    
+    if (approvedVendors.length === 0) {
+      toast.error('No approved vendors found to send emails to');
+      return;
+    }
+
+    setBulkResending(true);
+    setBulkResendProgress({ sent: 0, total: approvedVendors.length });
+
+    try {
+      // Process in batches to avoid overwhelming the email service
+      const batchSize = 3;
+      const batches = [];
+      
+      for (let i = 0; i < approvedVendors.length; i += batchSize) {
+        batches.push(approvedVendors.slice(i, i + batchSize));
+      }
+
+      let totalSent = 0;
+
+      for (const batch of batches) {
+        const emailPromises = batch.map(async (vendor) => {
+          try {
+            await supabase.functions.invoke('send-email', {
+              body: {
+                type: 'notification',
+                to: vendor.contact_email,
+                subject: 'Congratulations! Your Vendor Application Has Been Approved',
+                message: `
+                  Congratulations ${vendor.business_name}!<br><br>
+                  Your vendor application has been approved and you can now start selling on America Innovates Marketplace.<br><br>
+                  <strong>Next Steps:</strong><br>
+                  • Log into your account to access your vendor dashboard<br>
+                  • Add your first product to get started<br>
+                  • Complete your vendor profile<br><br>
+                  We're excited to have you as part of our marketplace community!
+                `,
+                name: vendor.business_name
+              }
+            });
+            return { success: true, vendor: vendor.business_name };
+          } catch (error) {
+            console.error(`Failed to send email to ${vendor.business_name}:`, error);
+            return { success: false, vendor: vendor.business_name, error };
+          }
+        });
+
+        const results = await Promise.all(emailPromises);
+        const successful = results.filter(r => r.success).length;
+        totalSent += successful;
+        
+        setBulkResendProgress({ sent: totalSent, total: approvedVendors.length });
+
+        // Add delay between batches to respect rate limits
+        if (batches.indexOf(batch) < batches.length - 1) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+      }
+
+      toast.success(`Successfully sent ${totalSent} approval emails out of ${approvedVendors.length} approved vendors`);
+    } catch (error) {
+      console.error('Error during bulk email send:', error);
+      toast.error('Failed to send bulk approval emails');
+    } finally {
+      setBulkResending(false);
+      setBulkResendProgress({ sent: 0, total: 0 });
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -244,10 +317,33 @@ export const VendorManagement = () => {
       {/* Applications Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Vendor Applications</CardTitle>
-          <CardDescription>
-            Review and manage vendor applications for the marketplace
-          </CardDescription>
+          <div className="flex justify-between items-center">
+            <div>
+              <CardTitle>Vendor Applications</CardTitle>
+              <CardDescription>
+                Review and manage vendor applications for the marketplace
+              </CardDescription>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                onClick={bulkResendApprovalEmails}
+                disabled={bulkResending || stats.approved === 0}
+                variant="outline"
+              >
+                {bulkResending ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary mr-2"></div>
+                    Sending ({bulkResendProgress.sent}/{bulkResendProgress.total})
+                  </>
+                ) : (
+                  <>
+                    <Mail className="h-4 w-4 mr-2" />
+                    Resend All Approval Emails ({stats.approved})
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>

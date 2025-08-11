@@ -166,6 +166,10 @@ const Article = () => {
       if (article?.full_name === "Lakesha Bowden") {
         return { objectFit: 'cover', objectPosition: 'center 40%' } as React.CSSProperties;
       }
+      // Special positioning for "a slice of innovation" story to show the face better
+      if (article?.slug === 'a-slice-of-innovation-how-a-family-tradition-sparked-a-culinary-revolution') {
+        return { objectFit: 'cover', objectPosition: 'center top' } as React.CSSProperties;
+      }
       return { objectFit: 'cover', objectPosition: 'center' } as React.CSSProperties;
     }
     
@@ -184,6 +188,11 @@ const Article = () => {
     // Special positioning for Lakesha Bowden to show her whole face
     if (article?.full_name === "Lakesha Bowden") {
       style.objectPosition = 'center 40%';
+    }
+    
+    // Special positioning for "a slice of innovation" story to show the face better
+    if (article?.slug === 'a-slice-of-innovation-how-a-family-tradition-sparked-a-culinary-revolution') {
+      style.objectPosition = 'center top';
     }
     
     if (banner.size && banner.size !== 'cover' && banner.size !== 'contain' && banner.size !== 'auto') {

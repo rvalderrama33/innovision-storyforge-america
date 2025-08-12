@@ -150,6 +150,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
       });
       
+      // Clear submission wizard data for current user
+      const currentUserId = user?.id;
+      if (currentUserId) {
+        localStorage.removeItem(`submission_wizard_data_${currentUserId}`);
+        localStorage.removeItem(`submission_wizard_step_${currentUserId}`);
+      }
+      // Also clear anonymous data to be extra safe
+      localStorage.removeItem('submission_wizard_data_anonymous');
+      localStorage.removeItem('submission_wizard_step_anonymous');
+      
       // Global sign out to invalidate all sessions
       await supabase.auth.signOut({ scope: 'global' });
       

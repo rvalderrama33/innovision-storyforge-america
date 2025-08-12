@@ -6,6 +6,8 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
 import StepOne from "@/components/submission-steps/StepOne";
 import StepTwo from "@/components/submission-steps/StepTwo";
 import StepThree from "@/components/submission-steps/StepThree";
@@ -24,18 +26,43 @@ interface FormData {
 }
 
 const SubmissionWizard = () => {
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>({});
   const [stepValidations, setStepValidations] = useState<Record<number, boolean>>({});
   const [savedDraftId, setSavedDraftId] = useState<string | null>(null);
   const draftTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const LOCAL_STORAGE_KEY = 'submission_wizard_data';
-  const STEP_STORAGE_KEY = 'submission_wizard_step';
+  
+  // User-specific localStorage keys
+  const getLocalStorageKey = (baseKey: string) => {
+    return user?.id ? `${baseKey}_${user.id}` : `${baseKey}_anonymous`;
+  };
 
-  // Load saved data from localStorage on mount
+  // Clear all submission data (for logout cleanup)
+  const clearAllSubmissionData = () => {
+    // Clear user-specific data
+    if (user?.id) {
+      localStorage.removeItem(getLocalStorageKey('submission_wizard_data'));
+      localStorage.removeItem(getLocalStorageKey('submission_wizard_step'));
+    }
+    // Also clear anonymous data to be safe
+    localStorage.removeItem('submission_wizard_data_anonymous');
+    localStorage.removeItem('submission_wizard_step_anonymous');
+    
+    // Reset component state
+    setFormData({});
+    setCurrentStep(1);
+    setSavedDraftId(null);
+    setStepValidations({});
+  };
+
+  // Load saved data from localStorage on mount and when user changes
   useEffect(() => {
-    const savedData = localStorage.getItem(LOCAL_STORAGE_KEY);
-    const savedStep = localStorage.getItem(STEP_STORAGE_KEY);
+    const dataKey = getLocalStorageKey('submission_wizard_data');
+    const stepKey = getLocalStorageKey('submission_wizard_step');
+    
+    const savedData = localStorage.getItem(dataKey);
+    const savedStep = localStorage.getItem(stepKey);
     
     if (savedData) {
       try {
@@ -44,8 +71,11 @@ const SubmissionWizard = () => {
         toast.success("Your previous work has been restored!");
       } catch (error) {
         console.error('Error parsing saved data:', error);
-        localStorage.removeItem(LOCAL_STORAGE_KEY);
+        localStorage.removeItem(dataKey);
       }
+    } else {
+      // If no saved data for this user, clear form
+      setFormData({});
     }
     
     if (savedStep) {
@@ -53,25 +83,31 @@ const SubmissionWizard = () => {
       if (stepNumber >= 1 && stepNumber <= 6) {
         setCurrentStep(stepNumber);
       }
+    } else {
+      setCurrentStep(1);
     }
-  }, []);
+  }, [user?.id]); // Re-run when user changes
 
   // Save data to localStorage whenever form data changes
   useEffect(() => {
     if (Object.keys(formData).length > 0) {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(formData));
+      const dataKey = getLocalStorageKey('submission_wizard_data');
+      localStorage.setItem(dataKey, JSON.stringify(formData));
     }
-  }, [formData]);
+  }, [formData, user?.id]);
 
   // Save current step to localStorage
   useEffect(() => {
-    localStorage.setItem(STEP_STORAGE_KEY, currentStep.toString());
-  }, [currentStep]);
+    const stepKey = getLocalStorageKey('submission_wizard_step');
+    localStorage.setItem(stepKey, currentStep.toString());
+  }, [currentStep, user?.id]);
 
   // Clear localStorage when submission is complete
   const clearLocalStorage = () => {
-    localStorage.removeItem(LOCAL_STORAGE_KEY);
-    localStorage.removeItem(STEP_STORAGE_KEY);
+    const dataKey = getLocalStorageKey('submission_wizard_data');
+    const stepKey = getLocalStorageKey('submission_wizard_step');
+    localStorage.removeItem(dataKey);
+    localStorage.removeItem(stepKey);
   };
 
   const steps = [

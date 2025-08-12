@@ -134,3 +134,23 @@ export const sendVendorApplicationConfirmation = async (applicationData: any) =>
     throw error;
   }
 };
+
+export const sendVendorApprovalEmail = async (applicationData: any) => {
+  try {
+    const { data, error } = await supabase.functions.invoke('send-vendor-approval', {
+      body: {
+        application: applicationData
+      }
+    });
+
+    if (error) {
+      console.error('Error sending vendor approval email:', error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Email service error:', error);
+    throw error;
+  }
+};

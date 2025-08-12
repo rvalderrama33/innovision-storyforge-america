@@ -100,26 +100,14 @@ export const VendorManagement = () => {
         try {
           const { data: applicationData } = await supabase
             .from('vendor_applications')
-            .select('contact_email, business_name')
+            .select('*')
             .eq('id', applicationId)
             .single();
 
           if (applicationData) {
-            await supabase.functions.invoke('send-email', {
+            await supabase.functions.invoke('send-vendor-approval', {
               body: {
-                type: 'notification',
-                to: applicationData.contact_email,
-                subject: 'Congratulations! Your Vendor Application Has Been Approved',
-                message: `
-                  Congratulations ${applicationData.business_name}!<br><br>
-                  Your vendor application has been approved and you can now start selling on America Innovates Marketplace.<br><br>
-                  <strong>Next Steps:</strong><br>
-                  • Log into your account to access your vendor dashboard<br>
-                  • <a href="https://americainnovates.us/marketplace/add" style="color: #2563eb; text-decoration: underline;">Start adding your product now</a><br>
-                  • Complete your vendor profile<br><br>
-                  We're excited to have you as part of our marketplace community!
-                `,
-                name: applicationData.business_name
+                application: applicationData
               }
             });
           }

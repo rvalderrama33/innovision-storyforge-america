@@ -14,11 +14,11 @@ import { supabase } from '@/integrations/supabase/client';
 const EmailTemplateCustomizer = () => {
   const [selectedTemplate, setSelectedTemplate] = useState('welcome');
   const [customization, setCustomization] = useState({
-    primaryColor: '#667eea',
-    accentColor: '#764ba2',
-    companyName: 'America Innovates',
+    primaryColor: '#000000',
+    accentColor: '#333333',
+    companyName: 'America Innovates Marketplace',
     logoUrl: '',
-    footerText: 'America Innovates Magazine - Celebrating Innovation and Entrepreneurship'
+    footerText: 'America Innovates Marketplace - Celebrating Innovation and Entrepreneurship'
   });
   const [previewData, setPreviewData] = useState({
     recipientName: 'John Doe',
@@ -94,48 +94,47 @@ const EmailTemplateCustomizer = () => {
 
   const generatePreviewHtml = () => {
     const template = templates[selectedTemplate as keyof typeof templates];
-    const gradientStyle = `background: linear-gradient(135deg, ${customization.primaryColor} 0%, ${customization.accentColor} 100%);`;
     
     return `
-      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
         <div style="text-align: center; margin-bottom: 30px;">
           ${customization.logoUrl ? 
-            `<img src="${customization.logoUrl}" alt="${customization.companyName}" style="max-height: 240px; margin-bottom: 5px; display: block; margin-left: auto; margin-right: auto;" />` :
+            `<img src="${customization.logoUrl}" alt="${customization.companyName}" style="max-height: 180px; margin-bottom: 15px;" />` :
             ''
           }
-          <h1 style="color: #1a202c; margin-bottom: 10px; margin-top: 0;">${customization.companyName}</h1>
-          <p style="color: #4a5568; font-size: 18px;">${template.previewText}</p>
+          <h1 style="color: #000000; margin-bottom: 10px; margin-top: 0; font-size: 28px;">${customization.companyName}</h1>
+          <p style="color: #374151; font-size: 18px; margin: 0;">${template.previewText}</p>
         </div>
         
-        <div style="${gradientStyle} color: white; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
-          <h2 style="margin: 0 0 15px 0; font-size: 24px;">Hello ${previewData.recipientName}! 👋</h2>
-          <p style="margin: 0; font-size: 16px; line-height: 1.6;">
+        <div style="background: #ffffff; color: #000000; padding: 30px; border: 2px solid #e5e7eb; border-radius: 12px; margin-bottom: 30px;">
+          <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #000000;">Hello ${previewData.recipientName}! 👋</h2>
+          <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #374151;">
             ${selectedTemplate === 'welcome' ? 
-              'Thank you for joining our community of entrepreneurs and innovators. You\'re now part of a network that celebrates creativity, innovation, and the entrepreneurial spirit.' :
+              'Welcome to America Innovates Marketplace! We\'re thrilled to have you join our community of innovators and entrepreneurs.' :
               selectedTemplate === 'approval' ? 
-              'Congratulations! Your innovation story has been approved and is now live on America Innovates. Thank you for sharing your entrepreneurial journey with our community.' :
+              'Your innovation story has been reviewed and approved by our editorial team. It\'s now live on America Innovates Marketplace!' :
               selectedTemplate === 'featured' ? 
-              'Amazing news! Your story has been selected as a featured article on America Innovates. This means it will be prominently displayed and reach even more readers.' :
+              'Your innovation story has been selected as a featured article on America Innovates Marketplace!' :
               selectedTemplate === 'recommendation' ?
-              'John Smith thought you would be a great fit for our magazine. We\'re excited to learn more about you and share your story with our readers. There is no cost involved, but we\'ll of course need some of your time for the interview. I\'m sure our readers would love hearing your story and many would benefit from learning from your experiences.' :
+              'John Smith thought you would be a great fit for our magazine. We\'re excited to learn more about you and share your story with our readers.' :
               previewData.customMessage
             }
           </p>
         </div>
         
         <div style="text-align: center; margin-bottom: 30px;">
-          <a href="#" style="background: ${customization.primaryColor}; color: white; padding: 15px 30px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block;">
-            ${selectedTemplate === 'welcome' ? 'Explore Stories' : 
-              selectedTemplate === 'approval' ? 'View Your Story' :
-              selectedTemplate === 'featured' ? 'See Featured Story' :
+          <a href="#" style="background: #000000; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
+            ${selectedTemplate === 'welcome' ? 'Explore the Marketplace' : 
+              selectedTemplate === 'approval' ? 'View Your Published Story' :
+              selectedTemplate === 'featured' ? 'View Featured Article' :
               selectedTemplate === 'recommendation' ? 'Begin Interview Process' :
-              'Visit America Innovates'
+              'Visit America Innovates Marketplace'
             }
           </a>
         </div>
         
-        <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; color: #718096; font-size: 14px;">
-          <p>${customization.footerText}</p>
+        <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; color: #718096; font-size: 14px; margin-top: 40px;">
+          <p style="margin: 0;">${customization.footerText}</p>
         </div>
       </div>
     `;

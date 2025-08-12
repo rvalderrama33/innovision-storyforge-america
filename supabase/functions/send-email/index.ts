@@ -290,7 +290,7 @@ To unsubscribe from emails, visit: ${Deno.env.get('SUPABASE_URL')?.replace('/res
 
 // Approval email template with featured upgrade option
 const createApprovalEmail = (customizations: EmailCustomizations, name: string, productName: string, slug: string, email: string) => {
-  const articleUrl = `${Deno.env.get('SUPABASE_URL')?.replace('enckzbxifdrihnfcqagb.supabase.co/rest/v1', 'americainnovates.us') || 'https://americainnovates.com'}/article/${slug}`;
+  const articleUrl = `https://americainnovates.us/article/${slug}`;
   
   const htmlContent = wrapEmailContent(`
     ${getEmailHeader(customizations, '🎉 Congratulations!', 'Your innovation story has been approved and published!')}

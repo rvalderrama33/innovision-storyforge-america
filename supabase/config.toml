@@ -80,3 +80,9 @@ verify_jwt = false
 
 [functions.test-approval-emails]
 verify_jwt = false
+
+[functions.send-automatic-emails]
+verify_jwt = false
+
+[functions.email-notification-listener]
+verify_jwt = false

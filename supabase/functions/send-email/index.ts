@@ -71,7 +71,7 @@ const getEmailHeader = (customizations: EmailCustomizations, title: string, subt
 
 // Common email footer template
 const getEmailFooter = (customizations: EmailCustomizations, customFooter?: string, recipientEmail?: string) => {
-  const unsubscribeUrl = `${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/functions/v1/unsubscribe?email=${encodeURIComponent(recipientEmail || '')}`;
+  const unsubscribeUrl = `https://americainnovates.us/unsubscribe?email=${encodeURIComponent(recipientEmail || '')}`;
   
   return `
     <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; text-align: center; color: #718096; font-size: 14px;">
@@ -95,7 +95,7 @@ const wrapEmailContent = (content: string) => `
 
 // Welcome email template
 const createWelcomeEmail = (customizations: EmailCustomizations, name: string, email: string) => {
-  const baseUrl = Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '') || 'https://americainnovates.com';
+  const baseUrl = 'https://americainnovates.us';
   
   const htmlContent = wrapEmailContent(`
     ${getEmailHeader(customizations, customizations.companyName, 'Discover the latest breakthrough consumer products from visionary entrepreneurs')}
@@ -145,7 +145,7 @@ Explore Stories: ${baseUrl}
 
 ${customizations.footerText}
 
-To unsubscribe from emails, visit: ${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/functions/v1/unsubscribe?email=${encodeURIComponent(email)}
+To unsubscribe from emails, visit: https://americainnovates.us/unsubscribe?email=${encodeURIComponent(email)}
   `.trim();
   
   return {
@@ -232,7 +232,7 @@ America Innovates Magazine Staff
 
 ${customizations.footerText}
 
-To unsubscribe from emails, visit: ${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/functions/v1/unsubscribe?email=${encodeURIComponent(email)}
+To unsubscribe from emails, visit: https://americainnovates.us/unsubscribe?email=${encodeURIComponent(email)}
   `.trim();
   
   return {
@@ -244,7 +244,7 @@ To unsubscribe from emails, visit: ${Deno.env.get('SUPABASE_URL')?.replace('/res
 
 // Notification email template
 const createNotificationEmail = (customizations: EmailCustomizations, name: string, subject: string, message: string, email: string) => {
-  const baseUrl = Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '') || 'https://americainnovates.com';
+  const baseUrl = 'https://americainnovates.us';
   
   const htmlContent = wrapEmailContent(`
     ${getEmailHeader(customizations, customizations.companyName)}
@@ -278,7 +278,7 @@ Visit ${customizations.companyName}: ${baseUrl}
 
 ${customizations.footerText}
 
-To unsubscribe from emails, visit: ${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/functions/v1/unsubscribe?email=${encodeURIComponent(email)}
+To unsubscribe from emails, visit: https://americainnovates.us/unsubscribe?email=${encodeURIComponent(email)}
   `.trim();
   
   return {
@@ -375,7 +375,7 @@ The more people who read your story, the greater impact you'll have! 🚀
 
 ${customizations.footerText}
 
-To unsubscribe from emails, visit: ${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/functions/v1/unsubscribe?email=${encodeURIComponent(email)}
+To unsubscribe from emails, visit: https://americainnovates.us/unsubscribe?email=${encodeURIComponent(email)}
   `.trim();
   
   return {
@@ -387,7 +387,7 @@ To unsubscribe from emails, visit: ${Deno.env.get('SUPABASE_URL')?.replace('/res
 
 // Featured email template
 const createFeaturedEmail = (customizations: EmailCustomizations, name: string, productName: string, slug: string, email: string) => {
-  const articleUrl = `${Deno.env.get('SUPABASE_URL')?.replace('enckzbxifdrihnfcqagb.supabase.co/rest/v1', 'americainnovates.us') || 'https://americainnovates.com'}/article/${slug}`;
+  const articleUrl = `https://americainnovates.us/article/${slug}`;
   
   const htmlContent = wrapEmailContent(`
     ${getEmailHeader(customizations, '⭐ You\'re Featured!', 'Your innovation story has been selected as a featured article!')}
@@ -440,7 +440,7 @@ View Featured Article: ${articleUrl}
 
 ${customizations.footerText}
 
-To unsubscribe from emails, visit: ${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/functions/v1/unsubscribe?email=${encodeURIComponent(email)}
+To unsubscribe from emails, visit: https://americainnovates.us/unsubscribe?email=${encodeURIComponent(email)}
   `.trim();
   
   return {
@@ -495,7 +495,7 @@ America Innovates Staff
 
 ${customizations.footerText}
 
-To unsubscribe from emails, visit: ${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/functions/v1/unsubscribe?email=${encodeURIComponent(email)}
+To unsubscribe from emails, visit: https://americainnovates.us/unsubscribe?email=${encodeURIComponent(email)}
   `.trim();
   
   return {
@@ -572,7 +572,7 @@ const handler = async (req: Request): Promise<Response> => {
       html: emailData.html,
       text: emailData.text,
       headers: {
-        'List-Unsubscribe': `<${Deno.env.get('SUPABASE_URL')?.replace('/rest/v1', '')}/functions/v1/unsubscribe?email=${encodeURIComponent(to)}>`,
+        'List-Unsubscribe': `<https://americainnovates.us/unsubscribe?email=${encodeURIComponent(to)}>`,
         'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click'
       }
     });

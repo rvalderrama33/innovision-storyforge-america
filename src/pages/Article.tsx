@@ -172,7 +172,7 @@ const Article = () => {
       }
       // Special positioning for Cognitive Card Games to show the entire face
       if (article?.product_name === "X-Squared Math Card Deck" || article?.business_name === "Cognitive Card Games LLC") {
-        return { objectFit: 'cover', objectPosition: 'top' } as React.CSSProperties;
+        return { objectFit: 'cover', objectPosition: 'center 30%' } as React.CSSProperties;
       }
       return { objectFit: 'cover', objectPosition: 'center' } as React.CSSProperties;
     }
@@ -201,7 +201,7 @@ const Article = () => {
     
     // Special positioning for Cognitive Card Games to show the entire face
     if (article?.product_name === "X-Squared Math Card Deck" || article?.business_name === "Cognitive Card Games LLC") {
-      style.objectPosition = 'top';
+      style.objectPosition = 'center 30%';
     }
     
     if (banner.size && banner.size !== 'cover' && banner.size !== 'contain' && banner.size !== 'auto') {

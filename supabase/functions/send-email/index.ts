@@ -247,9 +247,9 @@ const createNotificationEmail = (customizations: EmailCustomizations, name: stri
   const baseUrl = 'https://americainnovates.us';
   
   const htmlContent = wrapEmailContent(`
-    ${getEmailHeader(customizations, customizations.companyName)}
+    ${getEmailHeader(customizations, 'America Innovates Marketplace')}
     
-    <div style="background: linear-gradient(135deg, ${customizations.primaryColor} 0%, ${customizations.accentColor} 100%); color: #1f2937; padding: 30px; border-radius: 12px; margin-bottom: 30px;">
+    <div style="background: #ffffff; color: #1f2937; padding: 30px; border: 2px solid #e5e7eb; border-radius: 12px; margin-bottom: 30px;">
       <h2 style="color: #1f2937; margin: 0 0 15px 0;">Hello ${name || 'Innovator'}!</h2>
       <div style="color: #374151; line-height: 1.6;">
         ${message || 'We have an exciting update to share with you!'}
@@ -259,8 +259,8 @@ const createNotificationEmail = (customizations: EmailCustomizations, name: stri
     <div style="text-align: center; margin-bottom: 30px;">
       <a href="${baseUrl}" 
          class="button-link"
-         style="background: ${customizations.primaryColor}; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
-        Visit ${customizations.companyName}
+         style="background: #000000; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
+        Visit America Innovates Marketplace
       </a>
     </div>
     
@@ -268,13 +268,13 @@ const createNotificationEmail = (customizations: EmailCustomizations, name: stri
   `);
 
   const textContent = `
-${customizations.companyName}
+America Innovates Marketplace
 
 Hello ${name || 'Innovator'}!
 
 ${message || 'We have an exciting update to share with you!'}
 
-Visit ${customizations.companyName}: ${baseUrl}
+Visit America Innovates Marketplace: ${baseUrl}
 
 ${customizations.footerText}
 
@@ -282,7 +282,7 @@ To unsubscribe from emails, visit: https://americainnovates.us/unsubscribe?email
   `.trim();
   
   return {
-    subject: subject || `New Update from ${customizations.companyName}`,
+    subject: subject || `New Update from America Innovates Marketplace`,
     html: htmlContent,
     text: textContent
   };

@@ -84,9 +84,9 @@ const getEmailFooter = (customizations: EmailCustomizations, customFooter?: stri
 
 // Common email wrapper
 const wrapEmailContent = (content: string) => `
-  <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+  <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: white;">
     <style>
-      a { color: #2563eb !important; text-decoration: underline !important; }
+      a { color: #000000 !important; text-decoration: underline !important; }
       .button-link { color: white !important; text-decoration: none !important; }
     </style>
     ${content}

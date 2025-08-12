@@ -23,10 +23,10 @@ const handler = async (req: Request): Promise<Response> => {
     
     console.log("Sending vendor confirmation email for:", application);
 
-    const subject = "Your Vendor Application Has Been Received - America Innovates";
+    const subject = "Your Vendor Application Has Been Received - America Innovates Marketplace";
     const htmlContent = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-        <h2 style="color: #333; border-bottom: 2px solid #667eea; padding-bottom: 10px;">
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: white;">
+        <h2 style="color: #000000; border-bottom: 2px solid #000000; padding-bottom: 10px;">
           Thank You for Your Vendor Application!
         </h2>
         
@@ -39,7 +39,7 @@ const handler = async (req: Request): Promise<Response> => {
           We have successfully received your application and are currently reviewing it.
         </p>
         
-        <div style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #667eea; margin: 20px 0;">
+        <div style="background-color: #f8f9fa; padding: 20px; border-left: 4px solid #000000; margin: 20px 0;">
           <h3 style="color: #333; margin-top: 0;">Application Summary:</h3>
           <ul style="color: #555; line-height: 1.6;">
             <li><strong>Business Name:</strong> ${application.business_name}</li>
@@ -57,10 +57,10 @@ const handler = async (req: Request): Promise<Response> => {
           <li>If approved, you'll get access to our vendor dashboard to list your products</li>
         </ul>
         
-        <div style="background-color: #e8f4fd; padding: 15px; border-radius: 5px; margin: 20px 0;">
-          <p style="margin: 0; color: #0066cc;">
+        <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
+          <p style="margin: 0; color: #000000;">
             <strong>Questions?</strong> Feel free to contact us at 
-            <a href="mailto:ricardo@myproduct.today" style="color: #0066cc;">ricardo@myproduct.today</a>
+            <a href="mailto:ricardo@myproduct.today" style="color: #000000;">ricardo@myproduct.today</a>
           </p>
         </div>
         
@@ -72,7 +72,7 @@ const handler = async (req: Request): Promise<Response> => {
         <div style="border-top: 1px solid #ddd; padding-top: 20px; margin-top: 30px;">
           <p style="color: #888; font-size: 14px; margin: 0;">
             Best regards,<br>
-            <strong>The America Innovates Team</strong><br>
+            <strong>The America Innovates Marketplace Team</strong><br>
             America Innovates Marketplace
           </p>
         </div>
@@ -80,7 +80,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: "America Innovates <onboarding@resend.dev>",
+      from: "America Innovates Marketplace <onboarding@resend.dev>",
       to: [application.contact_email],
       subject: subject,
       html: htmlContent,

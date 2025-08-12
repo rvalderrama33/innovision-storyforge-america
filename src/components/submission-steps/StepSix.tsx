@@ -45,12 +45,13 @@ const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: S
   const { toast } = useToast();
 
   useEffect(() => {
-    onValidationChange(consent && selectedVendors.length > 0);
+    // Only require consent, make vendor selection optional
+    onValidationChange(consent);
     onUpdate({ selectedVendors });
   }, [consent, selectedVendors, onValidationChange, onUpdate]);
 
   const handleSubmit = async () => {
-    if (!consent || selectedVendors.length === 0) return;
+    if (!consent) return;
     
     setIsSubmitting(true);
     
@@ -317,8 +318,8 @@ const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: S
           </div>
           
           {selectedVendors.length === 0 && (
-            <p className="text-sm text-red-600">
-              Please select at least one option to continue.
+            <p className="text-sm text-orange-600">
+              Optional: Select services you might need help with, or choose "I don't need any help" to skip.
             </p>
           )}
           
@@ -360,7 +361,7 @@ const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: S
       <div className="text-center">
         <Button
           onClick={handleSubmit}
-          disabled={!consent || selectedVendors.length === 0 || isSubmitting}
+          disabled={!consent || isSubmitting}
           size="lg"
           className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-4 text-lg"
         >
@@ -374,9 +375,9 @@ const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: S
           )}
         </Button>
         
-        {(!consent || selectedVendors.length === 0) && !isSubmitting && (
+        {!consent && !isSubmitting && (
           <p className="text-sm text-red-600 mt-2">
-            {!consent && "Please provide consent to feature your story"}{!consent && selectedVendors.length === 0 && " and"} {selectedVendors.length === 0 && "select at least one option"} before submitting.
+            Please provide consent to feature your story before submitting.
           </p>
         )}
       </div>

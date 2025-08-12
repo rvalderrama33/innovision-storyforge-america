@@ -243,9 +243,11 @@ export const VendorManagement = () => {
 
   const handleDeleteVendor = async (applicationId: string, userId: string, businessName: string) => {
     try {
+      console.log('Starting vendor deletion process:', { applicationId, userId, businessName });
       setDeletingVendor(applicationId);
       
       // Remove vendor role from user_roles table
+      console.log('Removing vendor role for user:', userId);
       const { error: roleError } = await supabase
         .from('user_roles')
         .delete()
@@ -256,14 +258,20 @@ export const VendorManagement = () => {
         console.error('Error removing vendor role:', roleError);
         throw roleError;
       }
+      console.log('Successfully removed vendor role');
+
+      // Get current user for reviewed_by field
+      const { data: currentUser } = await supabase.auth.getUser();
+      console.log('Current user for reviewed_by:', currentUser.user?.id);
 
       // Update vendor application status to rejected (to keep record)
+      console.log('Updating vendor application status to rejected');
       const { error: appError } = await supabase
         .from('vendor_applications')
         .update({ 
           status: 'rejected',
           rejection_reason: 'Vendor access revoked by administrator',
-          reviewed_by: (await supabase.auth.getUser()).data.user?.id,
+          reviewed_by: currentUser.user?.id,
           reviewed_at: new Date().toISOString()
         })
         .eq('id', applicationId);
@@ -272,8 +280,10 @@ export const VendorManagement = () => {
         console.error('Error updating application status:', appError);
         throw appError;
       }
+      console.log('Successfully updated application status');
 
       // Deactivate all vendor's products
+      console.log('Deactivating vendor products');
       const { error: productError } = await supabase
         .from('marketplace_products')
         .update({ status: 'inactive' })
@@ -282,13 +292,16 @@ export const VendorManagement = () => {
       if (productError) {
         console.error('Error deactivating products:', productError);
         // Don't throw here as it's not critical
+      } else {
+        console.log('Successfully deactivated vendor products');
       }
 
       toast.success(`Vendor "${businessName}" has been removed successfully`);
+      console.log('Vendor deletion completed successfully');
       fetchApplications();
     } catch (error) {
       console.error('Error deleting vendor:', error);
-      toast.error('Failed to remove vendor');
+      toast.error(`Failed to remove vendor: ${error.message || 'Unknown error'}`);
     } finally {
       setDeletingVendor(null);
     }

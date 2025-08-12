@@ -261,7 +261,11 @@ const Article = () => {
       {/* Hero Section */}
       <div className="relative">
         {hasBanner ? (
-          <div className="w-full h-[35vh] lg:h-[45vh] relative overflow-hidden">
+          <div className={`w-full relative overflow-hidden ${
+            article?.product_name === "X-Squared Math Card Deck" || article?.business_name === "Cognitive Card Games LLC" 
+              ? "h-[44vh] lg:h-[56vh]" 
+              : "h-[35vh] lg:h-[45vh]"
+          }`}>
             <img
               src={bannerUrl}
               alt={article.product_name || "Innovation story featured image"}

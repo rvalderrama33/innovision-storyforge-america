@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Store, Calendar, User, Mail, Phone, Globe, MessageSquare, Clock, Eye } from 'lucide-react';
+import { CheckCircle, XCircle, Store, Calendar, User, Mail, Phone, Globe, MessageSquare, Clock, Eye, Trash2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface VendorApplication {
@@ -52,6 +52,7 @@ export const VendorManagement = () => {
   const [activeTab, setActiveTab] = useState('pending');
   const [bulkResending, setBulkResending] = useState(false);
   const [bulkResendProgress, setBulkResendProgress] = useState({ sent: 0, total: 0 });
+  const [deletingVendor, setDeletingVendor] = useState<string | null>(null);
 
   const fetchApplications = async () => {
     try {
@@ -237,6 +238,59 @@ export const VendorManagement = () => {
     } finally {
       setBulkResending(false);
       setBulkResendProgress({ sent: 0, total: 0 });
+    }
+  };
+
+  const handleDeleteVendor = async (applicationId: string, userId: string, businessName: string) => {
+    try {
+      setDeletingVendor(applicationId);
+      
+      // Remove vendor role from user_roles table
+      const { error: roleError } = await supabase
+        .from('user_roles')
+        .delete()
+        .eq('user_id', userId)
+        .eq('role', 'vendor');
+
+      if (roleError) {
+        console.error('Error removing vendor role:', roleError);
+        throw roleError;
+      }
+
+      // Update vendor application status to rejected (to keep record)
+      const { error: appError } = await supabase
+        .from('vendor_applications')
+        .update({ 
+          status: 'rejected',
+          rejection_reason: 'Vendor access revoked by administrator',
+          reviewed_by: (await supabase.auth.getUser()).data.user?.id,
+          reviewed_at: new Date().toISOString()
+        })
+        .eq('id', applicationId);
+
+      if (appError) {
+        console.error('Error updating application status:', appError);
+        throw appError;
+      }
+
+      // Deactivate all vendor's products
+      const { error: productError } = await supabase
+        .from('marketplace_products')
+        .update({ status: 'inactive' })
+        .eq('vendor_id', userId);
+
+      if (productError) {
+        console.error('Error deactivating products:', productError);
+        // Don't throw here as it's not critical
+      }
+
+      toast.success(`Vendor "${businessName}" has been removed successfully`);
+      fetchApplications();
+    } catch (error) {
+      console.error('Error deleting vendor:', error);
+      toast.error('Failed to remove vendor');
+    } finally {
+      setDeletingVendor(null);
     }
   };
 
@@ -565,6 +619,45 @@ export const VendorManagement = () => {
                                     </DialogContent>
                                   </Dialog>
                                 </>
+                              )}
+                              
+                              {application.status === 'approved' && (
+                                <AlertDialog>
+                                  <AlertDialogTrigger asChild>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="text-red-600 border-red-600 hover:bg-red-50"
+                                      disabled={deletingVendor === application.id}
+                                    >
+                                      {deletingVendor === application.id ? (
+                                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-1"></div>
+                                      ) : (
+                                        <Trash2 className="h-4 w-4 mr-1" />
+                                      )}
+                                      Remove Vendor
+                                    </Button>
+                                  </AlertDialogTrigger>
+                                  <AlertDialogContent>
+                                    <AlertDialogHeader>
+                                      <AlertDialogTitle>Remove Vendor Access</AlertDialogTitle>
+                                      <AlertDialogDescription>
+                                        This will permanently remove vendor privileges from {application.business_name}. 
+                                        Their products will be deactivated and they will no longer be able to manage their marketplace presence.
+                                        This action cannot be undone.
+                                      </AlertDialogDescription>
+                                    </AlertDialogHeader>
+                                    <AlertDialogFooter>
+                                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                      <AlertDialogAction
+                                        onClick={() => handleDeleteVendor(application.id, application.user_id, application.business_name)}
+                                        className="bg-red-600 hover:bg-red-700"
+                                      >
+                                        Remove Vendor Access
+                                      </AlertDialogAction>
+                                    </AlertDialogFooter>
+                                  </AlertDialogContent>
+                                </AlertDialog>
                               )}
                             </div>
                           </TableCell>

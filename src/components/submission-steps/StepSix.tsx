@@ -147,7 +147,20 @@ const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: S
         throw new Error("Invalid response from article generation service. Please try again or contact support.");
       }
 
-      console.log("Article generated successfully");
+      console.log("Article generated successfully, updating submission status to pending...");
+      
+      // Update the submission status to pending after article generation
+      const { error: statusUpdateError } = await supabase
+        .from('submissions')
+        .update({ status: 'pending' })
+        .eq('id', submission.id);
+        
+      if (statusUpdateError) {
+        console.error("Failed to update submission status:", statusUpdateError);
+        // Don't fail the whole process for this
+      } else {
+        console.log("Successfully updated submission status to pending");
+      }
 
       // Send notification email to admin
       try {

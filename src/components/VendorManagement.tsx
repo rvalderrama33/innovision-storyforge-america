@@ -115,7 +115,7 @@ export const VendorManagement = () => {
                   Your vendor application has been approved and you can now start selling on America Innovates Marketplace.<br><br>
                   <strong>Next Steps:</strong><br>
                   • Log into your account to access your vendor dashboard<br>
-                  • Add your first product to get started<br>
+                  • <a href="https://americainnovates.us/marketplace/add" style="color: #2563eb; text-decoration: underline;">Start adding your product now</a><br>
                   • Complete your vendor profile<br><br>
                   We're excited to have you as part of our marketplace community!
                 `,
@@ -199,7 +199,7 @@ export const VendorManagement = () => {
                   Your vendor application has been approved and you can now start selling on America Innovates Marketplace.<br><br>
                   <strong>Next Steps:</strong><br>
                   • Log into your account to access your vendor dashboard<br>
-                  • Add your first product to get started<br>
+                  • <a href="https://americainnovates.us/marketplace/add" style="color: #2563eb; text-decoration: underline;">Start adding your product now</a><br>
                   • Complete your vendor profile<br><br>
                   We're excited to have you as part of our marketplace community!
                 `,

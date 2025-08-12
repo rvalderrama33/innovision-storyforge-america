@@ -72,25 +72,31 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
       if (data.success && data.vendorInfo) {
         const { vendorInfo } = data;
         
-        // Auto-populate form fields with scraped data
+        console.log('Scraped vendor info:', vendorInfo);
+        
+        // Auto-populate form fields with scraped data and trigger re-render
         if (vendorInfo.businessName) {
-          form.setValue('businessName', vendorInfo.businessName);
+          form.setValue('businessName', vendorInfo.businessName, { shouldTouch: true, shouldDirty: true });
         }
         if (vendorInfo.contactEmail && !form.getValues('contactEmail')) {
-          form.setValue('contactEmail', vendorInfo.contactEmail);
+          form.setValue('contactEmail', vendorInfo.contactEmail, { shouldTouch: true, shouldDirty: true });
         }
         if (vendorInfo.contactPhone) {
-          form.setValue('contactPhone', vendorInfo.contactPhone);
+          form.setValue('contactPhone', vendorInfo.contactPhone, { shouldTouch: true, shouldDirty: true });
         }
         if (vendorInfo.shippingCountry) {
-          form.setValue('shippingCountry', vendorInfo.shippingCountry);
+          form.setValue('shippingCountry', vendorInfo.shippingCountry, { shouldTouch: true, shouldDirty: true });
         }
         if (vendorInfo.vendorBio) {
-          form.setValue('vendorBio', vendorInfo.vendorBio);
+          form.setValue('vendorBio', vendorInfo.vendorBio, { shouldTouch: true, shouldDirty: true });
         }
+
+        // Force form to trigger validation and re-render
+        form.trigger();
 
         toast.success('Website scraped successfully! Form fields have been auto-filled.');
       } else {
+        console.log('No vendor info found in response:', data);
         toast.error('Could not extract vendor information from the website');
       }
     } catch (error) {

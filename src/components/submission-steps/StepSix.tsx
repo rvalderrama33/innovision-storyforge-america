@@ -122,11 +122,14 @@ const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: S
 
       // Generate article using Supabase Edge Function
       console.log("Calling Supabase Edge Function to generate article...");
+      console.log("Submission data being sent:", { ...data, submissionId: submission.id });
+      
       const { data: articleResult, error: functionError } = await supabase.functions.invoke('generate-article', {
         body: { ...data, submissionId: submission.id }
       });
 
       console.log("Edge function response:", { articleResult, functionError });
+      console.log("Full function response:", JSON.stringify({ articleResult, functionError }, null, 2));
 
       if (functionError) {
         console.error("Edge function error:", functionError);

@@ -170,6 +170,10 @@ const Article = () => {
       if (article?.slug === 'a-slice-of-innovation-how-a-family-tradition-sparked-a-culinary-revolution') {
         return { objectFit: 'cover', objectPosition: 'center 25%' } as React.CSSProperties;
       }
+      // Special positioning for Cognitive Card Games to show the entire face
+      if (article?.product_name === "X-Squared Math Card Deck" || article?.business_name === "Cognitive Card Games LLC") {
+        return { objectFit: 'cover', objectPosition: 'center 60%' } as React.CSSProperties;
+      }
       return { objectFit: 'cover', objectPosition: 'center' } as React.CSSProperties;
     }
     
@@ -193,6 +197,11 @@ const Article = () => {
     // Special positioning for "a slice of innovation" story to show the face better
     if (article?.slug === 'a-slice-of-innovation-how-a-family-tradition-sparked-a-culinary-revolution') {
       style.objectPosition = 'center 25%';
+    }
+    
+    // Special positioning for Cognitive Card Games to show the entire face
+    if (article?.product_name === "X-Squared Math Card Deck" || article?.business_name === "Cognitive Card Games LLC") {
+      style.objectPosition = 'center 60%';
     }
     
     if (banner.size && banner.size !== 'cover' && banner.size !== 'contain' && banner.size !== 'auto') {
@@ -256,8 +265,8 @@ const Article = () => {
             <img
               src={bannerUrl}
               alt={article.product_name || "Innovation story featured image"}
-              className="w-full h-full object-cover object-top"
-              style={{ objectPosition: 'center 20%' }}
+              className="w-full h-full object-cover"
+              style={getBannerImageStyle()}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-12">

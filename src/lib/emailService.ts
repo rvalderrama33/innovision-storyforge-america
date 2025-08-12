@@ -154,3 +154,23 @@ export const sendVendorApprovalEmail = async (applicationData: any) => {
     throw error;
   }
 };
+
+export const sendVendorRejectionEmail = async (applicationData: any) => {
+  try {
+    const { data, error } = await supabase.functions.invoke('send-vendor-rejection', {
+      body: {
+        application: applicationData
+      }
+    });
+
+    if (error) {
+      console.error('Error sending vendor rejection email:', error);
+      throw error;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Email service error:', error);
+    throw error;
+  }
+};

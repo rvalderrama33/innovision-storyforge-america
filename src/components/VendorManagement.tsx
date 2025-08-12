@@ -139,6 +139,23 @@ export const VendorManagement = () => {
       if (error) throw error;
 
       if (data) {
+        // Send rejection email
+        try {
+          const { data: applicationData } = await supabase
+            .from('vendor_applications')
+            .select('*')
+            .eq('id', selectedApplicationId)
+            .single();
+
+          if (applicationData) {
+            const { sendVendorRejectionEmail } = await import('@/lib/emailService');
+            await sendVendorRejectionEmail(applicationData);
+          }
+        } catch (emailError) {
+          console.error('Error sending rejection email:', emailError);
+          // Don't fail the rejection if email fails
+        }
+
         toast.success('Vendor application rejected');
         fetchApplications();
         setRejectionReason('');

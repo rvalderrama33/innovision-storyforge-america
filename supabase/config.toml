@@ -77,3 +77,6 @@ verify_jwt = false
 
 [functions.send-recommendation-notification]
 verify_jwt = false
+
+[functions.test-approval-emails]
+verify_jwt = false

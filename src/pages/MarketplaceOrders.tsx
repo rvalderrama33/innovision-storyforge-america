@@ -49,7 +49,7 @@ interface VendorStats {
 
 const MarketplaceOrders = () => {
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isVendor } = useAuth();
   const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const { toast } = useToast();
   const [orders, setOrders] = useState<MarketplaceOrder[]>([]);
@@ -140,7 +140,7 @@ const MarketplaceOrders = () => {
     return <Navigate to="/" />;
   }
 
-  if (!user || !isAdmin) {
+  if (!user || (!isAdmin && !isVendor)) {
     return <Navigate to="/auth" replace />;
   }
 

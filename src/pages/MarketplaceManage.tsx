@@ -27,7 +27,7 @@ interface MarketplaceProduct {
 
 const MarketplaceManage = () => {
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isVendor } = useAuth();
   const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const { toast } = useToast();
   const location = useLocation();
@@ -90,8 +90,8 @@ const MarketplaceManage = () => {
     return <Navigate to="/" />;
   }
 
-  // Restrict access to admins only for now
-  if (!user || !isAdmin) {
+  // Restrict access to admins and vendors
+  if (!user || (!isAdmin && !isVendor)) {
     return <Navigate to="/auth" replace />;
   }
 

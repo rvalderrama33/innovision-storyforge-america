@@ -13,10 +13,9 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { toast } from "sonner";
-import { Loader2, Store, CheckCircle, FileText, Globe, Wand2 } from 'lucide-react';
+import { Loader2, Store, CheckCircle, FileText } from 'lucide-react';
 
 const vendorApplicationSchema = z.object({
-  websiteUrl: z.string().url('Please enter a valid website URL').optional().or(z.literal('')),
   businessName: z.string().min(2, 'Business name must be at least 2 characters'),
   contactEmail: z.string().email('Please enter a valid email address'),
   contactPhone: z.string().optional(),
@@ -35,12 +34,10 @@ interface VendorApplicationFormProps {
 export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplicationFormProps) => {
   const { user } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isScraping, setIsScraping] = useState(false);
 
   const form = useForm<VendorApplicationData>({
     resolver: zodResolver(vendorApplicationSchema),
     defaultValues: {
-      websiteUrl: '',
       businessName: '',
       contactEmail: user?.email || '',
       contactPhone: '',
@@ -50,62 +47,6 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
     },
   });
 
-  const scrapeWebsite = async () => {
-    const websiteUrl = form.getValues('websiteUrl');
-    if (!websiteUrl) {
-      toast.error('Please enter a website URL first');
-      return;
-    }
-
-    setIsScraping(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('scrape-vendor-website', {
-        body: { url: websiteUrl }
-      });
-
-      if (error) {
-        console.error('Error scraping website:', error);
-        toast.error('Failed to scrape website. Please try again.');
-        return;
-      }
-
-      if (data.success && data.vendorInfo) {
-        const { vendorInfo } = data;
-        
-        console.log('Scraped vendor info:', vendorInfo);
-        
-        // Auto-populate form fields with scraped data and trigger re-render
-        if (vendorInfo.businessName) {
-          form.setValue('businessName', vendorInfo.businessName, { shouldTouch: true, shouldDirty: true });
-        }
-        if (vendorInfo.contactEmail && !form.getValues('contactEmail')) {
-          form.setValue('contactEmail', vendorInfo.contactEmail, { shouldTouch: true, shouldDirty: true });
-        }
-        if (vendorInfo.contactPhone) {
-          form.setValue('contactPhone', vendorInfo.contactPhone, { shouldTouch: true, shouldDirty: true });
-        }
-        if (vendorInfo.shippingCountry) {
-          form.setValue('shippingCountry', vendorInfo.shippingCountry, { shouldTouch: true, shouldDirty: true });
-        }
-        if (vendorInfo.vendorBio) {
-          form.setValue('vendorBio', vendorInfo.vendorBio, { shouldTouch: true, shouldDirty: true });
-        }
-
-        // Force form to trigger validation and re-render
-        form.trigger();
-
-        toast.success('Website scraped successfully! Form fields have been auto-filled.');
-      } else {
-        console.log('No vendor info found in response:', data);
-        toast.error('Could not extract vendor information from the website');
-      }
-    } catch (error) {
-      console.error('Error scraping website:', error);
-      toast.error('Failed to scrape website. Please try again.');
-    } finally {
-      setIsScraping(false);
-    }
-  };
 
   const onSubmit = async (data: VendorApplicationData) => {
     console.log('Starting vendor application submission...', { data, user: user?.id });
@@ -119,6 +60,29 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
     setIsSubmitting(true);
 
     try {
+      // First check if user already has an application
+      const { data: existingApplication, error: checkError } = await supabase
+        .from('vendor_applications')
+        .select('id, status')
+        .eq('user_id', user.id)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') { // PGRST116 means no rows found
+        console.error('Error checking existing application:', checkError);
+        throw checkError;
+      }
+
+      if (existingApplication) {
+        const statusMessage = existingApplication.status === 'pending' 
+          ? 'You already have a pending vendor application. Please wait for admin review.'
+          : existingApplication.status === 'approved'
+          ? 'You are already an approved vendor.'
+          : 'You have already submitted a vendor application.';
+        
+        toast.error(statusMessage);
+        return;
+      }
+
       console.log('Submitting to Supabase with:', {
         user_id: user.id,
         business_name: data.businessName,
@@ -204,53 +168,6 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
       <CardContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Website Scraping Section */}
-            <Card className="border-2 border-dashed border-primary/30 bg-primary/5">
-              <CardContent className="p-6">
-                <div className="flex items-center gap-2 mb-4">
-                  <Globe className="h-5 w-5 text-primary" />
-                  <h3 className="text-lg font-semibold">Auto-Fill from Website</h3>
-                </div>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Enter your business website URL and we'll automatically extract information to fill your application form.
-                </p>
-                <div className="flex gap-3">
-                  <FormField
-                    control={form.control}
-                    name="websiteUrl"
-                    render={({ field }) => (
-                      <FormItem className="flex-1">
-                        <FormControl>
-                          <Input 
-                            placeholder="https://your-business-website.com" 
-                            {...field} 
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button
-                    type="button"
-                    onClick={scrapeWebsite}
-                    disabled={isScraping || !form.watch('websiteUrl')}
-                    className="shrink-0"
-                  >
-                    {isScraping ? (
-                      <>
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Scraping...
-                      </>
-                    ) : (
-                      <>
-                        <Wand2 className="h-4 w-4 mr-2" />
-                        Auto-Fill
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
 
             <FormField
               control={form.control}

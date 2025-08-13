@@ -1110,6 +1110,7 @@ export type Database = {
       http_post: {
         Args:
           | { uri: string; content: string; content_type: string }
+          | { uri: string; content: string; content_type: string }
           | { uri: string; data: Json }
         Returns: Database["public"]["CompositeTypes"]["http_response"]
       }

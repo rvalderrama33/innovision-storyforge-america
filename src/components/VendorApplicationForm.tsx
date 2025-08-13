@@ -19,6 +19,8 @@ const vendorApplicationSchema = z.object({
   businessName: z.string().min(2, 'Business name must be at least 2 characters'),
   contactEmail: z.string().email('Please enter a valid email address'),
   contactPhone: z.string().optional(),
+  website: z.string().url('Please enter a valid website URL').min(1, 'Website is required'),
+  productTypes: z.string().min(10, 'Please provide at least 10 characters describing your product types'),
   shippingCountry: z.string().optional(),
   vendorBio: z.string().optional(),
   agreeToTerms: z.boolean().refine(val => val === true, 'You must agree to the marketplace terms'),
@@ -41,6 +43,8 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
       businessName: '',
       contactEmail: user?.email || '',
       contactPhone: '',
+      website: '',
+      productTypes: '',
       shippingCountry: '',
       vendorBio: '',
       agreeToTerms: false,
@@ -88,6 +92,8 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
         business_name: data.businessName,
         contact_email: data.contactEmail,
         contact_phone: data.contactPhone || null,
+        website: data.website,
+        product_types: data.productTypes,
         shipping_country: data.shippingCountry || null,
         vendor_bio: data.vendorBio || null,
         status: 'pending'
@@ -102,6 +108,8 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
             business_name: data.businessName,
             contact_email: data.contactEmail,
             contact_phone: data.contactPhone || null,
+            website: data.website,
+            product_types: data.productTypes,
             shipping_country: data.shippingCountry || null,
             vendor_bio: data.vendorBio || null,
             status: 'pending'
@@ -214,6 +222,44 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
                   </FormControl>
                   <FormDescription>
                     Optional - for customer support and order inquiries
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="website"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Business Website *</FormLabel>
+                  <FormControl>
+                    <Input placeholder="https://www.yourbusiness.com" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    Website URL for admin review of your business
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="productTypes"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Product Types *</FormLabel>
+                  <FormControl>
+                    <Textarea 
+                      placeholder="Describe the types of products you want to sell (e.g., electronics, accessories, software, tools, etc.)..."
+                      className="min-h-[80px]"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Describe what types of products you plan to sell on our marketplace
                   </FormDescription>
                   <FormMessage />
                 </FormItem>

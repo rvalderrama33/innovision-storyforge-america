@@ -49,7 +49,7 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://americainnovates.com/vendor-dashboard" 
+          <a href="https://americainnovates.us/vendor-dashboard" 
              style="background-color: #000000; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Access Your Vendor Dashboard
           </a>
@@ -58,7 +58,7 @@ const handler = async (req: Request): Promise<Response> => {
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <p style="margin: 0; color: #000000;">
             <strong>Need Help?</strong> Our team is here to support you. Contact us at 
-            <a href="mailto:ricardo@myproduct.today" style="color: #000000;">ricardo@myproduct.today</a>
+            <a href="mailto:admin@americainnovates.us" style="color: #000000;">admin@americainnovates.us</a>
           </p>
         </div>
         

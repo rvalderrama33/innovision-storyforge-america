@@ -59,7 +59,7 @@ const handler = async (req: Request): Promise<Response> => {
         <div style="background-color: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0;">
           <p style="margin: 0; color: #000000;">
             <strong>Questions?</strong> Feel free to contact us at 
-            <a href="mailto:ricardo@myproduct.today" style="color: #000000;">ricardo@myproduct.today</a>
+            <a href="mailto:admin@americainnovates.us" style="color: #000000;">admin@americainnovates.us</a>
           </p>
         </div>
         

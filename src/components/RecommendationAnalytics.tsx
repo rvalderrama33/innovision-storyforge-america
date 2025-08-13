@@ -277,6 +277,9 @@ const RecommendationAnalytics = () => {
     setIsCreating(true);
     
     try {
+      // Get the current authenticated user's email for RLS compliance
+      const { data: { user } } = await supabase.auth.getUser();
+      
       // Create the recommendation record
       const { data, error } = await supabase
         .from('recommendations')
@@ -285,7 +288,7 @@ const RecommendationAnalytics = () => {
           email: newRecommendation.email,
           reason: newRecommendation.reason || null,
           recommender_name: newRecommendation.recommenderName,
-          recommender_email: null,
+          recommender_email: user?.email || null, // Use authenticated user's email for RLS compliance
           email_sent_at: new Date().toISOString()
         })
         .select()
@@ -384,6 +387,9 @@ const RecommendationAnalytics = () => {
         
         for (const rec of batch) {
           try {
+            // Get the current authenticated user's email for RLS compliance
+            const { data: { user } } = await supabase.auth.getUser();
+            
             // Create the recommendation record
             const { error: dbError } = await supabase
               .from('recommendations')
@@ -392,7 +398,7 @@ const RecommendationAnalytics = () => {
                 email: rec.email,
                 reason: null,
                 recommender_name: rec.recommenderName,
-                recommender_email: null,
+                recommender_email: user?.email || null, // Use authenticated user's email for RLS compliance
                 email_sent_at: new Date().toISOString()
               });
 

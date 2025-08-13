@@ -857,6 +857,7 @@ export type Database = {
           contact_phone: string | null
           created_at: string
           id: string
+          product_types: string | null
           rejection_reason: string | null
           reviewed_at: string | null
           reviewed_by: string | null
@@ -865,6 +866,7 @@ export type Database = {
           updated_at: string
           user_id: string
           vendor_bio: string | null
+          website: string | null
         }
         Insert: {
           business_name: string
@@ -872,6 +874,7 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string
           id?: string
+          product_types?: string | null
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -880,6 +883,7 @@ export type Database = {
           updated_at?: string
           user_id: string
           vendor_bio?: string | null
+          website?: string | null
         }
         Update: {
           business_name?: string
@@ -887,6 +891,7 @@ export type Database = {
           contact_phone?: string | null
           created_at?: string
           id?: string
+          product_types?: string | null
           rejection_reason?: string | null
           reviewed_at?: string | null
           reviewed_by?: string | null
@@ -895,6 +900,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
           vendor_bio?: string | null
+          website?: string | null
         }
         Relationships: []
       }

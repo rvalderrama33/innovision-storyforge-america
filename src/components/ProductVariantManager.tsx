@@ -59,6 +59,10 @@ export const ProductVariantManager = ({
     }
     
     setNewAttributeValue("");
+    // Don't clear attribute name so user can keep adding values to same attribute
+    if (Object.keys(variantOptions).length === 0 || !variantOptions[newAttributeName]) {
+      setNewAttributeName("");
+    }
   };
 
   const removeVariantOption = (attributeName: string, value: string) => {
@@ -160,22 +164,32 @@ export const ProductVariantManager = ({
                 </p>
               </div>
 
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Attribute name (e.g., Color, Size)"
-                  value={newAttributeName}
-                  onChange={(e) => setNewAttributeName(e.target.value)}
-                  className="flex-1"
-                />
-                <Input
-                  placeholder="Value (e.g., Red, Large)"
-                  value={newAttributeValue}
-                  onChange={(e) => setNewAttributeValue(e.target.value)}
-                  className="flex-1"
-                />
-                <Button onClick={addVariantOption} size="sm">
-                  <Plus className="h-4 w-4" />
-                </Button>
+              <div className="space-y-3">
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="Attribute name (e.g., Color, Size)"
+                    value={newAttributeName}
+                    onChange={(e) => setNewAttributeName(e.target.value)}
+                    className="flex-1"
+                  />
+                  <Input
+                    placeholder="Value (e.g., Red, Large)"
+                    value={newAttributeValue}
+                    onChange={(e) => setNewAttributeValue(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addVariantOption())}
+                    className="flex-1"
+                  />
+                  <Button onClick={addVariantOption} size="sm">
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  💡 <strong>How to add variants:</strong>
+                  <br />1. Enter attribute name (e.g., "Color") and first value (e.g., "Red")
+                  <br />2. Click + to add it, then add more values to the same attribute
+                  <br />3. Repeat for other attributes (Size, Style, etc.)
+                  <br />4. Click "Generate All Variant Combinations" to create variants
+                </div>
               </div>
 
               {/* Display Current Options */}

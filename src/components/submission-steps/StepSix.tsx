@@ -60,9 +60,14 @@ const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: S
 
       // Save to Supabase first
       console.log("Saving to Supabase...");
+      
+      // Get the current authenticated user's email for RLS compliance
+      const { data: { user } } = await supabase.auth.getUser();
+      const submissionEmail = user?.email || data.email;
+      
       const { data: submission, error } = await supabase.from('submissions').insert({
         full_name: data.fullName,
-        email: data.email,
+        email: submissionEmail,
         phone_number: data.phoneNumber,
         city: data.city,
         state: data.state,

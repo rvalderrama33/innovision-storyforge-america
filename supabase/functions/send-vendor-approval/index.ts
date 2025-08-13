@@ -78,7 +78,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
 
     const emailResponse = await resend.emails.send({
-      from: "America Innovates Marketplace <onboarding@resend.dev>",
+      from: "America Innovates Marketplace <admin@americainnovates.us>",
       to: [application.contact_email],
       subject: subject,
       html: htmlContent,

@@ -208,13 +208,17 @@ const SubmissionWizard = () => {
     try {
       const { supabase } = await import("@/integrations/supabase/client");
       
+      // Get the current authenticated user's email for RLS compliance
+      const { data: { user } } = await supabase.auth.getUser();
+      const submissionEmail = user?.email || data.email;
+      
       if (savedDraftId) {
         // Update existing draft
         await supabase
           .from('submissions')
           .update({
             full_name: data.fullName,
-            email: data.email,
+            email: submissionEmail,
             phone_number: data.phoneNumber,
             city: data.city,
             state: data.state,
@@ -243,7 +247,7 @@ const SubmissionWizard = () => {
           .from('submissions')
           .insert({
             full_name: data.fullName,
-            email: data.email,
+            email: submissionEmail,
             phone_number: data.phoneNumber,
             city: data.city,
             state: data.state,

@@ -32,6 +32,10 @@ const Recommend = () => {
     setIsSubmitting(true);
 
     try {
+      // Get the current authenticated user's email for RLS compliance  
+      const { data: { user } } = await supabase.auth.getUser();
+      const recommenderEmail = user?.email || formData.recommenderEmail;
+      
       // First insert the recommendation
       const { error: insertError } = await supabase
         .from("recommendations")
@@ -41,7 +45,7 @@ const Recommend = () => {
             email: formData.email,
             reason: formData.reason,
             recommender_name: formData.recommenderName,
-            recommender_email: formData.recommenderEmail,
+            recommender_email: recommenderEmail, // Use consistent email for RLS compliance
           },
         ]);
 

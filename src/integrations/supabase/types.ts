@@ -1172,6 +1172,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      test_vendor_product_functions: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       text_to_bytea: {
         Args: { data: string }
         Returns: string

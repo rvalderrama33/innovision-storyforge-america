@@ -104,7 +104,7 @@ const StepSix = ({ data, onUpdate, onValidationChange, onSubmissionComplete }: S
           reason: rec.reason || null,
           submission_id: submission.id,
           recommender_name: data.fullName,
-          recommender_email: data.email,
+          recommender_email: submissionEmail, // Use consistent email for RLS compliance
           email_sent_at: new Date().toISOString()
         }));
 

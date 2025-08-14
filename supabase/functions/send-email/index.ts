@@ -24,6 +24,7 @@ interface EmailRequest {
   productName?: string;
   slug?: string;
   recommenderName?: string;
+  submissionId?: string;
 }
 
 interface EmailCustomizations {
@@ -249,32 +250,60 @@ const createRecommendationEmail = (name: string, recommenderName: string, email:
   };
 };
 
-const createFeaturedStoryPromotionEmail = (name: string, subject: string, message: string, email: string) => {
+const createFeaturedStoryPromotionEmail = (name: string, productName: string, submissionId: string, email: string) => {
+  const upgradeUrl = `https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/stripe-payment?submission_id=${submissionId}&action=create-order`;
+  
   const htmlContent = wrapEmailContent(`
-    ${getEmailHeader('🌟 Featured Stories', 'Discover breakthrough innovations from America\'s entrepreneurs')}
+    ${getEmailHeader('America Innovates Magazine', '🎉 Your Story Has Been Approved!')}
     
     <div style="background: #ffffff; color: #000000; padding: 30px; border: 2px solid #e5e7eb; border-radius: 12px; margin-bottom: 30px;">
-      <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #000000;">Hello ${name || 'Innovator'}! 🌟</h2>
+      <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #000000;">🎉 Your Story Has Been Approved!</h2>
       <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #374151;">
-        ${message || 'We\'ve curated some amazing featured stories from innovative entrepreneurs that we think you\'ll love!'}
+        Congratulations ${name}! We're excited to share that your story <strong>"${productName}"</strong> has been approved and will be published in our magazine.
       </p>
     </div>
     
-    <div style="text-align: center; margin-bottom: 30px;">
-      <a href="https://americainnovates.us/stories" 
-         class="button-link"
-         style="background: #000000; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
-        Read Featured Stories
-      </a>
+    <!-- Upgrade Offer Section -->
+    <div style="background: linear-gradient(135deg, #f3f4f6, #e5e7eb); border-radius: 12px; padding: 30px; margin: 30px 0; border-left: 4px solid #667eea;">
+      <h3 style="color: #1f2937; margin: 0 0 15px 0; font-size: 20px;">⭐ Upgrade to Featured Story</h3>
+      <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+        Take your story to the next level! For just <strong>$50</strong>, you can upgrade to a Featured Story and get:
+      </p>
+      
+      <ul style="color: #374151; font-size: 16px; line-height: 1.8; margin: 0 0 25px 0; padding-left: 20px;">
+        <li><strong>Front Page Placement</strong> - Your story prominently displayed on our magazine's front page</li>
+        <li><strong>30 Days of Exposure</strong> - Featured placement for a full month</li>
+        <li><strong>Newsletter Feature</strong> - Highlighted in our weekly newsletter to thousands of subscribers</li>
+        <li><strong>Increased Visibility</strong> - Reach more potential customers, investors, and partners</li>
+        <li><strong>Priority Placement</strong> - Stand out from other stories</li>
+      </ul>
+
+      <div style="text-align: center;">
+        <a href="${upgradeUrl}" 
+           class="button-link"
+           style="background: linear-gradient(135deg, #667eea, #764ba2); color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 8px; font-weight: 600; display: inline-block; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+          Upgrade to Featured - $50
+        </a>
+      </div>
     </div>
+
+    <div style="background: #f9fafb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+      <h4 style="color: #1f2937; margin: 0 0 10px 0; font-size: 18px;">Your Story Details:</h4>
+      <p style="color: #6b7280; margin: 5px 0; font-size: 14px;"><strong>Product:</strong> ${productName}</p>
+      <p style="color: #6b7280; margin: 5px 0; font-size: 14px;"><strong>Submitted by:</strong> ${name}</p>
+    </div>
+
+    <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+      This limited-time offer gives you maximum exposure for your innovation story. Featured stories typically receive 5x more views and engagement than regular stories.
+    </p>
     
     ${getEmailFooter(email)}
   `);
 
   return {
-    subject: subject || '🌟 Featured Innovation Stories You\'ll Love',
+    subject: 'Important Update from America Innovates',
     html: htmlContent,
-    text: `🌟 Featured Stories\nDiscover breakthrough innovations from America's entrepreneurs\n\nHello ${name || 'Innovator'}! 🌟\n\n${message || 'We\'ve curated some amazing featured stories from innovative entrepreneurs that we think you\'ll love!'}\n\nRead Featured Stories: https://americainnovates.us/stories\n\nAmerica Innovates Marketplace - Celebrating Innovation and Entrepreneurship\n\nTo unsubscribe from emails, visit: https://americainnovates.us/unsubscribe?email=${encodeURIComponent(email)}`
+    text: `🎉 Your Story Has Been Approved!\n\nCongratulations ${name}! We're excited to share that your story "${productName}" has been approved and will be published in our magazine.\n\n⭐ Upgrade to Featured Story\nTake your story to the next level! For just $50, you can upgrade to a Featured Story and get:\n\n• Front Page Placement - Your story prominently displayed on our magazine's front page\n• 30 Days of Exposure - Featured placement for a full month\n• Newsletter Feature - Highlighted in our weekly newsletter to thousands of subscribers\n• Increased Visibility - Reach more potential customers, investors, and partners\n• Priority Placement - Stand out from other stories\n\nUpgrade to Featured: ${upgradeUrl}\n\nThis limited-time offer gives you maximum exposure for your innovation story. Featured stories typically receive 5x more views and engagement than regular stories.\n\nAmerica Innovates Marketplace - Celebrating Innovation and Entrepreneurship\n\nTo unsubscribe from emails, visit: https://americainnovates.us/unsubscribe?email=${encodeURIComponent(email)}`
   };
 };
 
@@ -295,7 +324,7 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const resend = getResendClient();
-    const { type, to, name, subject, message, productName, slug, recommenderName }: EmailRequest = await req.json();
+    const { type, to, name, subject, message, productName, slug, recommenderName, submissionId }: EmailRequest = await req.json();
 
     console.log(`Sending ${type} email to:`, to);
 
@@ -318,7 +347,7 @@ const handler = async (req: Request): Promise<Response> => {
         emailData = createRecommendationEmail(name || '', recommenderName || '', to);
         break;
       case 'featured_story_promotion':
-        emailData = createFeaturedStoryPromotionEmail(name || '', subject || '', message || '', to);
+        emailData = createFeaturedStoryPromotionEmail(name || '', productName || '', submissionId || '', to);
         break;
       default:
         throw new Error(`Unknown email type: ${type}`);

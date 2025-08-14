@@ -28,6 +28,7 @@ import SecurityMonitor from "@/components/SecurityMonitor";
 
 import { FollowUpEmailDialog } from "@/components/FollowUpEmailDialog";
 import { VendorManagement } from "@/components/VendorManagement";
+import BulkEmailManager from "@/components/BulkEmailManager";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -1061,7 +1062,7 @@ const AdminDashboard = () => {
 
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                  <Button variant="destructive" size="sm">
+                                  <Button variant="outline" size="sm">
                                     <Trash2 className="w-4 h-4" />
                                   </Button>
                                 </AlertDialogTrigger>
@@ -1075,7 +1076,7 @@ const AdminDashboard = () => {
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                                     <AlertDialogAction onClick={() => deleteUser(user.id)}>
-                                      Delete
+                                      Delete User
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
@@ -1088,6 +1089,8 @@ const AdminDashboard = () => {
                   </TableBody>
                 </Table>
               )}
+              
+              <BulkEmailManager users={users} onRefresh={fetchUsers} />
             </CardContent>
           </Card>
         );

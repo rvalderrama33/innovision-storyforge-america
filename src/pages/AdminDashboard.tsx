@@ -946,7 +946,6 @@ const AdminDashboard = () => {
       case 'emails':
         return (
           <div className="space-y-6">
-            <EmailTemplateCustomizer />
             <EmailNotificationForm />
           </div>
         );

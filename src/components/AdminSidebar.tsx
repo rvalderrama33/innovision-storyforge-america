@@ -37,7 +37,7 @@ const adminMenuItems = [
   { title: "Users", url: "/admin/users", icon: Users },
   { title: "Vendor Management", url: "/admin/vendors", icon: Store },
   { title: "Security", url: "/admin/security", icon: Shield },
-  { title: "Email Center", url: "/admin/emails", icon: Mail },
+  { title: "Email Manager", url: "/admin/users", icon: Mail },
 ];
 
 export function AdminSidebar() {

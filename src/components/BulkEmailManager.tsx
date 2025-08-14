@@ -132,7 +132,7 @@ const BulkEmailManager: React.FC<BulkEmailManagerProps> = ({ users, onRefresh })
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Mail className="w-5 h-5" />
-          Bulk Email Manager
+          Email Manager
         </CardTitle>
         <CardDescription>
           Send emails to multiple users using available email templates

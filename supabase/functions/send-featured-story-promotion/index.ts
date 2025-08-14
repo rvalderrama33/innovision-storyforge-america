@@ -125,7 +125,7 @@ serve(async (req) => {
       
       await Promise.all(batch.map(async (submission) => {
         try {
-          const upgradeUrl = `https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/stripe-payment?submission_id=${submission.id}&action=create-order&amount=5000`;
+          const upgradeUrl = `https://americainnovates.us/featured-upgrade?submission_id=${submission.id}&amount=5000`;
 
           const emailHtml = `
           <!DOCTYPE html>

@@ -29,6 +29,7 @@ import PaymentCancelled from "./pages/PaymentCancelled";
 import NotFound from "./pages/NotFound";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
+import FeaturedUpgrade from "./pages/FeaturedUpgrade";
 
 // Lazy load marketplace components for better performance
 const Marketplace = lazy(() => import("./pages/Marketplace"));
@@ -82,6 +83,7 @@ const App = () => (
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
+            <Route path="/featured-upgrade" element={<FeaturedUpgrade />} />
             
             {/* Marketplace Routes - Lazy loaded for performance */}
             <Route path="/marketplace" element={

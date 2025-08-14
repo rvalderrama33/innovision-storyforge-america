@@ -318,21 +318,58 @@ const AdminDashboard = () => {
         description: "Checking for stories that need promotion emails...",
       });
 
-      const { data, error } = await supabase.functions.invoke('send-featured-story-promotion', {
-        body: { trigger: 'manual' }
-      });
+      // Use the centralized email system instead of dedicated function
+      const { data: submissions } = await supabase
+        .from('submissions')
+        .select('*')
+        .eq('status', 'approved')
+        .eq('featured', false)
+        .gte('approved_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
 
-      if (error) throw error;
+      if (!submissions || submissions.length === 0) {
+        toast({
+          title: "No eligible stories",
+          description: "No approved stories found that need promotion emails",
+        });
+        return;
+      }
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const submission of submissions) {
+        try {
+          const { error } = await supabase.functions.invoke('send-email', {
+            body: {
+              type: 'featured_story_promotion',
+              to: submission.email,
+              name: submission.full_name,
+              productName: submission.product_name,
+              submissionId: submission.id
+            }
+          });
+
+          if (error) {
+            console.error(`Failed to send email to ${submission.email}:`, error);
+            errorCount++;
+          } else {
+            successCount++;
+          }
+        } catch (error) {
+          console.error(`Error sending email to ${submission.email}:`, error);
+          errorCount++;
+        }
+      }
 
       toast({
         title: "Promotion emails sent",
-        description: data.message || "Featured story promotion emails have been processed",
+        description: `Successfully sent ${successCount} emails. ${errorCount} failed.`,
       });
     } catch (error) {
-      console.error('Error sending promotion emails:', error);
+      console.error('Error in triggerFeaturedStoryPromotions:', error);
       toast({
         title: "Error",
-        description: "Failed to send promotion emails",
+        description: "Failed to send featured story promotion emails",
         variant: "destructive",
       });
     }
@@ -345,10 +382,13 @@ const AdminDashboard = () => {
         description: `Sending featured story upgrade email to ${submissionData.email}...`,
       });
 
-      const { data, error } = await supabase.functions.invoke('send-featured-story-promotion', {
+      const { error } = await supabase.functions.invoke('send-email', {
         body: { 
-          trigger: 'manual_single',
-          submission_id: submissionId
+          type: 'featured_story_promotion',
+          to: submissionData.email,
+          name: submissionData.full_name,
+          productName: submissionData.product_name,
+          submissionId: submissionId
         }
       });
 

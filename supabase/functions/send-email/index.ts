@@ -327,6 +327,7 @@ const handler = async (req: Request): Promise<Response> => {
     const { type, to, name, subject, message, productName, slug, recommenderName, submissionId }: EmailRequest = await req.json();
 
     console.log(`Sending ${type} email to:`, to);
+    console.log('Received parameters:', { type, to, name, subject, message, productName, slug, recommenderName, submissionId });
 
     let emailData: { subject: string; html: string; text?: string };
     
@@ -347,6 +348,7 @@ const handler = async (req: Request): Promise<Response> => {
         emailData = createRecommendationEmail(name || '', recommenderName || '', to);
         break;
       case 'featured_story_promotion':
+        console.log('Creating featured story promotion email with submissionId:', submissionId);
         emailData = createFeaturedStoryPromotionEmail(name || '', productName || '', submissionId || '', to);
         break;
       default:

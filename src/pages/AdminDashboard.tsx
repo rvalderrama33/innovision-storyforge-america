@@ -301,6 +301,7 @@ const AdminDashboard = () => {
 
       for (const submission of submissions) {
         try {
+          console.log('Sending featured story promotion email for submission:', submission.id, submission);
           const { error } = await supabase.functions.invoke('send-email', {
             body: {
               type: 'featured_story_promotion',
@@ -310,6 +311,8 @@ const AdminDashboard = () => {
               submissionId: submission.id
             }
           });
+
+          console.log('Email send result:', { error });
 
           if (error) {
             console.error(`Failed to send email to ${submission.email}:`, error);
@@ -344,6 +347,7 @@ const AdminDashboard = () => {
         description: `Sending featured story upgrade email to ${submissionData.email}...`,
       });
 
+      console.log('Sending upgrade email for submission:', submissionId, submissionData);
       const { error } = await supabase.functions.invoke('send-email', {
         body: { 
           type: 'featured_story_promotion',
@@ -353,6 +357,8 @@ const AdminDashboard = () => {
           submissionId: submissionId
         }
       });
+
+      console.log('Single email send result:', { error });
 
       if (error) throw error;
 

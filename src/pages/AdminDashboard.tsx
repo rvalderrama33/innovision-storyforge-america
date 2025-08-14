@@ -29,6 +29,7 @@ import SecurityMonitor from "@/components/SecurityMonitor";
 import { FollowUpEmailDialog } from "@/components/FollowUpEmailDialog";
 import { VendorManagement } from "@/components/VendorManagement";
 import BulkEmailManager from "@/components/BulkEmailManager";
+import { EmailSystemTester } from "@/components/EmailSystemTester";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -947,6 +948,7 @@ const AdminDashboard = () => {
         return (
           <div className="space-y-6">
             <BulkEmailManager users={users} onRefresh={fetchUsers} />
+            <EmailSystemTester />
           </div>
         );
       case 'users':

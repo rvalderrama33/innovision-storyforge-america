@@ -16,7 +16,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: 'welcome' | 'notification' | 'approval' | 'featured' | 'recommendation' | 'draft_follow_up';
+  type: 'welcome' | 'notification' | 'approval' | 'featured' | 'recommendation' | 'draft_follow_up' | 'featured_story_promotion';
   to: string;
   name?: string;
   subject?: string;
@@ -249,6 +249,35 @@ const createRecommendationEmail = (name: string, recommenderName: string, email:
   };
 };
 
+const createFeaturedStoryPromotionEmail = (name: string, subject: string, message: string, email: string) => {
+  const htmlContent = wrapEmailContent(`
+    ${getEmailHeader('🌟 Featured Stories', 'Discover breakthrough innovations from America\'s entrepreneurs')}
+    
+    <div style="background: #ffffff; color: #000000; padding: 30px; border: 2px solid #e5e7eb; border-radius: 12px; margin-bottom: 30px;">
+      <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #000000;">Hello ${name || 'Innovator'}! 🌟</h2>
+      <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+        ${message || 'We\'ve curated some amazing featured stories from innovative entrepreneurs that we think you\'ll love!'}
+      </p>
+    </div>
+    
+    <div style="text-align: center; margin-bottom: 30px;">
+      <a href="https://americainnovates.us/stories" 
+         class="button-link"
+         style="background: #000000; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
+        Read Featured Stories
+      </a>
+    </div>
+    
+    ${getEmailFooter(email)}
+  `);
+
+  return {
+    subject: subject || '🌟 Featured Innovation Stories You\'ll Love',
+    html: htmlContent,
+    text: `🌟 Featured Stories\nDiscover breakthrough innovations from America's entrepreneurs\n\nHello ${name || 'Innovator'}! 🌟\n\n${message || 'We\'ve curated some amazing featured stories from innovative entrepreneurs that we think you\'ll love!'}\n\nRead Featured Stories: https://americainnovates.us/stories\n\nAmerica Innovates Marketplace - Celebrating Innovation and Entrepreneurship\n\nTo unsubscribe from emails, visit: https://americainnovates.us/unsubscribe?email=${encodeURIComponent(email)}`
+  };
+};
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { 
@@ -287,6 +316,9 @@ const handler = async (req: Request): Promise<Response> => {
         break;
       case 'recommendation':
         emailData = createRecommendationEmail(name || '', recommenderName || '', to);
+        break;
+      case 'featured_story_promotion':
+        emailData = createFeaturedStoryPromotionEmail(name || '', subject || '', message || '', to);
         break;
       default:
         throw new Error(`Unknown email type: ${type}`);

@@ -48,6 +48,37 @@ const AdminDashboardChoice = () => {
           </p>
         </div>
 
+        {/* Quick Access - Shared Platform Features */}
+        <div className="bg-white rounded-lg border p-6 shadow-sm mb-8">
+          <h3 className="text-lg font-semibold text-gray-900 mb-6 text-center">Quick Access - Shared Features</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Link to="/admin/users" className="block">
+              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-blue-50">
+                <Users className="h-5 w-5" />
+                <span className="text-sm font-medium">User Management</span>
+              </Button>
+            </Link>
+            <Link to="/admin/emails" className="block">
+              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-blue-50">
+                <Mail className="h-5 w-5" />
+                <span className="text-sm font-medium">Email System</span>
+              </Button>
+            </Link>
+            <Link to="/admin/marketplace/vendors" className="block">
+              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-green-50">
+                <Store className="h-5 w-5" />
+                <span className="text-sm font-medium">Vendor Management</span>
+              </Button>
+            </Link>
+            <Link to="/admin/security" className="block">
+              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-red-50">
+                <Shield className="h-5 w-5" />
+                <span className="text-sm font-medium">Security Settings</span>
+              </Button>
+            </Link>
+          </div>
+        </div>
+
         {/* Dashboard Options */}
         <div className="grid md:grid-cols-2 gap-8 mb-8">
           {/* Magazine Dashboard */}
@@ -147,36 +178,6 @@ const AdminDashboardChoice = () => {
           </Card>
         </div>
 
-        {/* Quick Access - Shared Platform Features */}
-        <div className="bg-white rounded-lg border p-6 shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-6 text-center">Quick Access - Shared Features</h3>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Link to="/admin/users" className="block">
-              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-blue-50">
-                <Users className="h-5 w-5" />
-                <span className="text-sm font-medium">User Management</span>
-              </Button>
-            </Link>
-            <Link to="/admin/emails" className="block">
-              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-blue-50">
-                <Mail className="h-5 w-5" />
-                <span className="text-sm font-medium">Email System</span>
-              </Button>
-            </Link>
-            <Link to="/admin/marketplace/vendors" className="block">
-              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-green-50">
-                <Store className="h-5 w-5" />
-                <span className="text-sm font-medium">Vendor Management</span>
-              </Button>
-            </Link>
-            <Link to="/admin/security" className="block">
-              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-red-50">
-                <Shield className="h-5 w-5" />
-                <span className="text-sm font-medium">Security Settings</span>
-              </Button>
-            </Link>
-          </div>
-        </div>
       </div>
     </div>
   );

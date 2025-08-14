@@ -36,6 +36,7 @@ interface TestReport {
 
 export const EmailSystemTester: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
+  const [isRunningSimple, setIsRunningSimple] = useState(false);
   const [testReport, setTestReport] = useState<TestReport | null>(null);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
   const { toast } = useToast();
@@ -83,6 +84,45 @@ export const EmailSystemTester: React.FC = () => {
       });
     } finally {
       setIsRunning(false);
+    }
+  };
+
+  const runSimpleEmailTest = async () => {
+    setIsRunningSimple(true);
+    
+    try {
+      toast({
+        title: "Testing Simple Email",
+        description: "Testing send-email function directly...",
+      });
+
+      // Test just the core send-email function with a welcome email
+      const { data, error } = await supabase.functions.invoke('send-email', {
+        body: {
+          type: 'welcome',
+          to: 'test-simple@example.com',
+          name: 'Simple Test User'
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Simple Test Passed! ✅",
+        description: "send-email function is working correctly",
+      });
+      
+    } catch (error: any) {
+      console.error('Error in simple email test:', error);
+      toast({
+        title: "Simple Test Failed",
+        description: `Error: ${error.message}`,
+        variant: "destructive",
+      });
+    } finally {
+      setIsRunningSimple(false);
     }
   };
 
@@ -176,24 +216,45 @@ export const EmailSystemTester: React.FC = () => {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button 
-            onClick={runComprehensiveTest} 
-            disabled={isRunning}
-            className="w-full"
-            size="lg"
-          >
-            {isRunning ? (
-              <>
-                <Clock className="mr-2 h-4 w-4 animate-spin" />
-                Running Comprehensive Test...
-              </>
-            ) : (
-              <>
-                <Play className="mr-2 h-4 w-4" />
-                Run Comprehensive Email Test
-              </>
-            )}
-          </Button>
+          <div className="space-y-4">
+            <Button 
+              onClick={runSimpleEmailTest} 
+              disabled={isRunningSimple || isRunning}
+              className="w-full"
+              variant="outline"
+            >
+              {isRunningSimple ? (
+                <>
+                  <Clock className="mr-2 h-4 w-4 animate-spin" />
+                  Testing Send-Email Function...
+                </>
+              ) : (
+                <>
+                  <Play className="mr-2 h-4 w-4" />
+                  Test Send-Email Function Only
+                </>
+              )}
+            </Button>
+            
+            <Button 
+              onClick={runComprehensiveTest} 
+              disabled={isRunning || isRunningSimple}
+              className="w-full"
+              size="lg"
+            >
+              {isRunning ? (
+                <>
+                  <Clock className="mr-2 h-4 w-4 animate-spin" />
+                  Running Comprehensive Test...
+                </>
+              ) : (
+                <>
+                  <Play className="mr-2 h-4 w-4" />
+                  Run Comprehensive Email Test
+                </>
+              )}
+            </Button>
+          </div>
         </CardContent>
       </Card>
 

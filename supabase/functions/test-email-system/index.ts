@@ -299,41 +299,89 @@ const handler = async (req: Request): Promise<Response> => {
     // Test 1: Core email templates via send-email function
     console.log("📧 Testing core email templates...");
     for (const template of testEmailTemplates) {
-      const result = await testSingleEmailTemplate(template);
-      allResults.push(result);
-      totalTests++;
-      if (result.status === 'SUCCESS') successfulTests++;
-      else failedTests++;
-      
-      // Small delay between tests
-      await new Promise(resolve => setTimeout(resolve, 200));
+      try {
+        const result = await testSingleEmailTemplate(template);
+        allResults.push(result);
+        totalTests++;
+        if (result.status === 'SUCCESS') successfulTests++;
+        else failedTests++;
+        
+        // Small delay between tests
+        await new Promise(resolve => setTimeout(resolve, 200));
+      } catch (error: any) {
+        console.error(`Error testing ${template.type}:`, error);
+        allResults.push({
+          emailType: template.type,
+          status: 'ERROR',
+          message: `Failed to test ${template.type}`,
+          error: error.message
+        });
+        totalTests++;
+        failedTests++;
+      }
     }
 
     // Test 2: Bulk email functionality
     console.log("📬 Testing bulk email functionality...");
-    const bulkResult = await testBulkEmailFunctionality();
-    allResults.push(bulkResult);
-    totalTests++;
-    if (bulkResult.status === 'SUCCESS') successfulTests++;
-    else failedTests++;
+    try {
+      const bulkResult = await testBulkEmailFunctionality();
+      allResults.push(bulkResult);
+      totalTests++;
+      if (bulkResult.status === 'SUCCESS') successfulTests++;
+      else failedTests++;
+    } catch (error: any) {
+      console.error("Error testing bulk email:", error);
+      allResults.push({
+        emailType: 'bulk_email_profiles',
+        status: 'ERROR',
+        message: 'Failed to test bulk email functionality',
+        error: error.message
+      });
+      totalTests++;
+      failedTests++;
+    }
 
     // Test 3: Vendor email functions
     console.log("🏢 Testing vendor email functions...");
-    const vendorResults = await testVendorEmailFunctions();
-    allResults.push(...vendorResults);
-    totalTests += vendorResults.length;
-    vendorResults.forEach(result => {
-      if (result.status === 'SUCCESS') successfulTests++;
-      else failedTests++;
-    });
+    try {
+      const vendorResults = await testVendorEmailFunctions();
+      allResults.push(...vendorResults);
+      totalTests += vendorResults.length;
+      vendorResults.forEach(result => {
+        if (result.status === 'SUCCESS') successfulTests++;
+        else failedTests++;
+      });
+    } catch (error: any) {
+      console.error("Error testing vendor emails:", error);
+      allResults.push({
+        emailType: 'vendor_email_functions',
+        status: 'ERROR',
+        message: 'Failed to test vendor email functions',
+        error: error.message
+      });
+      totalTests++;
+      failedTests++;
+    }
 
     // Test 4: Admin notification emails
     console.log("👨‍💼 Testing admin notification emails...");
-    const adminResult = await testAdminNotificationEmails();
-    allResults.push(adminResult);
-    totalTests++;
-    if (adminResult.status === 'SUCCESS') successfulTests++;
-    else failedTests++;
+    try {
+      const adminResult = await testAdminNotificationEmails();
+      allResults.push(adminResult);
+      totalTests++;
+      if (adminResult.status === 'SUCCESS') successfulTests++;
+      else failedTests++;
+    } catch (error: any) {
+      console.error("Error testing admin notifications:", error);
+      allResults.push({
+        emailType: 'admin_notifications',
+        status: 'ERROR',
+        message: 'Failed to test admin notification emails',
+        error: error.message
+      });
+      totalTests++;
+      failedTests++;
+    }
 
     // Generate comprehensive report
     const report = {

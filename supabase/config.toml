@@ -86,3 +86,6 @@ verify_jwt = false
 
 [functions.email-notification-listener]
 verify_jwt = false
+
+[functions.test-email-system]
+verify_jwt = false

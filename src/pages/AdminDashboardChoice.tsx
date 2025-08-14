@@ -5,7 +5,7 @@ import { useSEO } from '@/hooks/useSEO';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Users, Mail, TrendingUp, Package, ShoppingCart, CreditCard, BarChart3, Settings, ArrowRight } from 'lucide-react';
+import { Users, Mail, TrendingUp, Package, ShoppingCart, CreditCard, BarChart3, Settings, ArrowRight, Shield, FileText, Store } from 'lucide-react';
 
 const AdminDashboardChoice = () => {
   const { user, isAdmin, loading } = useAuth();
@@ -67,7 +67,7 @@ const AdminDashboardChoice = () => {
                 <h4 className="font-semibold text-gray-900 mb-3">Key Features:</h4>
                 <div className="grid grid-cols-1 gap-2">
                   <div className="flex items-center text-sm text-gray-600">
-                    <img src="/lovable-uploads/2108e82a-9d65-4ee6-b974-51aa5bc01a16.png" alt="" className="h-4 w-4 mr-2 object-contain" />
+                    <FileText className="h-4 w-4 mr-2 text-blue-600" />
                     Article submissions & approvals
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
@@ -75,16 +75,12 @@ const AdminDashboardChoice = () => {
                     Newsletter management
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
-                    <Users className="h-4 w-4 mr-2 text-blue-600" />
-                    User & subscriber management
-                  </div>
-                  <div className="flex items-center text-sm text-gray-600">
                     <TrendingUp className="h-4 w-4 mr-2 text-blue-600" />
-                    Analytics & reports
+                    Content analytics & reports
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Settings className="h-4 w-4 mr-2 text-blue-600" />
-                    Content & email customization
+                    Content customization
                   </div>
                 </div>
               </div>
@@ -117,8 +113,8 @@ const AdminDashboardChoice = () => {
                 <h4 className="font-semibold text-gray-900 mb-3">Key Features:</h4>
                 <div className="grid grid-cols-1 gap-2">
                   <div className="flex items-center text-sm text-gray-600">
-                    <img src="/lovable-uploads/25521c59-14bd-4565-990e-aa4d304aa849.png" alt="" className="h-4 w-4 mr-2 object-contain" />
-                    Vendor application management
+                    <Store className="h-4 w-4 mr-2 text-green-600" />
+                    Vendor application reviews
                   </div>
                   <div className="flex items-center text-sm text-gray-600">
                     <Package className="h-4 w-4 mr-2 text-green-600" />
@@ -151,26 +147,32 @@ const AdminDashboardChoice = () => {
           </Card>
         </div>
 
-        {/* Quick Links */}
-        <div className="text-center">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Access</h3>
-          <div className="flex flex-wrap justify-center gap-4">
-            <Link to="/admin/vendors">
-              <Button variant="outline" size="sm">
-                <Users className="h-4 w-4 mr-2" />
-                Vendor Management
+        {/* Quick Access - Shared Platform Features */}
+        <div className="bg-white rounded-lg border p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 mb-6 text-center">Quick Access - Shared Features</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <Link to="/admin/users" className="block">
+              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-blue-50">
+                <Users className="h-5 w-5" />
+                <span className="text-sm font-medium">User Management</span>
               </Button>
             </Link>
-            <Link to="/admin/analytics">
-              <Button variant="outline" size="sm">
-                <TrendingUp className="h-4 w-4 mr-2" />
-                Analytics
+            <Link to="/admin/emails" className="block">
+              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-blue-50">
+                <Mail className="h-5 w-5" />
+                <span className="text-sm font-medium">Email System</span>
               </Button>
             </Link>
-            <Link to="/admin/security">
-              <Button variant="outline" size="sm">
-                <Settings className="h-4 w-4 mr-2" />
-                Security Settings
+            <Link to="/admin/marketplace/vendors" className="block">
+              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-green-50">
+                <Store className="h-5 w-5" />
+                <span className="text-sm font-medium">Vendor Management</span>
+              </Button>
+            </Link>
+            <Link to="/admin/security" className="block">
+              <Button variant="outline" className="w-full h-16 flex flex-col gap-1 hover:bg-red-50">
+                <Shield className="h-5 w-5" />
+                <span className="text-sm font-medium">Security Settings</span>
               </Button>
             </Link>
           </div>

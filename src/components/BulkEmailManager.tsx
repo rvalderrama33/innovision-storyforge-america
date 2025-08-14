@@ -76,14 +76,28 @@ const BulkEmailManager: React.FC<BulkEmailManagerProps> = ({ users, onRefresh })
       // Send emails in batches to avoid overwhelming the system
       for (const user of selectedUsersData) {
         try {
+          // Build email body based on template type
+          let emailBody: any = {
+            type: selectedTemplate,
+            to: user.email,
+            name: user.full_name || 'User'
+          };
+
+          // Add specific parameters based on email type
+          if (selectedTemplate === 'featured_story_promotion') {
+            // For featured story promotion, we need submissionId and productName
+            // Since we don't have submission data in bulk email, we'll skip this template
+            console.warn('Featured story promotion emails should be sent individually, not in bulk');
+            errorCount++;
+            continue;
+          } else {
+            // For other templates, use generic subject and message
+            emailBody.subject = `Important Update from America Innovates`;
+            emailBody.message = `Hello ${user.full_name || 'there'}, we have an important update for you.`;
+          }
+
           const { error } = await supabase.functions.invoke('send-email', {
-            body: {
-              type: selectedTemplate,
-              to: user.email,
-              name: user.full_name || 'User',
-              subject: `Important Update from America Innovates`,
-              message: `Hello ${user.full_name || 'there'}, we have an important update for you.`
-            }
+            body: emailBody
           });
 
           if (error) {

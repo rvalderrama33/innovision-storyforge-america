@@ -251,7 +251,7 @@ const createRecommendationEmail = (name: string, recommenderName: string, email:
 };
 
 const createFeaturedStoryPromotionEmail = (name: string, productName: string, submissionId: string, email: string) => {
-  const upgradeUrl = `https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/stripe-payment?submission_id=${submissionId}&action=create-order`;
+  const upgradeUrl = `https://americainnovates.us/featured-upgrade?submission_id=${submissionId}&amount=5000`;
   
   const htmlContent = wrapEmailContent(`
     ${getEmailHeader('America Innovates Magazine', '🎉 Your Story Has Been Approved!')}

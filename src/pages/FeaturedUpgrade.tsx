@@ -8,6 +8,7 @@ import { Loader2, Star, TrendingUp, Users, Zap } from "lucide-react";
 import { toast } from "sonner";
 
 const FeaturedUpgrade = () => {
+  console.log("FeaturedUpgrade component mounted");
   const [searchParams] = useSearchParams();
   const [submission, setSubmission] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,8 @@ const FeaturedUpgrade = () => {
   
   const submissionId = searchParams.get("submission_id");
   const amount = searchParams.get("amount") || "5000";
+  
+  console.log("URL params:", { submissionId, amount });
 
   useEffect(() => {
     const fetchSubmission = async () => {

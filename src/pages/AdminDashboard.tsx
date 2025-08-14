@@ -946,7 +946,7 @@ const AdminDashboard = () => {
       case 'emails':
         return (
           <div className="space-y-6">
-            <EmailNotificationForm />
+            <BulkEmailManager users={users} onRefresh={fetchUsers} />
           </div>
         );
       case 'users':

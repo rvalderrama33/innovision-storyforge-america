@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Mail, Users, Send, CheckCircle2 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { EMAIL_TEMPLATES, EmailTemplate } from '@/lib/emailTemplates';
 
 interface User {
   id: string;
@@ -18,11 +19,6 @@ interface User {
   user_roles: Array<{ role: string }>;
 }
 
-interface EmailTemplate {
-  type: string;
-  name: string;
-  description: string;
-}
 
 interface BulkEmailManagerProps {
   users: User[];
@@ -36,34 +32,8 @@ const BulkEmailManager: React.FC<BulkEmailManagerProps> = ({ users, onRefresh })
   const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
 
-  // Available email templates - these will be automatically populated as new templates are added
-  const emailTemplates: EmailTemplate[] = [
-    {
-      type: 'welcome',
-      name: 'Welcome Email',
-      description: 'Welcome new users to the platform'
-    },
-    {
-      type: 'notification',
-      name: 'General Notification',
-      description: 'Send general notifications and updates'
-    },
-    {
-      type: 'approval',
-      name: 'Approval Notification',
-      description: 'Notify users about content approval'
-    },
-    {
-      type: 'featured',
-      name: 'Featured Story',
-      description: 'Notify users about featured content'
-    },
-    {
-      type: 'recommendation',
-      name: 'Recommendation Request',
-      description: 'Request recommendations from users'
-    }
-  ];
+  // All available email templates from centralized configuration
+  const emailTemplates = EMAIL_TEMPLATES;
 
   const handleSelectAll = () => {
     if (selectedUsers.length === users.length) {
@@ -289,6 +259,9 @@ const BulkEmailManager: React.FC<BulkEmailManagerProps> = ({ users, onRefresh })
                           <div>
                             <div className="font-medium">{template.name}</div>
                             <div className="text-xs text-muted-foreground">{template.description}</div>
+                            <Badge variant="outline" className="text-xs mt-1">
+                              {template.category}
+                            </Badge>
                           </div>
                         </SelectItem>
                       ))}

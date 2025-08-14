@@ -1143,7 +1143,7 @@ const AdminDashboard = () => {
               <Link to="/admin/recommendations">Recommendations</Link>
             </TabsTrigger>
             <TabsTrigger value="emails" asChild>
-              <Link to="/admin/emails">Email Templates</Link>
+              <Link to="/admin/emails">Email Manager</Link>
             </TabsTrigger>
             <TabsTrigger value="users" asChild>
               <Link to="/admin/users">Users</Link>

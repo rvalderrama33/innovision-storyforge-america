@@ -18,13 +18,13 @@
 # Explicitly serve static files before any SPA rewrites
 [[redirects]]
   from = "/ads.txt"
-  to = "/ads.txt"
+  to = "/.netlify/functions/ads-txt"
   status = 200
   force = true
 
 [[redirects]]
   from = "/robots.txt"
-  to = "/robots.txt"
+  to = "/.netlify/functions/robots-txt"
   status = 200
   force = true
 

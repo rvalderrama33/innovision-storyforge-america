@@ -16,18 +16,6 @@
     Cache-Control = "public, max-age=3600"
 
 # Explicitly serve static files before any SPA rewrites
-[[redirects]]
-  from = "/ads.txt"
-  to = "/ads.txt"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/robots.txt"
-  to = "/robots.txt"
-  status = 200
-  force = true
-
 # Redirect article URLs to Netlify function for meta tags
 [[redirects]]
   from = "/article/:slug"

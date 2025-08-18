@@ -2,6 +2,32 @@
   publish = "dist"
   command = "npm run build"
 
+# Ensure ads.txt and robots.txt are served as plain text from the site root
+[[headers]]
+  for = "/ads.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+[[headers]]
+  for = "/robots.txt"
+  [headers.values]
+    Content-Type = "text/plain; charset=utf-8"
+    Cache-Control = "public, max-age=3600"
+
+# Explicitly serve static files before any SPA rewrites
+[[redirects]]
+  from = "/ads.txt"
+  to = "/ads.txt"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/robots.txt"
+  to = "/robots.txt"
+  status = 200
+  force = true
+
 # Redirect article URLs to Netlify function for meta tags
 [[redirects]]
   from = "/article/:slug"
@@ -9,11 +35,7 @@
   status = 200
   force = true
 
-# SPA catch-all redirect
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+# SPA catch-all redirect (kept once)
 [[redirects]]
   from = "/*"
   to = "/index.html"

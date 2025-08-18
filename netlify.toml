@@ -2,17 +2,6 @@
   publish = "dist"
   command = "npm run build"
 
-# Allow static files to be served directly
-[[redirects]]
-  from = "/ads.txt"
-  to = "/ads.txt"
-  status = 200
-
-[[redirects]]
-  from = "/robots.txt"
-  to = "/robots.txt"
-  status = 200
-
 # Redirect article URLs to Netlify function for meta tags
 [[redirects]]
   from = "/article/:slug"

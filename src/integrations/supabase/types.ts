@@ -989,7 +989,7 @@ export type Database = {
           city?: string | null
           created_at?: string | null
           description?: string | null
-          display_name?: never
+          display_name?: string | null
           featured?: boolean | null
           generated_article?: string | null
           headshot_image?: string | null
@@ -1021,7 +1021,7 @@ export type Database = {
           city?: string | null
           created_at?: string | null
           description?: string | null
-          display_name?: never
+          display_name?: string | null
           featured?: boolean | null
           generated_article?: string | null
           headshot_image?: string | null

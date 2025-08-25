@@ -10,8 +10,9 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toast } from "sonner";
-import { CheckCircle, XCircle, Store, Calendar, User, Mail, Phone, Globe, MessageSquare, Clock, Eye, Trash2 } from 'lucide-react';
+import { CheckCircle, XCircle, Store, Calendar, User, Mail, Phone, Globe, MessageSquare, Clock, Eye, Trash2, UserPlus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { ManualVendorCreation } from './ManualVendorCreation';
 
 interface VendorApplication {
   id: string;
@@ -53,6 +54,7 @@ export const VendorManagement = () => {
   const [bulkResending, setBulkResending] = useState(false);
   const [bulkResendProgress, setBulkResendProgress] = useState({ sent: 0, total: 0 });
   const [deletingVendor, setDeletingVendor] = useState<string | null>(null);
+  const [showManualVendorDialog, setShowManualVendorDialog] = useState(false);
 
   const fetchApplications = async () => {
     try {
@@ -398,6 +400,14 @@ export const VendorManagement = () => {
             </div>
             <div className="flex gap-2">
               <Button
+                onClick={() => setShowManualVendorDialog(true)}
+                className="bg-green-600 hover:bg-green-700 text-white"
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                Create Vendor
+              </Button>
+              
+              <Button
                 onClick={bulkResendApprovalEmails}
                 disabled={bulkResending || stats.approved === 0}
                 variant="outline"
@@ -684,6 +694,13 @@ export const VendorManagement = () => {
           </Tabs>
         </CardContent>
       </Card>
+      
+      {/* Manual Vendor Creation Dialog */}
+      <ManualVendorCreation
+        open={showManualVendorDialog}
+        onOpenChange={setShowManualVendorDialog}
+        onSuccess={fetchApplications}
+      />
     </div>
   );
 };

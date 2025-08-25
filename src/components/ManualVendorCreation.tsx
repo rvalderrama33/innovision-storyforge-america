@@ -49,105 +49,29 @@ export const ManualVendorCreation = ({ open, onOpenChange, onSuccess }: ManualVe
     setIsSubmitting(true);
 
     try {
-      // First, check if a user exists with this email
-      let userId: string;
-      
-      const { data: existingProfile } = await supabase
-        .from('profiles')
-        .select('id, email')
-        .eq('email', data.contactEmail)
-        .single();
-
-      if (existingProfile) {
-        userId = existingProfile.id;
-        
-        // Check if this user already has a vendor application
-        const { data: existingApplication } = await supabase
-          .from('vendor_applications')
-          .select('id, status')
-          .eq('user_id', userId)
-          .single();
-
-        if (existingApplication) {
-          toast.error(`User already has a ${existingApplication.status} vendor application`);
-          return;
+      // Call the edge function to create the vendor
+      const { data: response, error } = await supabase.functions.invoke('create-vendor-manually', {
+        body: {
+          businessName: data.businessName,
+          contactEmail: data.contactEmail,
+          contactPhone: data.contactPhone,
+          website: data.website,
+          productTypes: data.productTypes,
+          shippingCountry: data.shippingCountry,
+          vendorBio: data.vendorBio,
         }
-      } else {
-        // Create a user account for this email
-        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-          email: data.contactEmail,
-          email_confirm: true,
-          user_metadata: {
-            full_name: data.businessName
-          }
-        });
+      });
 
-        if (authError) {
-          throw authError;
-        }
-
-        userId = authData.user.id;
+      if (error) {
+        throw error;
       }
 
-      // Create the vendor application
-      const { data: applicationData, error: applicationError } = await supabase
-        .from('vendor_applications')
-        .insert([
-          {
-            user_id: userId,
-            business_name: data.businessName,
-            contact_email: data.contactEmail,
-            contact_phone: data.contactPhone || null,
-            website: data.website || null,
-            product_types: data.productTypes,
-            shipping_country: data.shippingCountry || null,
-            vendor_bio: data.vendorBio || null,
-            status: 'approved'
-          }
-        ])
-        .select()
-        .single();
-
-      if (applicationError) {
-        throw applicationError;
+      if (response?.error) {
+        toast.error(response.error);
+        return;
       }
 
-      // Add vendor role
-      const { error: roleError } = await supabase
-        .from('user_roles')
-        .insert([
-          {
-            user_id: userId,
-            role: 'vendor'
-          }
-        ]);
-
-      if (roleError && roleError.code !== '23505') { // Ignore duplicate key error
-        throw roleError;
-      }
-
-      // Update profile with business name
-      await supabase
-        .from('profiles')
-        .upsert({
-          id: userId,
-          email: data.contactEmail,
-          full_name: data.businessName
-        });
-
-      // Send approval email
-      try {
-        await supabase.functions.invoke('send-vendor-approval', {
-          body: {
-            application: applicationData
-          }
-        });
-      } catch (emailError) {
-        console.error('Error sending approval email:', emailError);
-        // Don't fail the creation if email fails
-      }
-
-      toast.success(`Vendor "${data.businessName}" created and approved successfully!`);
+      toast.success(response?.message || `Vendor "${data.businessName}" created and approved successfully!`);
       form.reset();
       onOpenChange(false);
       onSuccess();

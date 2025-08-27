@@ -33,6 +33,39 @@ const SubmissionWizard = () => {
   const [savedDraftId, setSavedDraftId] = useState<string | null>(null);
   const draftTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
+  // Auto-save on tab switch/page unload
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      // Cancel any pending debounced save and save immediately
+      if (draftTimeoutRef.current) {
+        clearTimeout(draftTimeoutRef.current);
+      }
+      if (Object.keys(formData).length > 0) {
+        saveDraft(formData);
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.hidden && Object.keys(formData).length > 0) {
+        // Tab is being hidden - save immediately
+        if (draftTimeoutRef.current) {
+          clearTimeout(draftTimeoutRef.current);
+        }
+        saveDraft(formData);
+      }
+    };
+
+    // Add event listeners
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [formData]);
+
   // User-specific localStorage keys
   const getLocalStorageKey = (baseKey: string) => {
     return user?.id ? `${baseKey}_${user.id}` : `${baseKey}_anonymous`;
@@ -200,16 +233,33 @@ const SubmissionWizard = () => {
   const updateFormData = (stepData: any) => {
     const newData = { ...formData, ...stepData };
     setFormData(newData);
+    
+    // Save to localStorage immediately for instant persistence
+    const dataKey = getLocalStorageKey('submission_wizard_data');
+    localStorage.setItem(dataKey, JSON.stringify(newData));
+    
     // Debounced auto-save to prevent excessive database calls
     debouncedSaveDraft(newData);
   };
 
   const saveDraft = async (data: any) => {
+    // Don't try to save if there's no meaningful data
+    if (!data || Object.keys(data).length === 0) {
+      return;
+    }
+
     try {
       const { supabase } = await import("@/integrations/supabase/client");
       
       // Get the current authenticated user's email for RLS compliance
       const { data: { user } } = await supabase.auth.getUser();
+      
+      // Only save to database if user is authenticated
+      if (!user) {
+        console.log('User not authenticated, skipping database save');
+        return;
+      }
+      
       const submissionEmail = user?.email || data.email;
       
       if (savedDraftId) {
@@ -274,10 +324,14 @@ const SubmissionWizard = () => {
         
         if (!error && newDraft) {
           setSavedDraftId(newDraft.id);
+          console.log('Draft saved successfully');
+        } else if (error) {
+          console.error('Error creating draft:', error);
         }
       }
     } catch (error) {
       console.error('Error saving draft:', error);
+      // Don't show error toast as this is auto-save - user shouldn't be interrupted
     }
   };
 
@@ -361,7 +415,7 @@ const SubmissionWizard = () => {
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
             <p className="text-sm text-blue-800">
               ✓ Your progress is automatically saved locally and backed up to our servers.
-              {savedDraftId && " You can safely close your browser and return later."}
+              You can safely switch tabs, close your browser, or return later - your work won't be lost.
             </p>
             <button 
               onClick={clearLocalStorage}

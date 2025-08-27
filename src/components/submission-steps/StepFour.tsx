@@ -30,6 +30,19 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
     imageUrls: data.imageUrls || []
   });
 
+  useEffect(() => {
+    // Sync when parent data changes (restored draft)
+    setFormData(prev => ({
+      ...prev,
+      headshot: data.headshot || null,
+      productImages: data.productImages || [],
+      logo: data.logo || null,
+      lifestyleImages: data.lifestyleImages || [],
+      packagingImages: data.packagingImages || [],
+      imageUrls: data.imageUrls || []
+    }));
+  }, [data]);
+
   const validateForm = () => {
     // Required: headshot and productImages
     const hasHeadshot = formData.headshot !== null;

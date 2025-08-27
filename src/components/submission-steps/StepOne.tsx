@@ -24,6 +24,21 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
     socialMedia: data.socialMedia || ""
   });
 
+  useEffect(() => {
+    // Sync local state when parent data changes (e.g., after restoring from localStorage)
+    setFormData(prev => ({
+      ...prev,
+      fullName: data.fullName || "",
+      city: data.city || "",
+      state: data.state || "",
+      email: data.email || "",
+      phoneNumber: data.phoneNumber || "",
+      background: data.background || "",
+      website: data.website || "",
+      socialMedia: data.socialMedia || ""
+    }));
+  }, [data]);
+
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   // Use useCallback to prevent onUpdate from changing on every render

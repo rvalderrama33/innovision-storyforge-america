@@ -17,6 +17,16 @@ const StepThree = ({ data, onUpdate, onValidationChange }: StepThreeProps) => {
     motivation: data.motivation || ""
   });
 
+  useEffect(() => {
+    // Sync when parent data changes (restored draft)
+    setFormData(prev => ({
+      ...prev,
+      ideaOrigin: data.ideaOrigin || "",
+      biggestChallenge: data.biggestChallenge || "",
+      motivation: data.motivation || ""
+    }));
+  }, [data]);
+
   const validateForm = () => {
     const requiredFields = ['ideaOrigin', 'biggestChallenge', 'motivation'];
     const isValid = requiredFields.every(field => 

@@ -21,6 +21,18 @@ const StepTwo = ({ data, onUpdate, onValidationChange }: StepTwoProps) => {
     category: data.category || ""
   });
 
+  useEffect(() => {
+    // Sync when parent data changes (restored draft)
+    setFormData(prev => ({
+      ...prev,
+      productName: data.productName || "",
+      description: data.description || "",
+      problemSolved: data.problemSolved || "",
+      stage: data.stage || "",
+      category: data.category || ""
+    }));
+  }, [data]);
+
   const validateForm = () => {
     const requiredFields = ['productName', 'category', 'description', 'problemSolved', 'stage'];
     const isValid = requiredFields.every(field => 

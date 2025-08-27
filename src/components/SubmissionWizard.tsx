@@ -31,6 +31,7 @@ const SubmissionWizard = () => {
   const [formData, setFormData] = useState<FormData>({});
   const [stepValidations, setStepValidations] = useState<Record<number, boolean>>({});
   const [savedDraftId, setSavedDraftId] = useState<string | null>(null);
+  const [hydrated, setHydrated] = useState(false);
   const draftTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Auto-save on tab switch/page unload
@@ -119,21 +120,26 @@ const SubmissionWizard = () => {
     } else {
       setCurrentStep(1);
     }
+
+    // Mark hydration complete to avoid overwriting restored data
+    setHydrated(true);
   }, [user?.id]); // Re-run when user changes
 
   // Save data to localStorage whenever form data changes
   useEffect(() => {
-    if (Object.keys(formData).length > 0) {
+    if (hydrated && Object.keys(formData).length > 0) {
       const dataKey = getLocalStorageKey('submission_wizard_data');
       localStorage.setItem(dataKey, JSON.stringify(formData));
     }
-  }, [formData, user?.id]);
+  }, [formData, user?.id, hydrated]);
 
   // Save current step to localStorage
   useEffect(() => {
-    const stepKey = getLocalStorageKey('submission_wizard_step');
-    localStorage.setItem(stepKey, currentStep.toString());
-  }, [currentStep, user?.id]);
+    if (hydrated) {
+      const stepKey = getLocalStorageKey('submission_wizard_step');
+      localStorage.setItem(stepKey, currentStep.toString());
+    }
+  }, [currentStep, user?.id, hydrated]);
 
   // Clear localStorage when submission is complete
   const clearLocalStorage = () => {
@@ -234,12 +240,13 @@ const SubmissionWizard = () => {
     const newData = { ...formData, ...stepData };
     setFormData(newData);
     
-    // Save to localStorage immediately for instant persistence
-    const dataKey = getLocalStorageKey('submission_wizard_data');
-    localStorage.setItem(dataKey, JSON.stringify(newData));
-    
-    // Debounced auto-save to prevent excessive database calls
-    debouncedSaveDraft(newData);
+    // Save to localStorage immediately for instant persistence (after hydration)
+    if (hydrated) {
+      const dataKey = getLocalStorageKey('submission_wizard_data');
+      localStorage.setItem(dataKey, JSON.stringify(newData));
+      // Debounced auto-save to prevent excessive database calls
+      debouncedSaveDraft(newData);
+    }
   };
 
   const saveDraft = async (data: any) => {

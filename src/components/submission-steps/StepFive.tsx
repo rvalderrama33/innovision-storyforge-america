@@ -26,6 +26,11 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
     data.recommendations || [{ name: "", email: "", reason: "" }]
   );
   
+  useEffect(() => {
+    // Sync when parent data changes (restored draft)
+    setRecommendations(data.recommendations || [{ name: "", email: "", reason: "" }]);
+  }, [data.recommendations]);
+  
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
   const validateForm = () => {

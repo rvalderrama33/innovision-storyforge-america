@@ -240,11 +240,13 @@ const SubmissionWizard = () => {
     const newData = { ...formData, ...stepData };
     setFormData(newData);
     
-    // Save to localStorage immediately for instant persistence (after hydration)
+    // Always save to localStorage for instant persistence
+    // Only skip database save during initial hydration
+    const dataKey = getLocalStorageKey('submission_wizard_data');
+    localStorage.setItem(dataKey, JSON.stringify(newData));
+    
+    // Only skip database auto-save during initial hydration
     if (hydrated) {
-      const dataKey = getLocalStorageKey('submission_wizard_data');
-      localStorage.setItem(dataKey, JSON.stringify(newData));
-      // Debounced auto-save to prevent excessive database calls
       debouncedSaveDraft(newData);
     }
   };

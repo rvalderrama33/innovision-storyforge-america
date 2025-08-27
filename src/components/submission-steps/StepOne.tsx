@@ -24,10 +24,12 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
     socialMedia: data.socialMedia || ""
   });
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
   useEffect(() => {
     // Sync local state when parent data changes (e.g., after restoring from localStorage)
-    setFormData(prev => ({
-      ...prev,
+    setIsSyncing(true);
+    setFormData({
       fullName: data.fullName || "",
       city: data.city || "",
       state: data.state || "",
@@ -36,13 +38,11 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
       background: data.background || "",
       website: data.website || "",
       socialMedia: data.socialMedia || ""
-    }));
+    });
+    setIsSyncing(false);
   }, [data]);
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-
-  // Use useCallback to prevent onUpdate from changing on every render
-  const stableOnUpdate = useCallback(onUpdate, [onUpdate]);
 
   const validateForm = useCallback(() => {
     const requiredFields = ['fullName', 'email', 'phoneNumber', 'city', 'state', 'background'];
@@ -68,9 +68,12 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
   };
 
   useEffect(() => {
-    stableOnUpdate(formData);
-    validateForm();
-  }, [formData, stableOnUpdate, validateForm]);
+    // Only update parent when not syncing from parent
+    if (!isSyncing) {
+      onUpdate(formData);
+      validateForm();
+    }
+  }, [formData, onUpdate, validateForm, isSyncing]);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));

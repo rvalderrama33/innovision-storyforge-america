@@ -30,8 +30,11 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
     imageUrls: data.imageUrls || []
   });
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
   useEffect(() => {
     // Sync when parent data changes (restored draft)
+    setIsSyncing(true);
     setFormData(prev => ({
       ...prev,
       headshot: data.headshot || null,
@@ -41,6 +44,7 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
       packagingImages: data.packagingImages || [],
       imageUrls: data.imageUrls || []
     }));
+    setIsSyncing(false);
   }, [data]);
 
   const validateForm = () => {
@@ -53,9 +57,12 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
   };
 
   useEffect(() => {
-    onUpdate(formData);
-    validateForm();
-  }, [formData, onUpdate]);
+    // Only update parent when not syncing from parent
+    if (!isSyncing) {
+      onUpdate(formData);
+      validateForm();
+    }
+  }, [formData, onUpdate, isSyncing]);
 
   const uploadAreas = [
     {

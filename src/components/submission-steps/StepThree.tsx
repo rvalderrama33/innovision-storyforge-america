@@ -17,14 +17,17 @@ const StepThree = ({ data, onUpdate, onValidationChange }: StepThreeProps) => {
     motivation: data.motivation || ""
   });
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
   useEffect(() => {
     // Sync when parent data changes (restored draft)
-    setFormData(prev => ({
-      ...prev,
+    setIsSyncing(true);
+    setFormData({
       ideaOrigin: data.ideaOrigin || "",
       biggestChallenge: data.biggestChallenge || "",
       motivation: data.motivation || ""
-    }));
+    });
+    setIsSyncing(false);
   }, [data]);
 
   const validateForm = () => {
@@ -37,9 +40,12 @@ const StepThree = ({ data, onUpdate, onValidationChange }: StepThreeProps) => {
   };
 
   useEffect(() => {
-    onUpdate(formData);
-    validateForm();
-  }, [formData, onUpdate]);
+    // Only update parent when not syncing from parent
+    if (!isSyncing) {
+      onUpdate(formData);
+      validateForm();
+    }
+  }, [formData, onUpdate, isSyncing]);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));

@@ -21,16 +21,19 @@ const StepTwo = ({ data, onUpdate, onValidationChange }: StepTwoProps) => {
     category: data.category || ""
   });
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
   useEffect(() => {
     // Sync when parent data changes (restored draft)
-    setFormData(prev => ({
-      ...prev,
+    setIsSyncing(true);
+    setFormData({
       productName: data.productName || "",
       description: data.description || "",
       problemSolved: data.problemSolved || "",
       stage: data.stage || "",
       category: data.category || ""
-    }));
+    });
+    setIsSyncing(false);
   }, [data]);
 
   const validateForm = () => {
@@ -43,9 +46,12 @@ const StepTwo = ({ data, onUpdate, onValidationChange }: StepTwoProps) => {
   };
 
   useEffect(() => {
-    onUpdate(formData);
-    validateForm();
-  }, [formData, onUpdate]);
+    // Only update parent when not syncing from parent
+    if (!isSyncing) {
+      onUpdate(formData);
+      validateForm();
+    }
+  }, [formData, onUpdate, isSyncing]);
 
   const handleChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));

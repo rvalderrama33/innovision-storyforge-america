@@ -26,9 +26,13 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
     data.recommendations || [{ name: "", email: "", reason: "" }]
   );
   
+  const [isSyncing, setIsSyncing] = useState(false);
+
   useEffect(() => {
     // Sync when parent data changes (restored draft)
+    setIsSyncing(true);
     setRecommendations(data.recommendations || [{ name: "", email: "", reason: "" }]);
+    setIsSyncing(false);
   }, [data.recommendations]);
   
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
@@ -54,9 +58,12 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
   };
 
   useEffect(() => {
-    onUpdate({ recommendations });
-    validateForm();
-  }, [recommendations, onUpdate]);
+    // Only update parent when not syncing from parent
+    if (!isSyncing) {
+      onUpdate({ recommendations });
+      validateForm();
+    }
+  }, [recommendations, onUpdate, isSyncing]);
 
   const addRecommendation = () => {
     setRecommendations([...recommendations, { name: "", email: "", reason: "" }]);

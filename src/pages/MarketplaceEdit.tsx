@@ -79,12 +79,15 @@ const MarketplaceEdit = () => {
       if (!id || !user?.id) return;
 
       try {
-        const { data, error } = await supabase
+        // Admins can edit any product; vendors can only edit their own
+        let query = supabase
           .from('marketplace_products')
           .select('*')
-          .eq('id', id)
-          .eq('vendor_id', user.id) // Ensure user can only edit their own products
-          .maybeSingle();
+          .eq('id', id);
+        if (!isAdmin) {
+          query = query.eq('vendor_id', user.id);
+        }
+        const { data, error } = await query.maybeSingle();
 
         if (error) throw error;
 
@@ -133,7 +136,7 @@ const MarketplaceEdit = () => {
     };
 
     fetchProduct();
-  }, [id, user?.id, navigate, toast]);
+  }, [id, user?.id, isAdmin, navigate, toast]);
 
   // NOW WE CAN HAVE CONDITIONAL RETURNS
   if (configLoading) {
@@ -380,7 +383,8 @@ const MarketplaceEdit = () => {
     try {
       const priceInCents = Math.round(parseFloat(formData.price) * 100);
 
-      const { error } = await supabase
+      // Admins can update any product; vendors restricted to their own
+      let updateQuery = supabase
         .from('marketplace_products')
         .update({
           name: formData.name,
@@ -402,8 +406,11 @@ const MarketplaceEdit = () => {
           affiliate_url: formData.isAffiliate ? formData.affiliateUrl : null,
           affiliate_price: formData.isAffiliate ? formData.affiliatePrice : null
         })
-        .eq('id', id)
-        .eq('vendor_id', user.id); // Ensure user can only update their own products
+        .eq('id', id);
+      if (!isAdmin) {
+        updateQuery = updateQuery.eq('vendor_id', user.id);
+      }
+      const { error } = await updateQuery;
 
       if (error) throw error;
 

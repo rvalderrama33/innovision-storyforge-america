@@ -64,6 +64,7 @@ const MarketplaceProduct = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [newReview, setNewReview] = useState({ rating: 5, title: '', content: '' });
+  const [vendorName, setVendorName] = useState<string | null>(null);
   const { toast } = useToast();
 
   // Always call useSEO hook before any early returns
@@ -93,6 +94,20 @@ const MarketplaceProduct = () => {
 
         if (productError) throw productError;
         setProduct(productData);
+
+        // Fetch vendor information if product exists
+        if (productData?.vendor_id) {
+          const { data: vendorData, error: vendorError } = await supabase
+            .from('vendor_applications')
+            .select('business_name')
+            .eq('user_id', productData.vendor_id)
+            .eq('status', 'approved')
+            .maybeSingle();
+
+          if (!vendorError && vendorData) {
+            setVendorName(vendorData.business_name);
+          }
+        }
         
         // Set the initial selected image to the primary image
         if (productData && productData.images && productData.images.length > 0) {
@@ -363,13 +378,20 @@ const MarketplaceProduct = () => {
                 <Badge variant="outline" className="mb-4">{product.category}</Badge>
               )}
               
-              <div className="flex items-center gap-2 mb-4">
-                <span className="text-3xl font-bold text-primary">
+              <div className="space-y-2 mb-4">
+                <span className="text-3xl font-bold text-primary block">
                   {product.is_affiliate && product.affiliate_price 
                     ? product.affiliate_price 
                     : formatPrice(product.price, product.currency)
                   }
                 </span>
+                
+                {vendorName && (
+                  <p className="text-muted-foreground text-sm">
+                    Sold by <span className="font-medium text-foreground">{vendorName}</span>
+                  </p>
+                )}
+                
                 {!product.is_affiliate && (
                   <div className="flex items-center gap-1">
                     <Package className="h-4 w-4 text-muted-foreground" />

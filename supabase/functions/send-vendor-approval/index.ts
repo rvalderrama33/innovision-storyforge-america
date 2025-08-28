@@ -49,7 +49,7 @@ const handler = async (req: Request): Promise<Response> => {
         </div>
         
         <div style="text-align: center; margin: 30px 0;">
-          <a href="https://americainnovates.us/vendor-dashboard" 
+          <a href="https://americainnovates.us/vendor/dashboard" 
              style="background-color: #000000; color: white; padding: 15px 30px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block;">
             Access Your Vendor Dashboard
           </a>

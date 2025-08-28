@@ -7,6 +7,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SearchDialog from "@/components/SearchDialog";
 import { BecomeVendorButton } from "@/components/BecomeVendorButton";
+import CartIcon from "@/components/CartIcon";
 
 const LogoComponent = ({ isMobile = false, isMarketplace = false }: { isMobile?: boolean; isMarketplace?: boolean }) => {
   const [imageError, setImageError] = useState(false);
@@ -191,6 +192,7 @@ const Header = () => {
           
           <div className="flex flex-col items-end space-y-2">
             <div className="flex items-center space-x-4">
+              <CartIcon />
               {user ? (
                 <div className="flex items-center space-x-4">
                   <span className="text-sm text-gray-700">

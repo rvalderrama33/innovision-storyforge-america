@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { CartProvider } from "@/contexts/CartContext";
 import { initializeCSRF } from "@/lib/csrf";
 import { initializeSessionSecurity, monitorSession } from "@/lib/sessionSecurity";
 import { useEffect, lazy, Suspense } from "react";
@@ -39,6 +40,9 @@ const MarketplaceManage = lazy(() => import("./pages/MarketplaceManage"));
 const MarketplaceEdit = lazy(() => import("./pages/MarketplaceEdit"));
 const MarketplaceOrders = lazy(() => import("./pages/MarketplaceOrders"));
 const VendorDashboard = lazy(() => import("./pages/VendorDashboard"));
+const Cart = lazy(() => import("./pages/Cart"));
+const Checkout = lazy(() => import("./pages/Checkout"));
+const PaymentSuccessMarketplace = lazy(() => import("./pages/PaymentSuccessMarketplace"));
 
 import SecurityAudit from "./components/SecurityAudit";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -60,7 +64,8 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <AuthProvider>
-        <SecurityInitializer>
+        <CartProvider>
+          <SecurityInitializer>
         <Toaster />
         <Sonner />
         <BrowserRouter>
@@ -82,6 +87,11 @@ const App = () => (
             <Route path="/privacy-policy" element={<PrivacyPolicy />} />
             <Route path="/terms-of-service" element={<TermsOfService />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
+            <Route path="/marketplace-payment-success" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <PaymentSuccessMarketplace />
+              </Suspense>
+            } />
             <Route path="/payment-cancelled" element={<PaymentCancelled />} />
             <Route path="/featured-upgrade" element={<FeaturedUpgrade />} />
             
@@ -121,6 +131,16 @@ const App = () => (
                 <VendorDashboard />
               </Suspense>
             } />
+            <Route path="/cart" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <Cart />
+              </Suspense>
+            } />
+            <Route path="/checkout" element={
+              <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div></div>}>
+                <Checkout />
+              </Suspense>
+            } />
             
             <Route path="/security-audit" element={<ProtectedRoute><SecurityAudit /></ProtectedRoute>} />
             <Route path="/test-openai" element={<TestOpenAI />} />
@@ -130,6 +150,7 @@ const App = () => (
           </Routes>
         </BrowserRouter>
         </SecurityInitializer>
+        </CartProvider>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

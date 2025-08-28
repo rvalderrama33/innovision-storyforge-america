@@ -13,6 +13,7 @@ import { useMarketplaceConfig } from "@/hooks/useMarketplaceConfig";
 import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Star, ShoppingCart, Package, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useCart } from "@/contexts/CartContext";
 import MediaGallery from "@/components/MediaGallery";
 
 interface MarketplaceProduct {
@@ -66,6 +67,7 @@ const MarketplaceProduct = () => {
   const [newReview, setNewReview] = useState({ rating: 5, title: '', content: '' });
   const [vendorName, setVendorName] = useState<string | null>(null);
   const { toast } = useToast();
+  const { addToCart } = useCart();
 
   // Always call useSEO hook before any early returns
   useSEO({
@@ -438,7 +440,12 @@ const MarketplaceProduct = () => {
                   Buy Now
                 </Button>
               ) : (
-                <Button size="lg" className="w-full" disabled={product.stock_quantity === 0}>
+                <Button 
+                  size="lg" 
+                  className="w-full" 
+                  disabled={product.stock_quantity === 0}
+                  onClick={() => addToCart(product.id)}
+                >
                   <ShoppingCart className="mr-2 h-5 w-5" />
                   {product.stock_quantity === 0 ? 'Out of Stock' : 'Add to Cart'}
                 </Button>

@@ -476,6 +476,14 @@ const Article = () => {
                 img !== article?.logo_image
               ) || [];
               
+              // For Mabrisa Rodrigues' UR Live story, prioritize her image to appear higher
+              const marisaImage = availableImages.find(img => img.includes('0.6836726064516103.jpg'));
+              if (marisaImage && article.slug === 'empowering-women-in-broadcasting-the-urlive-revolution') {
+                // Move Marisa's image to the front so it appears higher in the article
+                const otherImages = availableImages.filter(img => !img.includes('0.6836726064516103.jpg'));
+                availableImages.splice(0, availableImages.length, marisaImage, ...otherImages);
+              }
+              
               if (availableImages.length === 0) {
                 return (
                   <div 
@@ -529,19 +537,40 @@ const Article = () => {
                   // Add image
                   if (imageIndex < availableImages.length) {
                     const imageUrl = availableImages[imageIndex];
-                    const float = imageIndex % 2 === 0 ? 'left' : 'right';
                     const formattedUrl = formatImageUrl(imageUrl);
                     const altText = getImageAltText(imageUrl, article.product_name);
                     
-                    contentParts.push(
-                      <img 
-                        key={`image-${imageIndex}`}
-                        src={formattedUrl} 
-                        alt={altText}
-                        className={`float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm rounded-lg shadow-md w-full h-auto object-cover`}
-                        style={{ maxHeight: '300px' }}
-                      />
-                    );
+                    // Special handling for Mabrisa Rodrigues' UR Live story image
+                    const isMarisaImage = imageUrl.includes('0.6836726064516103.jpg');
+                    
+                    if (isMarisaImage) {
+                      // Center this image and make it more prominent to show her face
+                      contentParts.push(
+                        <div key={`image-${imageIndex}`} className="flex justify-center my-8">
+                          <img 
+                            src={formattedUrl} 
+                            alt={altText}
+                            className="rounded-lg shadow-lg w-full max-w-md h-auto object-cover"
+                            style={{ 
+                              maxHeight: '400px',
+                              objectPosition: 'center 30%' // Position to show face better
+                            }}
+                          />
+                        </div>
+                      );
+                    } else {
+                      // Regular floating images for other images
+                      const float = imageIndex % 2 === 0 ? 'left' : 'right';
+                      contentParts.push(
+                        <img 
+                          key={`image-${imageIndex}`}
+                          src={formattedUrl} 
+                          alt={altText}
+                          className={`float-${float} ${float === 'left' ? 'mr-6 mb-4' : 'ml-6 mb-4'} max-w-sm rounded-lg shadow-md w-full h-auto object-cover`}
+                          style={{ maxHeight: '300px' }}
+                        />
+                      );
+                    }
                     imageIndex++;
                   }
                 }

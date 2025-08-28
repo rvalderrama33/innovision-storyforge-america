@@ -310,6 +310,34 @@ export const VendorManagement = () => {
     }
   };
 
+  const handleDeleteRejectedApplication = async (applicationId: string, businessName: string) => {
+    try {
+      console.log('Starting rejected application deletion:', { applicationId, businessName });
+      setDeletingVendor(applicationId);
+      
+      // Simply delete the rejected application record
+      const { error } = await supabase
+        .from('vendor_applications')
+        .delete()
+        .eq('id', applicationId)
+        .eq('status', 'rejected');
+
+      if (error) {
+        console.error('Error deleting rejected application:', error);
+        throw error;
+      }
+
+      toast.success(`Rejected application for "${businessName}" has been deleted successfully`);
+      console.log('Rejected application deletion completed successfully');
+      fetchApplications();
+    } catch (error) {
+      console.error('Error deleting rejected application:', error);
+      toast.error(`Failed to delete rejected application: ${error.message || 'Unknown error'}`);
+    } finally {
+      setDeletingVendor(null);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending':
@@ -682,6 +710,44 @@ export const VendorManagement = () => {
                                           className="bg-red-600 hover:bg-red-700"
                                         >
                                           Remove Vendor Access
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                )}
+                                
+                                {application.status === 'rejected' && (
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button 
+                                        variant="outline" 
+                                        size="sm" 
+                                        className="text-red-600 border-red-600 hover:bg-red-50"
+                                        disabled={deletingVendor === application.id}
+                                      >
+                                        {deletingVendor === application.id ? (
+                                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-600 mr-1"></div>
+                                        ) : (
+                                          <Trash2 className="h-4 w-4 mr-1" />
+                                        )}
+                                        Delete
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Delete Rejected Application</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          This will permanently delete {application.business_name}'s rejected vendor application. 
+                                          This action cannot be undone.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() => handleDeleteRejectedApplication(application.id, application.business_name)}
+                                          className="bg-red-600 hover:bg-red-700"
+                                        >
+                                          Delete Application
                                         </AlertDialogAction>
                                       </AlertDialogFooter>
                                     </AlertDialogContent>

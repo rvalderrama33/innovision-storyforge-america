@@ -442,6 +442,37 @@ const MarketplaceOrders = () => {
                                       </div>
                                     </div>
                                     
+                                    {selectedOrder.status === 'pending' && (
+                                      <div className="space-y-4 border-t pt-4">
+                                        <h3 className="font-semibold">Process Order</h3>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                          <Button
+                                            onClick={() => updateOrderStatus(selectedOrder.id, 'confirmed')}
+                                            disabled={updatingOrder}
+                                          >
+                                            {updatingOrder ? "Updating..." : "Confirm Order"}
+                                          </Button>
+                                          <div className="space-y-2">
+                                            <Label htmlFor="tracking-pending">Tracking Number (optional)</Label>
+                                            <Input
+                                              id="tracking-pending"
+                                              value={trackingNumber}
+                                              onChange={(e) => setTrackingNumber(e.target.value)}
+                                              placeholder="Enter tracking number"
+                                            />
+                                            <Button
+                                              onClick={() => updateOrderStatus(selectedOrder.id, 'shipped', trackingNumber)}
+                                              disabled={updatingOrder || !trackingNumber.trim()}
+                                              variant="outline"
+                                              className="w-full"
+                                            >
+                                              {updatingOrder ? "Updating..." : "Ship Now"}
+                                            </Button>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    )}
+
                                     {selectedOrder.status === 'confirmed' && (
                                       <div className="space-y-4 border-t pt-4">
                                         <h3 className="font-semibold">Ship Order</h3>
@@ -465,25 +496,36 @@ const MarketplaceOrders = () => {
                                       </div>
                                     )}
 
-                                    {selectedOrder.status === 'shipped' && selectedOrder.tracking_number && (
-                                      <div className="space-y-2 border-t pt-4">
-                                        <Label>Current Tracking Number</Label>
-                                        <p className="text-sm">{selectedOrder.tracking_number}</p>
-                                        <div>
-                                          <Label htmlFor="new-tracking">Update Tracking Number</Label>
-                                          <Input
-                                            id="new-tracking"
-                                            value={trackingNumber}
-                                            onChange={(e) => setTrackingNumber(e.target.value)}
-                                            placeholder="Enter new tracking number"
-                                          />
-                                        </div>
+                                    {selectedOrder.status === 'shipped' && (
+                                      <div className="space-y-4 border-t pt-4">
+                                        {selectedOrder.tracking_number && (
+                                          <div className="space-y-2">
+                                            <Label>Current Tracking Number</Label>
+                                            <p className="text-sm">{selectedOrder.tracking_number}</p>
+                                            <div>
+                                              <Label htmlFor="new-tracking">Update Tracking Number</Label>
+                                              <Input
+                                                id="new-tracking"
+                                                value={trackingNumber}
+                                                onChange={(e) => setTrackingNumber(e.target.value)}
+                                                placeholder="Enter new tracking number"
+                                              />
+                                            </div>
+                                            <Button
+                                              onClick={() => updateOrderStatus(selectedOrder.id, 'shipped', trackingNumber)}
+                                              disabled={updatingOrder || !trackingNumber.trim()}
+                                              variant="outline"
+                                            >
+                                              {updatingOrder ? "Updating..." : "Update Tracking"}
+                                            </Button>
+                                          </div>
+                                        )}
                                         <Button
-                                          onClick={() => updateOrderStatus(selectedOrder.id, 'shipped', trackingNumber)}
-                                          disabled={updatingOrder || !trackingNumber.trim()}
-                                          variant="outline"
+                                          onClick={() => updateOrderStatus(selectedOrder.id, 'delivered')}
+                                          disabled={updatingOrder}
+                                          className="w-full"
                                         >
-                                          {updatingOrder ? "Updating..." : "Update Tracking"}
+                                          {updatingOrder ? "Updating..." : "Mark as Delivered"}
                                         </Button>
                                       </div>
                                     )}

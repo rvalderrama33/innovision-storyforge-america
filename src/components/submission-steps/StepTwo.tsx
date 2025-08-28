@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -13,36 +13,16 @@ interface StepTwoProps {
 }
 
 const StepTwo = ({ data, onUpdate, onValidationChange }: StepTwoProps) => {
-  const [formData, setFormData] = useState({
+  const formData = {
     productName: data.productName || "",
     description: data.description || "",
     problemSolved: data.problemSolved || "",
     stage: data.stage || "",
     category: data.category || ""
-  });
+  };
 
-  const [isSyncing, setIsSyncing] = useState(false);
+  
 
-  useEffect(() => {
-    // Sync when parent data changes (restored draft)
-    const next = {
-      productName: data.productName || "",
-      description: data.description || "",
-      problemSolved: data.problemSolved || "",
-      stage: data.stage || "",
-      category: data.category || ""
-    };
-
-    const isDifferent = Object.keys(next).some(
-      (k) => (next as any)[k] !== (formData as any)[k]
-    );
-
-    if (isDifferent) {
-      setIsSyncing(true);
-      setFormData(next);
-      setTimeout(() => setIsSyncing(false), 0);
-    }
-  }, [data]);
 
   const validateForm = () => {
     const requiredFields = ['productName', 'category', 'description', 'problemSolved', 'stage'];
@@ -54,15 +34,17 @@ const StepTwo = ({ data, onUpdate, onValidationChange }: StepTwoProps) => {
   };
 
   useEffect(() => {
-    // Only update parent when not syncing from parent
-    if (!isSyncing) {
-      onUpdate(formData);
-      validateForm();
-    }
-  }, [formData, onUpdate, isSyncing]);
+    validateForm();
+  }, [
+    data.productName,
+    data.category,
+    data.description,
+    data.problemSolved,
+    data.stage
+  ]);
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    onUpdate({ [field]: value });
   };
 
   return (

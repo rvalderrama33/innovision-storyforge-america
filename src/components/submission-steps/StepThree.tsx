@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
@@ -11,32 +11,14 @@ interface StepThreeProps {
 }
 
 const StepThree = ({ data, onUpdate, onValidationChange }: StepThreeProps) => {
-  const [formData, setFormData] = useState({
+  const formData = {
     ideaOrigin: data.ideaOrigin || "",
     biggestChallenge: data.biggestChallenge || "",
     motivation: data.motivation || ""
-  });
+  };
 
-  const [isSyncing, setIsSyncing] = useState(false);
+  
 
-  useEffect(() => {
-    // Sync when parent data changes (restored draft)
-    const next = {
-      ideaOrigin: data.ideaOrigin || "",
-      biggestChallenge: data.biggestChallenge || "",
-      motivation: data.motivation || ""
-    };
-
-    const isDifferent = Object.keys(next).some(
-      (k) => (next as any)[k] !== (formData as any)[k]
-    );
-
-    if (isDifferent) {
-      setIsSyncing(true);
-      setFormData(next);
-      setTimeout(() => setIsSyncing(false), 0);
-    }
-  }, [data]);
 
   const validateForm = () => {
     const requiredFields = ['ideaOrigin', 'biggestChallenge', 'motivation'];
@@ -48,15 +30,15 @@ const StepThree = ({ data, onUpdate, onValidationChange }: StepThreeProps) => {
   };
 
   useEffect(() => {
-    // Only update parent when not syncing from parent
-    if (!isSyncing) {
-      onUpdate(formData);
-      validateForm();
-    }
-  }, [formData, onUpdate, isSyncing]);
+    validateForm();
+  }, [
+    data.ideaOrigin,
+    data.biggestChallenge,
+    data.motivation
+  ]);
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    onUpdate({ [field]: value });
   };
 
   const questions = [

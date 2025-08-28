@@ -13,7 +13,7 @@ interface StepOneProps {
 }
 
 const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
-  const [formData, setFormData] = useState({
+  const formData = {
     fullName: data.fullName || "",
     city: data.city || "",
     state: data.state || "",
@@ -22,34 +22,10 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
     background: data.background || "",
     website: data.website || "",
     socialMedia: data.socialMedia || ""
-  });
+  };
 
-  const [isSyncing, setIsSyncing] = useState(false);
+  
 
-  useEffect(() => {
-    // Sync local state when parent data changes (e.g., after restoring from localStorage)
-    const next = {
-      fullName: data.fullName || "",
-      city: data.city || "",
-      state: data.state || "",
-      email: data.email || "",
-      phoneNumber: data.phoneNumber || "",
-      background: data.background || "",
-      website: data.website || "",
-      socialMedia: data.socialMedia || ""
-    };
-
-    const isDifferent = Object.keys(next).some(
-      (k) => (next as any)[k] !== (formData as any)[k]
-    );
-
-    if (isDifferent) {
-      setIsSyncing(true);
-      setFormData(next);
-      // Defer turning off syncing to next tick to avoid echo updates
-      setTimeout(() => setIsSyncing(false), 0);
-    }
-  }, [data]);
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -77,15 +53,20 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
   };
 
   useEffect(() => {
-    // Only update parent when not syncing from parent
-    if (!isSyncing) {
-      onUpdate(formData);
-      validateForm();
-    }
-  }, [formData, onUpdate, validateForm, isSyncing]);
+    validateForm();
+  }, [
+    data.fullName,
+    data.email,
+    data.phoneNumber,
+    data.city,
+    data.state,
+    data.background,
+    validationErrors,
+    validateForm
+  ]);
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    onUpdate({ [field]: value });
   };
 
   return (

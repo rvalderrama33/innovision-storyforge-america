@@ -130,7 +130,7 @@ const SubmissionWizard = () => {
 
   // Save data to localStorage whenever form data changes
   useEffect(() => {
-    if (hydrated && !isSyncing && Object.keys(formData).length > 0) {
+    if (hydrated && !isSyncing) {
       const dataKey = getLocalStorageKey('submission_wizard_data');
       localStorage.setItem(dataKey, JSON.stringify(formData));
     }

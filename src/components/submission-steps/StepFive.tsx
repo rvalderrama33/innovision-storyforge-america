@@ -22,30 +22,13 @@ interface StepFiveProps {
 }
 
 const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
-  const [recommendations, setRecommendations] = useState<Recommendation[]>(
-    data.recommendations || [{ name: "", email: "", reason: "" }]
-  );
+  const recommendations: Recommendation[] =
+    (data.recommendations && data.recommendations.length > 0)
+      ? data.recommendations
+      : [{ name: "", email: "", reason: "" }];
   
-  const [isSyncing, setIsSyncing] = useState(false);
+  
 
-  useEffect(() => {
-    // Sync when parent data changes (restored draft)
-    const next = data.recommendations || [{ name: "", email: "", reason: "" }];
-
-    const isDifferent =
-      next.length !== recommendations.length ||
-      next.some((r, i) =>
-        r.name !== (recommendations[i]?.name || "") ||
-        r.email !== (recommendations[i]?.email || "") ||
-        r.reason !== (recommendations[i]?.reason || "")
-      );
-
-    if (isDifferent) {
-      setIsSyncing(true);
-      setRecommendations(next);
-      setTimeout(() => setIsSyncing(false), 0);
-    }
-  }, [data.recommendations]);
   
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
 
@@ -70,27 +53,26 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
   };
 
   useEffect(() => {
-    // Only update parent when not syncing from parent
-    if (!isSyncing) {
-      onUpdate({ recommendations });
-      validateForm();
-    }
-  }, [recommendations, onUpdate, isSyncing]);
+    validateForm();
+  }, [validationErrors]);
 
   const addRecommendation = () => {
-    setRecommendations([...recommendations, { name: "", email: "", reason: "" }]);
+    const next = [...recommendations, { name: "", email: "", reason: "" }];
+    onUpdate({ recommendations: next });
   };
 
   const removeRecommendation = (index: number) => {
     if (recommendations.length > 1) {
-      setRecommendations(recommendations.filter((_, i) => i !== index));
+      const next = recommendations.filter((_, i) => i !== index);
+      onUpdate({ recommendations: next });
     }
   };
 
   const updateRecommendation = (index: number, field: keyof Recommendation, value: string) => {
-    setRecommendations(recommendations.map((rec, i) => 
+    const next = recommendations.map((rec, i) => 
       i === index ? { ...rec, [field]: value } : rec
-    ));
+    );
+    onUpdate({ recommendations: next });
   };
 
   return (

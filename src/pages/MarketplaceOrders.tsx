@@ -445,30 +445,28 @@ const MarketplaceOrders = () => {
                                     {selectedOrder.status === 'pending' && (
                                       <div className="space-y-4 border-t pt-4">
                                         <h3 className="font-semibold">Process Order</h3>
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                          <Button
-                                            onClick={() => updateOrderStatus(selectedOrder.id, 'confirmed')}
-                                            disabled={updatingOrder}
-                                          >
-                                            {updatingOrder ? "Updating..." : "Confirm Order"}
-                                          </Button>
-                                          <div className="space-y-2">
-                                            <Label htmlFor="tracking-pending">Tracking Number (optional)</Label>
+                                        <p className="text-sm text-muted-foreground">
+                                          You must provide a tracking number to ship this order
+                                        </p>
+                                        <div className="space-y-3">
+                                          <div>
+                                            <Label htmlFor="tracking-pending">Tracking Number *</Label>
                                             <Input
                                               id="tracking-pending"
                                               value={trackingNumber}
                                               onChange={(e) => setTrackingNumber(e.target.value)}
-                                              placeholder="Enter tracking number"
+                                              placeholder="Enter tracking number (required)"
+                                              required
                                             />
-                                            <Button
-                                              onClick={() => updateOrderStatus(selectedOrder.id, 'shipped', trackingNumber)}
-                                              disabled={updatingOrder || !trackingNumber.trim()}
-                                              variant="outline"
-                                              className="w-full"
-                                            >
-                                              {updatingOrder ? "Updating..." : "Ship Now"}
-                                            </Button>
                                           </div>
+                                          <Button
+                                            onClick={() => updateOrderStatus(selectedOrder.id, 'shipped', trackingNumber)}
+                                            disabled={updatingOrder || !trackingNumber.trim()}
+                                            className="w-full"
+                                          >
+                                            <Truck className="mr-2 h-4 w-4" />
+                                            {updatingOrder ? "Processing..." : "Ship Order"}
+                                          </Button>
                                         </div>
                                       </div>
                                     )}
@@ -476,13 +474,17 @@ const MarketplaceOrders = () => {
                                     {selectedOrder.status === 'confirmed' && (
                                       <div className="space-y-4 border-t pt-4">
                                         <h3 className="font-semibold">Ship Order</h3>
+                                        <p className="text-sm text-muted-foreground">
+                                          A tracking number is required to ship this order
+                                        </p>
                                         <div>
-                                          <Label htmlFor="tracking">Tracking Number</Label>
+                                          <Label htmlFor="tracking">Tracking Number *</Label>
                                           <Input
                                             id="tracking"
                                             value={trackingNumber}
                                             onChange={(e) => setTrackingNumber(e.target.value)}
-                                            placeholder="Enter tracking number"
+                                            placeholder="Enter tracking number (required)"
+                                            required
                                           />
                                         </div>
                                         <Button
@@ -491,7 +493,7 @@ const MarketplaceOrders = () => {
                                           className="w-full"
                                         >
                                           <Truck className="mr-2 h-4 w-4" />
-                                          {updatingOrder ? "Updating..." : "Mark as Shipped"}
+                                          {updatingOrder ? "Ship Order" : "Ship Order"}
                                         </Button>
                                       </div>
                                     )}

@@ -112,6 +112,41 @@ export type Database = {
           },
         ]
       }
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string | null
+          quantity: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string | null
+          quantity?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_analytics: {
         Row: {
           created_at: string
@@ -267,9 +302,13 @@ export type Database = {
           buyer_id: string
           created_at: string
           currency: string
+          customer_email: string | null
+          customer_name: string | null
           id: string
           notes: string | null
+          order_number: string | null
           payment_intent_id: string | null
+          processing_deadline: string | null
           product_id: string
           quantity: number
           shipping_address: Json | null
@@ -278,14 +317,19 @@ export type Database = {
           tracking_number: string | null
           updated_at: string
           vendor_id: string
+          vendor_notified_at: string | null
         }
         Insert: {
           buyer_id: string
           created_at?: string
           currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
           id?: string
           notes?: string | null
+          order_number?: string | null
           payment_intent_id?: string | null
+          processing_deadline?: string | null
           product_id: string
           quantity?: number
           shipping_address?: Json | null
@@ -294,14 +338,19 @@ export type Database = {
           tracking_number?: string | null
           updated_at?: string
           vendor_id: string
+          vendor_notified_at?: string | null
         }
         Update: {
           buyer_id?: string
           created_at?: string
           currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
           id?: string
           notes?: string | null
+          order_number?: string | null
           payment_intent_id?: string | null
+          processing_deadline?: string | null
           product_id?: string
           quantity?: number
           shipping_address?: Json | null
@@ -310,6 +359,7 @@ export type Database = {
           tracking_number?: string | null
           updated_at?: string
           vendor_id?: string
+          vendor_notified_at?: string | null
         }
         Relationships: [
           {
@@ -589,6 +639,54 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string | null
+          product_id: string | null
+          product_name: string
+          product_price: number
+          quantity: number
+          total_amount: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          product_id?: string | null
+          product_name: string
+          product_price: number
+          quantity?: number
+          total_amount: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string | null
+          product_id?: string | null
+          product_name?: string
+          product_price?: number
+          quantity?: number
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
@@ -1061,7 +1159,22 @@ export type Database = {
         Args: { data: string }
         Returns: string
       }
+      create_order_with_items: {
+        Args: {
+          p_buyer_id: string
+          p_cart_items: Json
+          p_customer_email: string
+          p_customer_name: string
+          p_payment_intent_id: string
+          p_shipping_address: Json
+        }
+        Returns: string
+      }
       expire_featured_stories: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      generate_order_number: {
         Args: Record<PropertyKey, never>
         Returns: string
       }

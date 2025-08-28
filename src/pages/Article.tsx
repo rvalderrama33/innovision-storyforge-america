@@ -553,7 +553,7 @@ const Article = () => {
                             className="rounded-lg shadow-lg w-full max-w-md h-auto object-cover"
                             style={{ 
                               maxHeight: '400px',
-                              objectPosition: 'center 30%' // Position to show face better
+                              objectPosition: 'center 60%' // Position to show face better - lowered to 60%
                             }}
                           />
                         </div>

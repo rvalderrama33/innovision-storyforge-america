@@ -32,6 +32,7 @@ const SubmissionWizard = () => {
   const [stepValidations, setStepValidations] = useState<Record<number, boolean>>({});
   const [savedDraftId, setSavedDraftId] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
   const draftTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   
   // Auto-save on tab switch/page unload
@@ -92,6 +93,7 @@ const SubmissionWizard = () => {
 
   // Load saved data from localStorage on mount and when user changes
   useEffect(() => {
+    setIsSyncing(true);
     const dataKey = getLocalStorageKey('submission_wizard_data');
     const stepKey = getLocalStorageKey('submission_wizard_step');
     
@@ -123,15 +125,16 @@ const SubmissionWizard = () => {
 
     // Mark hydration complete to avoid overwriting restored data
     setHydrated(true);
+    setIsSyncing(false);
   }, [user?.id]); // Re-run when user changes
 
   // Save data to localStorage whenever form data changes
   useEffect(() => {
-    if (hydrated && Object.keys(formData).length > 0) {
+    if (hydrated && !isSyncing && Object.keys(formData).length > 0) {
       const dataKey = getLocalStorageKey('submission_wizard_data');
       localStorage.setItem(dataKey, JSON.stringify(formData));
     }
-  }, [formData, user?.id, hydrated]);
+  }, [formData, user?.id, hydrated, isSyncing]);
 
   // Save current step to localStorage
   useEffect(() => {
@@ -237,16 +240,13 @@ const SubmissionWizard = () => {
   }, []);
 
   const updateFormData = (stepData: any) => {
+    if (isSyncing) return; // Prevent updates during sync operations
+    
     const newData = { ...formData, ...stepData };
     setFormData(newData);
     
-    // Always save to localStorage for instant persistence
-    // Only skip database save during initial hydration
-    const dataKey = getLocalStorageKey('submission_wizard_data');
-    localStorage.setItem(dataKey, JSON.stringify(newData));
-    
     // Only skip database auto-save during initial hydration
-    if (hydrated) {
+    if (hydrated && !isSyncing) {
       debouncedSaveDraft(newData);
     }
   };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -51,6 +51,46 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
     },
   });
 
+  // localStorage key for vendor application data
+  const STORAGE_KEY = 'vendorApplicationData';
+
+  // Load saved data from localStorage on component mount
+  useEffect(() => {
+    try {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData) {
+        const parsedData = JSON.parse(savedData);
+        // Reset form with saved data, but keep user email if available
+        form.reset({
+          ...parsedData,
+          contactEmail: parsedData.contactEmail || user?.email || '',
+        });
+      }
+    } catch (error) {
+      console.error('Error loading saved vendor application data:', error);
+    }
+  }, [form, user?.email]);
+
+  // Save form data to localStorage whenever form values change
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(value));
+      } catch (error) {
+        console.error('Error saving vendor application data:', error);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form]);
+
+  // Clear localStorage on successful submission
+  const clearSavedData = () => {
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+      console.error('Error clearing saved vendor application data:', error);
+    }
+  };
 
   const onSubmit = async (data: VendorApplicationData) => {
     console.log('Starting vendor application submission...', { data, user: user?.id });
@@ -142,6 +182,7 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
       }
 
       toast.success('Vendor application submitted successfully! Your application is pending admin review.');
+      clearSavedData(); // Clear saved form data after successful submission
       onSuccess();
     } catch (error: any) {
       console.error('Error submitting vendor application:', error);

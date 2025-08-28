@@ -107,11 +107,12 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                         <img 
                           src={featuredStories[0].image_urls?.[0] || "https://images.unsplash.com/photo-1523362628745-0c100150b504?w=600&h=400&fit=crop"} 
                           alt={featuredStories[0].product_name || "Featured innovation story"}
-                          className={`w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700 ${
-                            featuredStories[0].image_urls?.[0]?.includes('0.6836726064516103.jpg') 
-                              ? 'object-top' 
-                              : 'object-center'
-                          }`}
+                          className={`w-full h-96 object-cover group-hover:scale-105 transition-transform duration-700`}
+                          style={{
+                            objectPosition: featuredStories[0].image_urls?.[0]?.includes('0.6836726064516103.jpg') 
+                              ? 'center 15%' 
+                              : 'center'
+                          }}
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
                         <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
@@ -142,11 +143,12 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                             <img 
                               src={story.image_urls?.[0] || "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop"} 
                               alt={story.product_name || "Innovation story"}
-                              className={`w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300 ${
-                                story.image_urls?.[0]?.includes('0.6836726064516103.jpg') 
-                                  ? 'object-top' 
-                                  : 'object-center'
-                              }`}
+                              className="w-full h-32 object-cover group-hover:scale-105 transition-transform duration-300"
+                              style={{
+                                objectPosition: story.image_urls?.[0]?.includes('0.6836726064516103.jpg') 
+                                  ? 'center 15%' 
+                                  : 'center'
+                              }}
                             />
                           </div>
                           <CardContent className="w-2/3 p-6 flex flex-col justify-center">
@@ -176,11 +178,12 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                         <img 
                           src={story.image_urls?.[0] || "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=600&h=400&fit=crop"} 
                           alt={story.product_name || "Innovation story"}
-                          className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-300 ${
-                            story.image_urls?.[0]?.includes('0.6836726064516103.jpg') 
-                              ? 'object-top' 
-                              : 'object-center'
-                          }`}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          style={{
+                            objectPosition: story.image_urls?.[0]?.includes('0.6836726064516103.jpg') 
+                              ? 'center 15%' 
+                              : 'center'
+                          }}
                         />
                       </div>
                       <CardContent className="p-6">

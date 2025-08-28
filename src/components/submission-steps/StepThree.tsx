@@ -21,13 +21,21 @@ const StepThree = ({ data, onUpdate, onValidationChange }: StepThreeProps) => {
 
   useEffect(() => {
     // Sync when parent data changes (restored draft)
-    setIsSyncing(true);
-    setFormData({
+    const next = {
       ideaOrigin: data.ideaOrigin || "",
       biggestChallenge: data.biggestChallenge || "",
       motivation: data.motivation || ""
-    });
-    setIsSyncing(false);
+    };
+
+    const isDifferent = Object.keys(next).some(
+      (k) => (next as any)[k] !== (formData as any)[k]
+    );
+
+    if (isDifferent) {
+      setIsSyncing(true);
+      setFormData(next);
+      setTimeout(() => setIsSyncing(false), 0);
+    }
   }, [data]);
 
   const validateForm = () => {

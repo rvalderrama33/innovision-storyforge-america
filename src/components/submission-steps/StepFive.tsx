@@ -30,9 +30,21 @@ const StepFive = ({ data, onUpdate, onValidationChange }: StepFiveProps) => {
 
   useEffect(() => {
     // Sync when parent data changes (restored draft)
-    setIsSyncing(true);
-    setRecommendations(data.recommendations || [{ name: "", email: "", reason: "" }]);
-    setIsSyncing(false);
+    const next = data.recommendations || [{ name: "", email: "", reason: "" }];
+
+    const isDifferent =
+      next.length !== recommendations.length ||
+      next.some((r, i) =>
+        r.name !== (recommendations[i]?.name || "") ||
+        r.email !== (recommendations[i]?.email || "") ||
+        r.reason !== (recommendations[i]?.reason || "")
+      );
+
+    if (isDifferent) {
+      setIsSyncing(true);
+      setRecommendations(next);
+      setTimeout(() => setIsSyncing(false), 0);
+    }
   }, [data.recommendations]);
   
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});

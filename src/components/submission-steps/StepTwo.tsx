@@ -25,15 +25,23 @@ const StepTwo = ({ data, onUpdate, onValidationChange }: StepTwoProps) => {
 
   useEffect(() => {
     // Sync when parent data changes (restored draft)
-    setIsSyncing(true);
-    setFormData({
+    const next = {
       productName: data.productName || "",
       description: data.description || "",
       problemSolved: data.problemSolved || "",
       stage: data.stage || "",
       category: data.category || ""
-    });
-    setIsSyncing(false);
+    };
+
+    const isDifferent = Object.keys(next).some(
+      (k) => (next as any)[k] !== (formData as any)[k]
+    );
+
+    if (isDifferent) {
+      setIsSyncing(true);
+      setFormData(next);
+      setTimeout(() => setIsSyncing(false), 0);
+    }
   }, [data]);
 
   const validateForm = () => {

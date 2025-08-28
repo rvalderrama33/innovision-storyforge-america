@@ -28,8 +28,7 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
 
   useEffect(() => {
     // Sync local state when parent data changes (e.g., after restoring from localStorage)
-    setIsSyncing(true);
-    setFormData({
+    const next = {
       fullName: data.fullName || "",
       city: data.city || "",
       state: data.state || "",
@@ -38,8 +37,18 @@ const StepOne = ({ data, onUpdate, onValidationChange }: StepOneProps) => {
       background: data.background || "",
       website: data.website || "",
       socialMedia: data.socialMedia || ""
-    });
-    setIsSyncing(false);
+    };
+
+    const isDifferent = Object.keys(next).some(
+      (k) => (next as any)[k] !== (formData as any)[k]
+    );
+
+    if (isDifferent) {
+      setIsSyncing(true);
+      setFormData(next);
+      // Defer turning off syncing to next tick to avoid echo updates
+      setTimeout(() => setIsSyncing(false), 0);
+    }
   }, [data]);
 
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});

@@ -23,6 +23,8 @@ interface MarketplaceProduct {
   featured: boolean;
   stock_quantity: number;
   created_at: string;
+  is_affiliate: boolean;
+  affiliate_price?: string;
 }
 
 const MarketplaceManage = () => {
@@ -261,7 +263,10 @@ const MarketplaceManage = () => {
                           )}
                         </TableCell>
                         <TableCell className="font-medium">
-                          {formatPrice(product.price, product.currency)}
+                          {product.is_affiliate && product.affiliate_price 
+                            ? product.affiliate_price 
+                            : formatPrice(product.price, product.currency)
+                          }
                         </TableCell>
                         <TableCell>
                           <span className={product.stock_quantity === 0 ? 'text-destructive' : ''}>

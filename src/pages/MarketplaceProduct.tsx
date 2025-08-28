@@ -35,6 +35,7 @@ interface MarketplaceProduct {
   video_urls: string[];
   is_affiliate: boolean;
   affiliate_url: string;
+  affiliate_price?: string;
   created_at: string;
 }
 
@@ -362,19 +363,22 @@ const MarketplaceProduct = () => {
                 <Badge variant="outline" className="mb-4">{product.category}</Badge>
               )}
               
-              {!product.is_affiliate && (
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-3xl font-bold text-primary">
-                    {formatPrice(product.price, product.currency)}
-                  </span>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="text-3xl font-bold text-primary">
+                  {product.is_affiliate && product.affiliate_price 
+                    ? product.affiliate_price 
+                    : formatPrice(product.price, product.currency)
+                  }
+                </span>
+                {!product.is_affiliate && (
                   <div className="flex items-center gap-1">
                     <Package className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">
                       {product.stock_quantity} in stock
                     </span>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
 
             <Separator />

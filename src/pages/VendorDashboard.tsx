@@ -267,16 +267,16 @@ const VendorDashboard = () => {
                         </div>
                       </div>
                       <div className="flex gap-2">
-                        <Link to={`/marketplace/product/${product.id}`}>
-                          <Button size="sm" variant="outline">
+                        <Button size="sm" variant="outline" asChild>
+                          <Link to={`/marketplace/product/${product.id}`}>
                             <Eye className="h-4 w-4" />
-                          </Button>
-                        </Link>
-                        <Link to={`/marketplace/edit/${product.id}`}>
-                          <Button size="sm" variant="outline">
+                          </Link>
+                        </Button>
+                        <Button size="sm" variant="outline" asChild>
+                          <Link to={`/marketplace/edit/${product.id}`}>
                             <Edit className="h-4 w-4" />
-                          </Button>
-                        </Link>
+                          </Link>
+                        </Button>
                       </div>
                     </div>
                   ))}

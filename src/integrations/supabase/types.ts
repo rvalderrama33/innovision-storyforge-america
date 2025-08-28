@@ -468,6 +468,7 @@ export type Database = {
           product_id: string
           rating: number
           reviewer_id: string
+          reviewer_name: string | null
           title: string | null
           updated_at: string
         }
@@ -480,6 +481,7 @@ export type Database = {
           product_id: string
           rating: number
           reviewer_id: string
+          reviewer_name?: string | null
           title?: string | null
           updated_at?: string
         }
@@ -492,6 +494,7 @@ export type Database = {
           product_id?: string
           rating?: number
           reviewer_id?: string
+          reviewer_name?: string | null
           title?: string | null
           updated_at?: string
         }

@@ -1174,12 +1174,15 @@ const AdminDashboard = () => {
 
       <main className="p-6">
         <Tabs value={currentTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview" asChild>
               <Link to="/admin">Overview</Link>
             </TabsTrigger>
             <TabsTrigger value="submissions" asChild>
               <Link to="/admin/submissions">Submissions</Link>
+            </TabsTrigger>
+            <TabsTrigger value="create" asChild>
+              <Link to="/admin/create">Create</Link>
             </TabsTrigger>
             <TabsTrigger value="newsletter" asChild>
               <Link to="/admin/newsletter">Newsletter</Link>

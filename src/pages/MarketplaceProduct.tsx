@@ -171,10 +171,8 @@ const MarketplaceProduct = () => {
     return <Navigate to="/" />;
   }
 
-  // Restrict access to admins only for now
-  if (!user || !isAdmin) {
-    return <Navigate to="/auth" replace />;
-  }
+  // Allow everyone to view products when marketplace is live
+  // No authentication required for viewing products
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-US', {

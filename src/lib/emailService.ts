@@ -2,7 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 
 interface SendEmailRequest {
-  type: 'welcome' | 'notification' | 'approval' | 'featured' | 'recommendation';
+  type: 'welcome' | 'notification' | 'approval' | 'featured' | 'recommendation' | 'order_confirmation';
   to: string;
   name?: string;
   subject?: string;
@@ -10,6 +10,16 @@ interface SendEmailRequest {
   productName?: string;
   slug?: string;
   recommenderName?: string;
+  orderData?: {
+    orderNumber: string;
+    totalAmount: number;
+    items: Array<{
+      name: string;
+      quantity: number;
+      price: number;
+    }>;
+    shippingAddress: any;
+  };
 }
 
 export const sendEmail = async (emailData: SendEmailRequest) => {

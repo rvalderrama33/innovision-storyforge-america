@@ -16,7 +16,7 @@ const corsHeaders = {
 };
 
 interface EmailRequest {
-  type: 'welcome' | 'notification' | 'approval' | 'featured' | 'recommendation' | 'draft_follow_up' | 'featured_story_promotion';
+  type: 'welcome' | 'notification' | 'approval' | 'featured' | 'recommendation' | 'draft_follow_up' | 'featured_story_promotion' | 'order_confirmation';
   to: string;
   name?: string;
   subject?: string;
@@ -25,6 +25,16 @@ interface EmailRequest {
   slug?: string;
   recommenderName?: string;
   submissionId?: string;
+  orderData?: {
+    orderNumber: string;
+    totalAmount: number;
+    items: Array<{
+      name: string;
+      quantity: number;
+      price: number;
+    }>;
+    shippingAddress: any;
+  };
 }
 
 interface EmailCustomizations {
@@ -307,6 +317,91 @@ const createFeaturedStoryPromotionEmail = (name: string, productName: string, su
   };
 };
 
+const createOrderConfirmationEmail = (orderData: any, customerName: string, customerEmail: string) => {
+  const formatPrice = (cents: number) => `$${(cents / 100).toFixed(2)}`;
+  
+  const itemsHtml = orderData.items.map((item: any) => `
+    <tr style="border-bottom: 1px solid #e5e7eb;">
+      <td style="padding: 15px 0; color: #374151;">${item.name}</td>
+      <td style="padding: 15px 0; color: #374151; text-align: center;">×${item.quantity}</td>
+      <td style="padding: 15px 0; color: #374151; text-align: right;">${formatPrice(item.price * item.quantity)}</td>
+    </tr>
+  `).join('');
+
+  const htmlContent = wrapEmailContent(`
+    ${getEmailHeader('Order Confirmed! 🛍️', 'Thank you for your purchase from America Innovates Marketplace')}
+    
+    <div style="background: #ffffff; color: #000000; padding: 30px; border: 2px solid #e5e7eb; border-radius: 12px; margin-bottom: 30px;">
+      <h2 style="margin: 0 0 15px 0; font-size: 24px; color: #000000;">Thank you for your order, ${customerName}! 🎉</h2>
+      <p style="margin: 0 0 15px 0; font-size: 16px; line-height: 1.6; color: #374151;">
+        We've received your order <strong>#${orderData.orderNumber}</strong> and are preparing it for shipment. You'll receive tracking information once your order ships.
+      </p>
+    </div>
+
+    <!-- Order Details -->
+    <div style="background: #f9fafb; border-radius: 12px; padding: 30px; margin: 30px 0;">
+      <h3 style="color: #1f2937; margin: 0 0 20px 0; font-size: 20px;">Order Details</h3>
+      
+      <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <thead>
+          <tr style="border-bottom: 2px solid #374151;">
+            <th style="padding: 15px 0; color: #1f2937; text-align: left; font-weight: 600;">Item</th>
+            <th style="padding: 15px 0; color: #1f2937; text-align: center; font-weight: 600;">Quantity</th>
+            <th style="padding: 15px 0; color: #1f2937; text-align: right; font-weight: 600;">Price</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${itemsHtml}
+        </tbody>
+      </table>
+      
+      <div style="border-top: 2px solid #374151; padding-top: 15px; text-align: right;">
+        <p style="margin: 5px 0; font-size: 18px; font-weight: 600; color: #1f2937;">
+          Total: ${formatPrice(orderData.totalAmount)}
+        </p>
+      </div>
+    </div>
+
+    <!-- Shipping Address -->
+    <div style="background: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+      <h4 style="color: #1f2937; margin: 0 0 15px 0; font-size: 18px;">Shipping Address</h4>
+      <p style="color: #6b7280; margin: 0; line-height: 1.6;">
+        ${orderData.shippingAddress.name}<br>
+        ${orderData.shippingAddress.line1}<br>
+        ${orderData.shippingAddress.line2 ? orderData.shippingAddress.line2 + '<br>' : ''}
+        ${orderData.shippingAddress.city}, ${orderData.shippingAddress.state} ${orderData.shippingAddress.postal_code}<br>
+        ${orderData.shippingAddress.country}
+      </p>
+    </div>
+
+    <div style="background: #e0f2fe; border-radius: 8px; padding: 20px; margin: 20px 0;">
+      <h4 style="color: #01579b; margin: 0 0 10px 0; font-size: 16px;">📦 What happens next?</h4>
+      <ul style="color: #01579b; margin: 0; padding-left: 20px; line-height: 1.8;">
+        <li>We'll process your order within 1-2 business days</li>
+        <li>You'll receive an email with tracking information once shipped</li>
+        <li>Your order will be delivered within 5-7 business days</li>
+        <li>Need help? Contact us at support@americainnovates.us</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin: 30px 0;">
+      <a href="https://americainnovates.us/marketplace-orders" 
+         class="button-link"
+         style="background: #000000; color: #ffffff !important; padding: 15px 30px; text-decoration: none !important; border-radius: 6px; font-weight: 600; display: inline-block;">
+        View Order Status
+      </a>
+    </div>
+    
+    ${getEmailFooter(customerEmail)}
+  `);
+
+  return {
+    subject: `Order Confirmation #${orderData.orderNumber} - America Innovates Marketplace`,
+    html: htmlContent,
+    text: `Order Confirmed! 🛍️\n\nThank you for your order, ${customerName}!\n\nWe've received your order #${orderData.orderNumber} and are preparing it for shipment. You'll receive tracking information once your order ships.\n\nOrder Details:\n${orderData.items.map((item: any) => `${item.name} ×${item.quantity} - ${formatPrice(item.price * item.quantity)}`).join('\n')}\n\nTotal: ${formatPrice(orderData.totalAmount)}\n\nShipping Address:\n${orderData.shippingAddress.name}\n${orderData.shippingAddress.line1}\n${orderData.shippingAddress.line2 ? orderData.shippingAddress.line2 + '\n' : ''}${orderData.shippingAddress.city}, ${orderData.shippingAddress.state} ${orderData.shippingAddress.postal_code}\n${orderData.shippingAddress.country}\n\nWhat happens next?\n- We'll process your order within 1-2 business days\n- You'll receive an email with tracking information once shipped\n- Your order will be delivered within 5-7 business days\n- Need help? Contact us at support@americainnovates.us\n\nView Order Status: https://americainnovates.us/marketplace-orders\n\nAmerica Innovates Marketplace - Celebrating Innovation and Entrepreneurship`
+  };
+};
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { 
@@ -324,10 +419,10 @@ const handler = async (req: Request): Promise<Response> => {
 
   try {
     const resend = getResendClient();
-    const { type, to, name, subject, message, productName, slug, recommenderName, submissionId }: EmailRequest = await req.json();
+    const { type, to, name, subject, message, productName, slug, recommenderName, submissionId, orderData }: EmailRequest = await req.json();
 
     console.log(`Sending ${type} email to:`, to);
-    console.log('Received parameters:', { type, to, name, subject, message, productName, slug, recommenderName, submissionId });
+    console.log('Received parameters:', { type, to, name, subject, message, productName, slug, recommenderName, submissionId, orderData });
 
     let emailData: { subject: string; html: string; text?: string };
     
@@ -350,6 +445,12 @@ const handler = async (req: Request): Promise<Response> => {
       case 'featured_story_promotion':
         console.log('Creating featured story promotion email with submissionId:', submissionId);
         emailData = createFeaturedStoryPromotionEmail(name || '', productName || '', submissionId || '', to);
+        break;
+      case 'order_confirmation':
+        if (!orderData) {
+          throw new Error('orderData is required for order confirmation emails');
+        }
+        emailData = createOrderConfirmationEmail(orderData, name || '', to);
         break;
       default:
         throw new Error(`Unknown email type: ${type}`);

@@ -117,6 +117,48 @@ serve(async (req) => {
       logStep("Warning: Vendor notification failed", { error: notifError });
     }
 
+    // Send order confirmation email to customer
+    try {
+      const { data: orderDetails } = await supabaseService
+        .from('marketplace_orders')
+        .select(`
+          *,
+          marketplace_products!inner(name, price)
+        `)
+        .eq('id', orderId)
+        .single();
+
+      if (orderDetails) {
+        const orderConfirmationData = {
+          orderNumber: orderDetails.order_number,
+          totalAmount: orderDetails.total_amount,
+          items: [{
+            name: orderDetails.marketplace_products.name,
+            quantity: orderDetails.quantity,
+            price: orderDetails.marketplace_products.price
+          }],
+          shippingAddress: orderDetails.shipping_address
+        };
+
+        const { error: confirmationError } = await supabaseService.functions.invoke('send-email', {
+          body: {
+            type: 'order_confirmation',
+            to: customerEmail,
+            name: customerName,
+            orderData: orderConfirmationData
+          }
+        });
+
+        if (confirmationError) {
+          logStep("Warning: Failed to send order confirmation email", { error: confirmationError });
+        } else {
+          logStep("Order confirmation email sent successfully");
+        }
+      }
+    } catch (emailError) {
+      logStep("Warning: Order confirmation email failed", { error: emailError });
+    }
+
     return new Response(JSON.stringify({ 
       success: true,
       order_id: orderId,

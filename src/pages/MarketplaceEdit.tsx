@@ -31,7 +31,7 @@ const categories = [
 
 const MarketplaceEdit = () => {
   // ALL HOOKS MUST BE CALLED FIRST - BEFORE ANY CONDITIONAL RETURNS
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isVendor } = useAuth();
   const { isMarketplaceLive, loading: configLoading } = useMarketplaceConfig();
   const navigate = useNavigate();
   const { id } = useParams();
@@ -151,8 +151,8 @@ const MarketplaceEdit = () => {
     return <Navigate to="/" />;
   }
 
-  // Restrict access to admins only for now
-  if (!user || !isAdmin) {
+  // Restrict access to authenticated users (admins and vendors)
+  if (!user || (!isAdmin && !isVendor)) {
     return <Navigate to="/auth" replace />;
   }
 

@@ -160,9 +160,21 @@ const MarketplaceOrders = () => {
 
       if (error) throw error;
 
+      // Send customer notification if order is shipped with tracking
+      if (status === 'shipped' && tracking) {
+        try {
+          await supabase.functions.invoke('notify-customer-tracking', {
+            body: { order_id: orderId }
+          });
+        } catch (notifyError) {
+          console.error('Failed to send customer notification:', notifyError);
+          // Don't fail the order update if email fails
+        }
+      }
+
       toast({
         title: "Success",
-        description: `Order ${status === 'shipped' ? 'marked as shipped' : 'updated'} successfully!`
+        description: `Order ${status === 'shipped' ? 'marked as shipped and customer notified' : 'updated'} successfully!`
       });
 
       // Refresh the orders by calling the effect again

@@ -49,9 +49,18 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
 
   const validateForm = () => {
     // Required: headshot and productImages
-    const hasHeadshot = formData.headshot !== null;
+    const hasHeadshot = formData.headshot !== null && formData.headshot !== undefined;
     const hasProductImages = Array.isArray(formData.productImages) && formData.productImages.length > 0;
     const isValid = hasHeadshot && hasProductImages;
+    
+    console.log('Form validation:', { 
+      hasHeadshot, 
+      hasProductImages, 
+      isValid,
+      headshotValue: formData.headshot,
+      productImagesCount: formData.productImages.length 
+    });
+    
     onValidationChange(isValid);
     return isValid;
   };
@@ -96,7 +105,12 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
   ];
 
   const handleFileUpload = async (key: string, files: FileList | null) => {
-    if (!files) return;
+    console.log('handleFileUpload called:', { key, filesCount: files?.length });
+    
+    if (!files || files.length === 0) {
+      console.log('No files selected');
+      return;
+    }
     
     // Check if we would exceed the 3 image limit for multi-image categories
     const currentImages = Array.isArray(formData[key as keyof typeof formData]) 
@@ -104,6 +118,8 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
       : [];
     const newFileCount = Array.from(files).length;
     const totalCount = currentImages.length + newFileCount;
+    
+    console.log('Upload validation:', { key, currentImagesCount: currentImages.length, newFileCount, totalCount });
     
     if (key.includes("Images") && totalCount > 3) {
       toast({
@@ -115,21 +131,37 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
     }
     
     setUploadingFiles(prev => ({ ...prev, [key]: true }));
+    console.log('Starting upload process for key:', key);
     
     try {
       const fileArray = Array.from(files);
       const uploadedUrls: string[] = [];
       
+      console.log('Processing files:', fileArray.map(f => ({ name: f.name, size: f.size, type: f.type })));
+      
       for (const file of fileArray) {
+        // Validate file type
+        if (!file.type.startsWith('image/')) {
+          throw new Error(`File "${file.name}" is not an image`);
+        }
+        
+        // Validate file size (10MB limit)
+        if (file.size > 10 * 1024 * 1024) {
+          throw new Error(`File "${file.name}" is too large. Maximum size is 10MB`);
+        }
+        
         const fileExt = file.name.split('.').pop();
         const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
         const filePath = `${key}/${fileName}`;
+        
+        console.log('Uploading file:', { fileName, filePath, size: file.size });
         
         const { error: uploadError } = await supabase.storage
           .from('submission-images')
           .upload(filePath, file);
           
         if (uploadError) {
+          console.error('Storage upload error:', uploadError);
           throw uploadError;
         }
         
@@ -137,14 +169,19 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
           .from('submission-images')
           .getPublicUrl(filePath);
           
+        console.log('File uploaded successfully:', { filePath, publicUrl });
         uploadedUrls.push(publicUrl);
       }
       
-      setFormData(prev => ({
-        ...prev,
+      // Update form data with proper structure
+      const updatedFormData = {
+        ...formData,
         [key]: key.includes("Images") ? [...currentImages, ...fileArray] : fileArray[0],
-        imageUrls: [...prev.imageUrls, ...uploadedUrls]
-      }));
+        imageUrls: [...(formData.imageUrls || []), ...uploadedUrls]
+      };
+      
+      console.log('Updating form data:', { key, newValue: updatedFormData[key], imageUrlsCount: updatedFormData.imageUrls.length });
+      setFormData(updatedFormData);
       
       toast({
         title: "Upload successful",
@@ -155,11 +192,12 @@ const StepFour = ({ data, onUpdate, onValidationChange }: StepFourProps) => {
       console.error('Upload error:', error);
       toast({
         title: "Upload failed",
-        description: "Failed to upload images. Please try again.",
+        description: error instanceof Error ? error.message : "Failed to upload images. Please try again.",
         variant: "destructive",
       });
     } finally {
       setUploadingFiles(prev => ({ ...prev, [key]: false }));
+      console.log('Upload process completed for key:', key);
     }
   };
 

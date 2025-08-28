@@ -49,6 +49,7 @@ interface MarketplaceReview {
   content: string;
   images: string[];
   created_at: string;
+  reviewer_name?: string;
   profiles?: {
     full_name: string;
   };
@@ -601,7 +602,7 @@ const MarketplaceProduct = () => {
                             <span className="font-semibold">{review.title}</span>
                           </div>
                           <div className="text-sm text-muted-foreground">
-                            By {review.profiles?.full_name || 'Anonymous'} • {new Date(review.created_at).toLocaleDateString()}
+                            By {review.reviewer_name || review.profiles?.full_name || 'Anonymous'} • {new Date(review.created_at).toLocaleDateString()}
                           </div>
                         </div>
                       </div>

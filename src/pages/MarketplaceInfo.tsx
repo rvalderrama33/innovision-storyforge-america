@@ -4,11 +4,11 @@ import Header from '@/components/Header';
 import { BecomeVendorButton } from '@/components/BecomeVendorButton';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Store, Users, ShoppingBag, Star, ArrowRight } from 'lucide-react';
+import { Store, Users, ShoppingBag, Star, ArrowRight, Package, Settings } from 'lucide-react';
 import { useSEO } from '@/hooks/useSEO';
 
 const MarketplaceInfo = () => {
-  const { user } = useAuth();
+  const { user, isVendor } = useAuth();
 
   useSEO({
     title: "America Innovates Marketplace | Supporting American Entrepreneurs",
@@ -31,7 +31,25 @@ const MarketplaceInfo = () => {
             Discover breakthrough consumer products and connect directly with the innovators behind them.
           </p>
           
-          {user ? (
+          {isVendor ? (
+            <div className="space-y-4">
+              <p className="text-lg text-gray-700 font-medium">Welcome back, vendor!</p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <Link to="/vendor-dashboard">
+                  <Button size="lg">
+                    <Settings className="h-4 w-4 mr-2" />
+                    Vendor Dashboard
+                  </Button>
+                </Link>
+                <Link to="/marketplace/orders">
+                  <Button size="lg" variant="outline">
+                    <Package className="h-4 w-4 mr-2" />
+                    Process Orders
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          ) : user ? (
             <BecomeVendorButton />
           ) : (
             <div className="space-y-4">

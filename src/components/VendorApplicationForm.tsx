@@ -13,7 +13,8 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { toast } from "sonner";
-import { Loader2, Store, CheckCircle, FileText } from 'lucide-react';
+import { Loader2, Store, CheckCircle, FileText, Trash2 } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 const vendorApplicationSchema = z.object({
   businessName: z.string().min(2, 'Business name must be at least 2 characters'),
@@ -92,6 +93,45 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
     }
   };
 
+  // Track if user has a rejected application to allow deletion
+  const [rejectedApp, setRejectedApp] = useState<{ id: string } | null>(null);
+  const [checkingApp, setCheckingApp] = useState(true);
+
+  useEffect(() => {
+    const checkExisting = async () => {
+      if (!user?.id) { setCheckingApp(false); return; }
+      const { data, error } = await supabase
+        .from('vendor_applications')
+        .select('id, status')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (!error && data?.status === 'rejected') {
+        setRejectedApp({ id: data.id });
+      } else {
+        setRejectedApp(null);
+      }
+      setCheckingApp(false);
+    };
+    checkExisting();
+  }, [user?.id]);
+
+  const handleDeleteRejected = async () => {
+    if (!rejectedApp) return;
+    const { error } = await supabase
+      .from('vendor_applications')
+      .delete()
+      .eq('id', rejectedApp.id);
+
+    if (error) {
+      console.error('Failed to delete rejected application:', error);
+      toast.error('Failed to delete rejected application');
+      return;
+    }
+
+    toast.success('Rejected application deleted. You can submit a new one now.');
+    setRejectedApp(null);
+  };
   const onSubmit = async (data: VendorApplicationData) => {
     console.log('Starting vendor application submission...', { data, user: user?.id });
     
@@ -117,13 +157,14 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
       }
 
       if (existingApplication) {
-        const statusMessage = existingApplication.status === 'pending' 
-          ? 'You already have a pending vendor application. Please wait for admin review.'
-          : existingApplication.status === 'approved'
-          ? 'You are already an approved vendor.'
-          : 'You have already submitted a vendor application.';
-        
-        toast.error(statusMessage);
+        if (existingApplication.status === 'rejected') {
+          toast.error('Your application was rejected. Please delete it below to resubmit.');
+        } else {
+          const statusMessage = existingApplication.status === 'pending'
+            ? 'You already have a pending vendor application. Please wait for admin review.'
+            : 'You are already an approved vendor.';
+          toast.error(statusMessage);
+        }
         return;
       }
 
@@ -215,6 +256,20 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {rejectedApp && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertTitle>Rejected application</AlertTitle>
+            <AlertDescription>
+              Your previous vendor application was rejected. Delete it to submit a new one.
+            </AlertDescription>
+            <div className="mt-4">
+              <Button variant="destructive" onClick={handleDeleteRejected}>
+                <Trash2 className="h-4 w-4 mr-2" />
+                Delete Rejected Application
+              </Button>
+            </div>
+          </Alert>
+        )}
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
 
@@ -524,7 +579,7 @@ export const VendorApplicationForm = ({ onSuccess, onCancel }: VendorApplication
               </Button>
               <Button
                 type="submit"
-                disabled={isSubmitting}
+                disabled={isSubmitting || !!rejectedApp}
                 className="flex-1"
               >
                 {isSubmitting ? (

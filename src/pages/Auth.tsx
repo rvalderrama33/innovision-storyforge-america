@@ -28,13 +28,25 @@ const Auth = () => {
   }>({ isLimited: false, resetTime: 0, remaining: 5 });
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
-  const { signIn, signUp, signInWithGoogle, resetPassword, user, isAdmin, loading: authLoading } = useAuth();
+  const [showResetPassword, setShowResetPassword] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const { signIn, signUp, signInWithGoogle, resetPassword, updatePassword, user, isAdmin, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
 
   // Get the page user was trying to access before being redirected to login
   const from = location.state?.from?.pathname || '/';
+
+  // Check if this is a password reset flow
+  useEffect(() => {
+    const urlParams = new URLSearchParams(location.search);
+    const type = urlParams.get('type');
+    if (type === 'recovery') {
+      setShowResetPassword(true);
+    }
+  }, [location]);
 
   useSEO({
     title: "Sign In | America Innovates Magazine",
@@ -242,6 +254,126 @@ const Auth = () => {
       setIsLoading(false);
     }
   };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newPassword || !confirmPassword) {
+      toast({
+        title: "Missing Information",
+        description: "Please fill in both password fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast({
+        title: "Passwords Don't Match",
+        description: "Please make sure both passwords are identical.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (newPassword.length < 8) {
+      toast({
+        title: "Password Too Short",
+        description: "Password must be at least 8 characters long.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await updatePassword(newPassword);
+      
+      if (error) {
+        toast({
+          title: "Update Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Password Updated",
+          description: "Your password has been successfully updated.",
+        });
+        setShowResetPassword(false);
+        navigate('/', { replace: true });
+      }
+    } catch (error) {
+      console.error('Password update error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (showResetPassword) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-2">
+            <Link to="/" className="block">
+              <img 
+                src="/lovable-uploads/1f7bd9f1-6251-4e7e-87ea-a2a66117e1d1.png" 
+                alt="America Innovates Magazine" 
+                className="h-64 mx-auto"
+              />
+            </Link>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center">Set New Password</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <p className="text-sm text-gray-600 text-center mb-4">
+                  Enter your new password below.
+                </p>
+                
+                <PasswordInput
+                  placeholder="New Password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  showStrengthMeter={true}
+                  required
+                />
+                
+                <Input
+                  type="password"
+                  placeholder="Confirm New Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                />
+                
+                <div className="text-sm text-gray-600 space-y-1">
+                  <p className="font-medium">Password Requirements:</p>
+                  <ul className="list-disc list-inside space-y-1 text-xs">
+                    <li>At least 8 characters long</li>
+                    <li>Include uppercase and lowercase letters</li>
+                    <li>Include at least one number</li>
+                    <li>Include at least one special character</li>
+                  </ul>
+                </div>
+                
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading || !newPassword || !confirmPassword}
+                >
+                  {isLoading ? 'Updating...' : 'Update Password'}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
 
   if (showForgotPassword) {
     return (

@@ -26,7 +26,9 @@ const Auth = () => {
     resetTime: number;
     remaining: number;
   }>({ isLimited: false, resetTime: 0, remaining: 5 });
-  const { signIn, signUp, signInWithGoogle, user, isAdmin, loading: authLoading } = useAuth();
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const { signIn, signUp, signInWithGoogle, resetPassword, user, isAdmin, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
   const location = useLocation();
@@ -204,6 +206,100 @@ const Auth = () => {
     }
   };
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!resetEmail) {
+      toast({
+        title: "Email Required",
+        description: "Please enter your email address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const { error } = await resetPassword(resetEmail);
+      
+      if (error) {
+        toast({
+          title: "Reset Failed",
+          description: error.message,
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Reset Link Sent",
+          description: "Check your email for password reset instructions.",
+        });
+        setShowForgotPassword(false);
+        setResetEmail('');
+      }
+    } catch (error) {
+      console.error('Password reset error:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-2">
+            <Link to="/" className="block">
+              <img 
+                src="/lovable-uploads/1f7bd9f1-6251-4e7e-87ea-a2a66117e1d1.png" 
+                alt="America Innovates Magazine" 
+                className="h-64 mx-auto"
+              />
+            </Link>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center">Reset Password</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <p className="text-sm text-gray-600 text-center mb-4">
+                  Enter your email address and we'll send you a link to reset your password.
+                </p>
+                
+                <EnhancedInput
+                  type="email"
+                  placeholder="Email address"
+                  validation="email"
+                  value={resetEmail}
+                  onChange={(e) => setResetEmail(e.target.value)}
+                  required
+                />
+                
+                <Button 
+                  type="submit" 
+                  className="w-full" 
+                  disabled={isLoading || !resetEmail}
+                >
+                  {isLoading ? 'Sending...' : 'Send Reset Link'}
+                </Button>
+                
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => setShowForgotPassword(false)}
+                >
+                  Back to Sign In
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-6">
       <div className="max-w-md w-full">
@@ -308,6 +404,16 @@ const Auth = () => {
                   >
                     {isLoading ? 'Signing In...' : 'Sign In'}
                   </Button>
+                  
+                  <div className="text-center">
+                    <button
+                      type="button"
+                      className="text-sm text-blue-600 hover:text-blue-800 underline"
+                      onClick={() => setShowForgotPassword(true)}
+                    >
+                      Forgot your password?
+                    </button>
+                  </div>
                 </form>
               </TabsContent>
               

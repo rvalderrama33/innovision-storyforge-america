@@ -10,11 +10,44 @@ import { useState } from "react";
 const Index = () => {
   const [hasContent, setHasContent] = useState(false);
 
+  // Structured data for homepage
+  const homepageStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    "name": "America Innovates Magazine - Home",
+    "description": "Discover breakthrough consumer products from visionary entrepreneurs and creators",
+    "url": "https://americainnovates.us",
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "America Innovates Magazine",
+      "description": "Spotlighting entrepreneurs and creators building breakthrough consumer products",
+      "foundingDate": "2024",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "stories@americainnovates.us",
+        "contactType": "Editorial"
+      }
+    },
+    "breadcrumb": {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Home",
+          "item": "https://americainnovates.us"
+        }
+      ]
+    }
+  };
+
   useSEO({
     title: "America Innovates Magazine | Spotlighting Entrepreneurs & Creators",
     description: "Discover breakthrough consumer products from visionary entrepreneurs and creators who are building innovations that make everyday life better. Share your innovation story today.",
     url: "https://americainnovates.us",
-    image: "https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png"
+    canonical: "https://americainnovates.us",
+    image: "https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png",
+    structuredData: homepageStructuredData
   });
 
   return (

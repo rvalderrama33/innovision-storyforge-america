@@ -33,10 +33,29 @@ const Stories = () => {
   const [stories, setStories] = useState<Story[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Structured data for Stories page
+  const storiesStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    "name": "Innovation Stories",
+    "description": "Discover inspiring stories from entrepreneurs and creators building breakthrough consumer products",
+    "url": "https://americainnovates.us/stories",
+    "publisher": {
+      "@type": "Organization",
+      "name": "America Innovates Magazine",
+      "logo": {
+        "@type": "ImageObject", 
+        "url": "https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png"
+      }
+    }
+  };
+
   useSEO({
     title: "Innovation Stories | America Innovates Magazine",
     description: "Discover inspiring stories from entrepreneurs and creators building breakthrough consumer products. Read about innovations that are making everyday life better.",
-    url: "https://americainnovates.us/stories"
+    url: "https://americainnovates.us/stories",
+    canonical: "https://americainnovates.us/stories",
+    structuredData: storiesStructuredData
   });
 
   useEffect(() => {
@@ -112,6 +131,7 @@ const Stories = () => {
                                 ? 'object-top' 
                                 : 'object-center'
                             }`}
+                            loading="lazy"
                           />
                         ) : (
                           <div className="w-full h-full bg-gray-200 flex items-center justify-center">

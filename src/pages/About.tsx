@@ -8,10 +8,32 @@ import Header from "@/components/Header";
 import { useSEO } from "@/hooks/useSEO";
 
 const About = () => {
+  // Structured data for About page
+  const aboutStructuredData = {
+    "@context": "https://schema.org",
+    "@type": "Organization",
+    "name": "America Innovates Magazine",
+    "description": "Spotlighting the entrepreneurs and creators behind breakthrough consumer products",
+    "url": "https://americainnovates.us",
+    "logo": "https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png",
+    "foundingDate": "2024",
+    "sameAs": [
+      "https://twitter.com/AmericaInnovates",
+      "https://linkedin.com/company/america-innovates-magazine"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "email": "stories@americainnovates.us",
+      "contactType": "Editorial"
+    }
+  };
+
   useSEO({
     title: "About America Innovates Magazine | Our Mission & Vision",
     description: "Learn about America Innovates Magazine's mission to spotlight breakthrough consumer products from visionary entrepreneurs and creators building innovations that make everyday life better.",
-    url: "https://americainnovates.us/about"
+    url: "https://americainnovates.us/about",
+    canonical: "https://americainnovates.us/about",
+    structuredData: aboutStructuredData
   });
   return (
     <div className="min-h-screen bg-white">

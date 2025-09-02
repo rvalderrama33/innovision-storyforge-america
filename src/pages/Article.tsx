@@ -109,12 +109,60 @@ const Article = () => {
     return 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png';
   }, [article?.headshot_image, article?.banner_image, article?.image_urls]);
 
+  // Generate structured data for article
+  const articleStructuredData = useMemo(() => {
+    if (!article) return null;
+
+    return {
+      "@context": "https://schema.org",
+      "@type": "Article",
+      "headline": article.product_name,
+      "description": article.description || `Read about ${article.product_name} by ${article.display_name}`,
+      "image": shareImage,
+      "author": {
+        "@type": "Person",
+        "name": article.display_name,
+        "address": {
+          "@type": "PostalAddress",
+          "addressLocality": article.city,
+          "addressRegion": article.state
+        }
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "America Innovates Magazine",
+        "logo": {
+          "@type": "ImageObject",
+          "url": "https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png"
+        }
+      },
+      "datePublished": article.created_at,
+      "dateModified": article.created_at,
+      "mainEntityOfPage": {
+        "@type": "WebPage",
+        "@id": `https://americainnovates.us/article/${slug}`
+      },
+      "about": {
+        "@type": "Product",
+        "name": article.product_name,
+        "description": article.description,
+        "category": article.category,
+        "url": article.website
+      }
+    };
+  }, [article, shareImage, slug]);
+
   useSEO({
     title: article ? `${article.product_name} | America Innovates Magazine` : "Article | America Innovates Magazine",
     description: article ? (article.description || `Read about ${article.product_name} by ${article.display_name} - an inspiring innovation story from America Innovates Magazine.`) : "Discover inspiring innovation stories from entrepreneurs and creators building breakthrough consumer products.",
     url: `https://americainnovates.us/article/${slug}`,
+    canonical: `https://americainnovates.us/article/${slug}`,
     image: shareImage,
-    type: "article"
+    type: "article",
+    author: article?.display_name,
+    publishedTime: article?.created_at,
+    modifiedTime: article?.created_at,
+    structuredData: articleStructuredData
   });
 
   // Helper function to format image URLs for display
@@ -271,6 +319,7 @@ const Article = () => {
               alt={article.product_name || "Innovation story featured image"}
               className="w-full h-full object-cover"
               style={getBannerImageStyle()}
+              loading="lazy"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 lg:p-12">

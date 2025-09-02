@@ -6,9 +6,27 @@ interface SEOProps {
   url?: string;
   image?: string;
   type?: string;
+  author?: string;
+  publishedTime?: string;
+  modifiedTime?: string;
+  structuredData?: object;
+  canonical?: string;
+  robots?: string;
 }
 
-export const useSEO = ({ title, description, url, image, type = "website" }: SEOProps) => {
+export const useSEO = ({ 
+  title, 
+  description, 
+  url, 
+  image, 
+  type = "website", 
+  author,
+  publishedTime,
+  modifiedTime,
+  structuredData,
+  canonical,
+  robots = "index, follow"
+}: SEOProps) => {
   useEffect(() => {
     console.log('useSEO hook running with:', { title, description, url, image, type });
     
@@ -21,12 +39,16 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
         'meta[name="description"]',
         'meta[property^="og:"]',
         'meta[name^="twitter:"]',
-        'meta[property="fb:app_id"]'
+        'meta[property="fb:app_id"]',
+        'meta[name="robots"]',
+        'meta[name="author"]',
+        'link[rel="canonical"]',
+        'script[type="application/ld+json"]'
       ];
       
       selectors.forEach(selector => {
-        const metas = document.querySelectorAll(selector);
-        metas.forEach(meta => meta.remove());
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(element => element.remove());
       });
     };
 
@@ -51,7 +73,21 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
 
     // Basic meta tags
     createMetaTag("description", description);
-    createMetaTag("robots", "index, follow");
+    createMetaTag("robots", robots);
+    
+    // Author meta tag
+    if (author) {
+      createMetaTag("author", author);
+    }
+    
+    // Canonical URL
+    if (canonical || url) {
+      const link = document.createElement("link");
+      link.setAttribute("rel", "canonical");
+      link.setAttribute("href", canonical || url);
+      document.head.appendChild(link);
+      console.log(`Created canonical link: ${canonical || url}`);
+    }
 
     // Open Graph tags
     createMetaTag("og:title", title, true);
@@ -67,6 +103,19 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
     if (url) {
       createMetaTag("og:url", url, true);
     }
+    
+    // Article-specific Open Graph tags
+    if (type === "article") {
+      if (author) {
+        createMetaTag("article:author", author, true);
+      }
+      if (publishedTime) {
+        createMetaTag("article:published_time", publishedTime, true);
+      }
+      if (modifiedTime) {
+        createMetaTag("article:modified_time", modifiedTime, true);
+      }
+    }
 
     // Twitter Card tags
     createMetaTag("twitter:card", "summary_large_image");
@@ -74,6 +123,18 @@ export const useSEO = ({ title, description, url, image, type = "website" }: SEO
     createMetaTag("twitter:description", description);
     createMetaTag("twitter:image", imageToUse);
     createMetaTag("twitter:site", "@AmericaInnovate");
+    
+    // LinkedIn specific tags
+    createMetaTag("linkedin:owner", "America Innovates Magazine");
+    
+    // Structured Data (JSON-LD)
+    if (structuredData) {
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.textContent = JSON.stringify(structuredData);
+      document.head.appendChild(script);
+      console.log("Created structured data:", structuredData);
+    }
 
     // Log final meta tags for debugging
     setTimeout(() => {

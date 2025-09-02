@@ -1,60 +1,30 @@
 [build]
-  publish = "dist"
   command = "npm run build"
+  publish = "dist"
 
-# Ensure ads.txt, robots.txt, and sitemap are served as plain text from the site root
-[[headers]]
-  for = "/ads.txt"
-  [headers.values]
-    Content-Type = "text/plain; charset=utf-8"
-    Cache-Control = "public, max-age=3600"
-
-[[headers]]
-  for = "/robots.txt"
-  [headers.values]
-    Content-Type = "text/plain; charset=utf-8"
-    Cache-Control = "public, max-age=3600"
-
-[[headers]]
-  for = "/sitemap.xml"
-  [headers.values]
-    Content-Type = "application/xml; charset=utf-8"
-    Cache-Control = "public, max-age=3600"
-
-# DOMAIN REDIRECT - Highest priority
-[[redirects]]
-  from = "http://americainnovates.us/*"
-  to = "https://www.americainnovates.us/:splat"
-  status = 301
-  force = true
-
+# 🔄 Force redirect apex → www
 [[redirects]]
   from = "https://americainnovates.us/*"
-  to = "https://www.americainnovates.us/:splat"
+  to   = "https://www.americainnovates.us/:splat"
   status = 301
   force = true
 
-# HIGH PRIORITY REDIRECTS - Must come before SPA catch-all
+# 🤖 Serve robots.txt from Netlify Function
 [[redirects]]
   from = "/robots.txt"
-  to = "/.netlify/functions/robots-txt"
+  to   = "/.netlify/functions/robots-txt"
   status = 200
   force = true
 
+# 🗺️ Serve sitemap.xml from Netlify Function
 [[redirects]]
   from = "/sitemap.xml"
-  to = "/.netlify/functions/sitemap"
+  to   = "/.netlify/functions/sitemap"
   status = 200
   force = true
 
-[[redirects]]
-  from = "/article/:slug"
-  to = "/.netlify/functions/article-meta/:slug"
-  status = 200
-  force = true
-
-# SPA catch-all redirect - MUST BE LAST
+# ⚛️ SPA fallback (React/Vite)
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to   = "/index.html"
   status = 200

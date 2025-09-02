@@ -21,6 +21,13 @@
     Content-Type = "application/xml; charset=utf-8"
     Cache-Control = "public, max-age=3600"
 
+# DOMAIN REDIRECT - Highest priority
+[[redirects]]
+  from = "https://americainnovates.us/*"
+  to = "https://www.americainnovates.us/:splat"
+  status = 301
+  force = true
+
 # HIGH PRIORITY REDIRECTS - Must come before SPA catch-all
 [[redirects]]
   from = "/robots.txt"

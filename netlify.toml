@@ -21,28 +21,26 @@
     Content-Type = "application/xml; charset=utf-8"
     Cache-Control = "public, max-age=3600"
 
-# Serve robots.txt from Netlify function to ensure it's always accessible
+# HIGH PRIORITY REDIRECTS - Must come before SPA catch-all
 [[redirects]]
   from = "/robots.txt"
   to = "/.netlify/functions/robots-txt"
   status = 200
   force = true
 
-# Serve sitemap via Netlify function proxy (consistent with MPT)
 [[redirects]]
   from = "/sitemap.xml"
   to = "/.netlify/functions/sitemap"
   status = 200
   force = true
 
-# Redirect article URLs to Netlify function for meta tags
 [[redirects]]
   from = "/article/:slug"
   to = "/.netlify/functions/article-meta/:slug"
   status = 200
   force = true
 
-# SPA catch-all redirect (kept once)
+# SPA catch-all redirect - MUST BE LAST
 [[redirects]]
   from = "/*"
   to = "/index.html"

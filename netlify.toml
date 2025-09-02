@@ -30,11 +30,6 @@
   force = true
 
 # Serve sitemap from Supabase function
-[[redirects]]
-  from = "/sitemap.xml"
-  to = "https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/sitemap"
-  status = 200
-  force = true
 
 # Redirect article URLs to Netlify function for meta tags
 [[redirects]]

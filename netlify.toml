@@ -23,6 +23,12 @@
 
 # DOMAIN REDIRECT - Highest priority
 [[redirects]]
+  from = "http://americainnovates.us/*"
+  to = "https://www.americainnovates.us/:splat"
+  status = 301
+  force = true
+
+[[redirects]]
   from = "https://americainnovates.us/*"
   to = "https://www.americainnovates.us/:splat"
   status = 301

@@ -9,4 +9,20 @@ Disallow: /admin
 Disallow: /auth
 Disallow: /submit
 
-Sitemap: https://enckzbxifdrihnfcqagb.supabase.co/functions/v1/sitemap
+Sitemap: https://americainnovates.us/sitemap.xml
+
+# Block AI training crawlers
+User-agent: GPTBot
+Disallow: /
+
+User-agent: ChatGPT-User
+Disallow: /
+
+User-agent: CCBot
+Disallow: /
+
+User-agent: anthropic-ai
+Disallow: /
+
+User-agent: Claude-Web
+Disallow: /

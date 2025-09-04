@@ -311,8 +311,8 @@ const Article = () => {
         {hasBanner ? (
           <div className={`w-full relative overflow-hidden ${
             article?.product_name === "X-Squared Math Card Deck" || article?.business_name === "Cognitive Card Games LLC" 
-              ? "h-[44vh] lg:h-[56vh]" 
-              : "h-[35vh] lg:h-[45vh]"
+              ? "h-[55vh] lg:h-[70vh]" 
+              : "h-[44vh] lg:h-[56vh]"
           }`}>
             <img
               src={bannerUrl}

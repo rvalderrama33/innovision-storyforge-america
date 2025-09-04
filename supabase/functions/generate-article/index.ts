@@ -103,10 +103,30 @@ serve(async (req) => {
     // Check if this is a manual submission and create appropriate prompt
     let prompt;
     let websiteContent = "";
+    let sourceLinksContent = "";
     
     // Scrape website content if URL is provided (for both manual and regular submissions)
     if (formData.website && formData.website.trim() !== '') {
       websiteContent = await scrapeWebsiteContent(formData.website);
+    }
+    
+    // For manual submissions, scrape content from source links
+    if (formData.isManualSubmission && formData.sourceLinks && formData.sourceLinks.length > 0) {
+      console.log("Scraping content from source links for manual submission");
+      const sourceContents = [];
+      
+      for (const link of formData.sourceLinks) {
+        if (link && link.trim() !== '') {
+          console.log("Scraping source link:", link);
+          const content = await scrapeWebsiteContent(link.trim());
+          if (content) {
+            sourceContents.push(`\n--- Content from ${link} ---\n${content}\n--- End of content ---\n`);
+          }
+        }
+      }
+      
+      sourceLinksContent = sourceContents.join('\n');
+      console.log("Total source links content length:", sourceLinksContent.length);
     }
     
     if (formData.isManualSubmission) {
@@ -124,18 +144,25 @@ ${websiteContent}
 Use this website content to gather additional insights about their business, products, services, and entrepreneurial journey.
 ` : ''}
 
+${sourceLinksContent ? `
+RESEARCH CONTENT FROM SOURCE LINKS:
+${sourceLinksContent}
+
+Use this detailed content from the source links to write a comprehensive article about ${formData.personName}'s entrepreneurial journey and business accomplishments.
+` : ''}
+
 ${formData.sourceLinks && formData.sourceLinks.length > 0 ? `
-IMPORTANT: Use these source links to research and gather detailed information about ${formData.personName}:
+Source links referenced for this article:
 ${formData.sourceLinks.map((link, index) => `[${index + 1}] ${link}`).join('\n')}
 
-Based on the information available from these sources${websiteContent ? ' and their website content' : ''}, write a thorough, well-researched article that covers:
+Based on the detailed content scraped from these sources${websiteContent ? ' and their website' : ''}, write a thorough, well-researched article that covers:
 - Their entrepreneurial journey and business ventures
 - How their background (sports, entertainment, etc.) shaped their entrepreneurial mindset
 - Key business achievements and innovations they've created
 - Leadership lessons and entrepreneurial insights from their journey
 - How they've built and scaled businesses or organizations
 - Their vision for future business endeavors and impact
-- Personal insights and quotes about entrepreneurship if available from the sources
+- Personal insights and quotes about entrepreneurship from the source content
 ` : ''}
 
 CRITICAL FOCUS: This article must be centered on their ENTREPRENEURIAL JOURNEY and business accomplishments. If they have a background in sports, entertainment, or other fields, frame it as how those experiences made them a better entrepreneur, leader, and business innovator. The story should be motivational and inspirational for other entrepreneurs and business leaders.
@@ -150,7 +177,7 @@ Structure it as a complete magazine feature article with:
 
 IMPORTANT: Do NOT use markdown headers (# symbols) in your response. Write the article in plain text with clear section breaks but no # symbols.
 
-Make sure to prominently feature the person's name (${formData.personName}) throughout the article and write as if you have thoroughly researched their business journey using the provided sources${websiteContent ? ' and website information' : ''}.
+Make sure to prominently feature the person's name (${formData.personName}) throughout the article and write as if you have thoroughly researched their business journey using the provided source content${websiteContent ? ' and website information' : ''}.
       `;
     } else {
       prompt = `Write a professional magazine article about an innovative entrepreneur and their business journey. Use the following information:

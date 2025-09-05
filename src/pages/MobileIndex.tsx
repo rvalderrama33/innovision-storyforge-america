@@ -58,7 +58,7 @@ const MobileIndex = () => {
     slug: articles[0].slug,
     title: articles[0].product_name || "Featured Innovation",
     description: articles[0].description || "Discover the latest innovation story",
-    imageUrl: articles[0].image_urls?.[0] || "/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png",
+    imageUrl: articles[0].image_urls?.[0] || "https://enckzbxifdrihnfcqagb.supabase.co/storage/v1/object/public/submission-images/0.8121512358682939.png",
     category: articles[0].category || "Innovation",
     author: articles[0].full_name || "America Innovates"
   } : undefined;
@@ -111,7 +111,7 @@ const MobileIndex = () => {
                 title={article.product_name || "Innovation Story"}
                 description={article.description || "Discover this amazing innovation"}
                 category={article.category || "Innovation"}
-                imageUrl={article.image_urls?.[0]}
+                imageUrl={article.image_urls?.[0] || "https://enckzbxifdrihnfcqagb.supabase.co/storage/v1/object/public/submission-images/0.8121512358682939.png"}
                 author={article.full_name || "America Innovates"}
                 publishedAt={article.created_at}
                 featured={article.featured}

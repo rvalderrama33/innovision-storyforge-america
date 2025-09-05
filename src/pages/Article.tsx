@@ -106,7 +106,7 @@ const Article = () => {
     if (article?.banner_image?.url) return article.banner_image.url;
     if (typeof article?.banner_image === 'string') return article.banner_image;
     if (article?.image_urls?.[0]) return article.image_urls[0];
-    return 'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png';
+    return 'https://enckzbxifdrihnfcqagb.supabase.co/storage/v1/object/public/submission-images/0.8121512358682939.png';
   }, [article?.headshot_image, article?.banner_image, article?.image_urls]);
 
   // Generate structured data for article
@@ -204,7 +204,12 @@ const Article = () => {
       return typeof article.banner_image === 'object' ? article.banner_image.url : article.banner_image;
     }
     
-    return article.image_urls && article.image_urls.length > 0 ? article.image_urls[0] : '';
+    if (article.image_urls && article.image_urls.length > 0) {
+      return article.image_urls[0];
+    }
+    
+    // Default banner image fallback
+    return 'https://enckzbxifdrihnfcqagb.supabase.co/storage/v1/object/public/submission-images/0.8121512358682939.png';
   }, [article?.banner_image, article?.image_urls]);
 
   // Helper function to get banner image style

@@ -115,8 +115,8 @@ const Stories = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {stories.map((story) => {
-                // Use headshot image or first image
-                const imageUrl = story.headshot_image || story.image_urls?.[0];
+                // Use headshot image, first image, or default banner
+                const imageUrl = story.headshot_image || story.image_urls?.[0] || 'https://enckzbxifdrihnfcqagb.supabase.co/storage/v1/object/public/submission-images/0.8121512358682939.png';
                 
                 return (
                   <Link key={story.id} to={`/article/${story.slug || story.id}`}>

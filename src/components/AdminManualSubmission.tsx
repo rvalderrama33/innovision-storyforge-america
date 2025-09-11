@@ -108,21 +108,23 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
       const validSourceLinks = formData.sourceLinks
         .filter(link => link.trim() !== '')
         .map(link => {
-          const validation = validateUrl(link);
+          const normalized = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(link.trim()) ? link.trim() : `https://${link.trim()}`;
+          const validation = validateUrl(normalized);
           if (!validation.isValid) {
             throw new Error(`Invalid source URL: ${validation.error}`);
           }
-          return link.trim();
+          return normalized;
         });
         
       const validImageUrls = formData.imageUrls
         .filter(url => url.trim() !== '')
         .map(url => {
-          const validation = validateUrl(url);
+          const normalized = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(url.trim()) ? url.trim() : `https://${url.trim()}`;
+          const validation = validateUrl(normalized);
           if (!validation.isValid) {
             throw new Error(`Invalid image URL: ${validation.error}`);
           }
-          return url.trim();
+          return normalized;
         });
 
       // Get current user email to satisfy RLS policies
@@ -196,7 +198,7 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
       console.error('Error creating manual submission:', error);
       toast({
         title: "Error",
-        description: "Failed to create manual submission",
+        description: error instanceof Error ? error.message : "Failed to create manual submission",
         variant: "destructive",
       });
     } finally {

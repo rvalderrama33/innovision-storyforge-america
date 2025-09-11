@@ -125,6 +125,14 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
           return url.trim();
         });
 
+      // Get current user email to satisfy RLS policies
+      const { data: userData } = await supabase.auth.getUser();
+      const userEmail = userData?.user?.email ? userData.user.email.trim() : null;
+
+      if (!userEmail) {
+        throw new Error('Authentication required to create a manual submission.');
+      }
+
       // Create the submission with sanitized data
       const { data, error } = await supabase
         .from('submissions')
@@ -136,14 +144,20 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
           image_urls: validImageUrls.length > 0 ? validImageUrls : null,
           is_manual_submission: true,
           status: 'pending',
-          email: 'noreply@americainnovates.us'
+          email: userEmail
         })
         .select()
         .single();
 
       if (error) throw error;
 
-      // Generate AI article
+      // Inform user submission created
+      toast({
+        title: 'Submission created',
+        description: 'Manual submission saved. Generating article now...',
+      });
+
+      // Generate AI article (non-blocking error handling)
       const { data: articleData, error: articleError } = await supabase.functions.invoke('generate-article', {
         body: {
           submissionId: data.id,
@@ -156,15 +170,18 @@ const AdminManualSubmission = ({ onSubmissionCreated }: { onSubmissionCreated: (
 
       if (articleError) {
         console.error('Article generation error:', articleError);
-        throw new Error(`Failed to generate article: ${articleError.message}`);
+        toast({
+          title: 'Article generation failed',
+          description: articleError.message || 'There was a problem starting the generator.',
+          variant: 'destructive',
+        });
+      } else {
+        console.log('Article generated successfully:', articleData);
+        toast({
+          title: 'Article generation started',
+          description: 'The AI is creating the article now.',
+        });
       }
-
-      console.log('Article generated successfully:', articleData);
-
-      toast({
-        title: "Success",
-        description: "Manual submission created and article generation started!",
-      });
 
       // Reset form
       setFormData({

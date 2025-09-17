@@ -55,7 +55,7 @@ const TermsOfService = () => {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Contact Information</h2>
             <p className="text-gray-700">
-              If you have questions about these Terms of Service, please contact us at legal@americainnovates.com
+              If you have questions about these Terms of Service, please contact us at legal@americainnovates.us
             </p>
           </section>
         </div>

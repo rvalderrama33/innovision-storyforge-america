@@ -53,7 +53,7 @@ const PrivacyPolicy = () => {
           <section className="mb-8">
             <h2 className="text-2xl font-semibold text-gray-900 mb-4">Contact Us</h2>
             <p className="text-gray-700">
-              If you have questions about this Privacy Policy, please contact us at privacy@americainnovates.com
+              If you have questions about this Privacy Policy, please contact us at privacy@americainnovates.us
             </p>
           </section>
         </div>

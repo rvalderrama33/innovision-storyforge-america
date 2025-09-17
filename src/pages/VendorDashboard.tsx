@@ -20,6 +20,7 @@ import {
   Users
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { InviteVendor } from '@/components/InviteVendor';
 
 interface VendorStats {
   totalProducts: number;
@@ -165,7 +166,7 @@ const VendorDashboard = () => {
           </div>
 
           {/* Quick Actions */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             <Link to="/marketplace/add">
               <Button className="w-full h-16 text-lg">
                 <Plus className="h-5 w-5 mr-2" />
@@ -184,6 +185,9 @@ const VendorDashboard = () => {
                 Orders & Tracking
               </Button>
             </Link>
+            <div className="flex items-center">
+              <InviteVendor context="vendor" className="w-full h-16 text-lg bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white" />
+            </div>
           </div>
 
           {/* Stats Overview */}

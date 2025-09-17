@@ -14,6 +14,7 @@ import { CheckCircle, XCircle, Store, Calendar, User, Mail, Phone, Globe, Messag
 import { formatDistanceToNow } from 'date-fns';
 import { ManualVendorCreation } from './ManualVendorCreation';
 import { ProductVendorAssignment } from './ProductVendorAssignment';
+import { InviteVendor } from './InviteVendor';
 
 interface VendorApplication {
   id: string;
@@ -428,6 +429,8 @@ export const VendorManagement = () => {
               </CardDescription>
             </div>
             <div className="flex gap-2">
+              <InviteVendor context="admin" className="bg-blue-600 hover:bg-blue-700 text-white" />
+              
               <Button
                 onClick={() => setShowManualVendorDialog(true)}
                 className="bg-green-600 hover:bg-green-700 text-white"

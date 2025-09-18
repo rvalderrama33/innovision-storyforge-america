@@ -387,6 +387,7 @@ export type Database = {
           name: string
           price: number
           primary_image_index: number | null
+          return_policy: string | null
           sales_links: string[] | null
           shipping_info: Json | null
           slug: string | null
@@ -415,6 +416,7 @@ export type Database = {
           name: string
           price: number
           primary_image_index?: number | null
+          return_policy?: string | null
           sales_links?: string[] | null
           shipping_info?: Json | null
           slug?: string | null
@@ -443,6 +445,7 @@ export type Database = {
           name?: string
           price?: number
           primary_image_index?: number | null
+          return_policy?: string | null
           sales_links?: string[] | null
           shipping_info?: Json | null
           slug?: string | null

@@ -58,7 +58,8 @@ const MarketplaceEdit = () => {
     video_urls: [] as string[],
     isAffiliate: false,
     affiliateUrl: "",
-    affiliatePrice: ""
+    affiliatePrice: "",
+    isAdultContent: false
   });
 
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -120,7 +121,8 @@ const MarketplaceEdit = () => {
           video_urls: data.video_urls || [],
           isAffiliate: data.is_affiliate || false,
           affiliateUrl: data.affiliate_url || "",
-          affiliatePrice: data.affiliate_price || ""
+          affiliatePrice: data.affiliate_price || "",
+          isAdultContent: data.is_adult_content || false
         });
       } catch (error: any) {
         console.error('Error fetching product:', error);
@@ -404,7 +406,8 @@ const MarketplaceEdit = () => {
           video_urls: formData.video_urls,
           is_affiliate: formData.isAffiliate,
           affiliate_url: formData.isAffiliate ? formData.affiliateUrl : null,
-          affiliate_price: formData.isAffiliate ? formData.affiliatePrice : null
+          affiliate_price: formData.isAffiliate ? formData.affiliatePrice : null,
+          is_adult_content: formData.isAdultContent
         })
         .eq('id', id);
       if (!isAdmin) {
@@ -737,6 +740,16 @@ const MarketplaceEdit = () => {
                   onCheckedChange={(checked) => setFormData({...formData, isAffiliate: checked})}
                 />
                 <Label htmlFor="isAffiliate" className="text-sm font-medium">This is an affiliate product</Label>
+              </div>
+
+              {/* Adult Content Toggle */}
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isAdultContent"
+                  checked={formData.isAdultContent}
+                  onCheckedChange={(checked) => setFormData({...formData, isAdultContent: checked})}
+                />
+                <Label htmlFor="isAdultContent" className="text-sm font-medium">This product is for adults (18+) only</Label>
               </div>
 
               {formData.isAffiliate ? (

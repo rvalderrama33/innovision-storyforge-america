@@ -62,6 +62,7 @@ const MarketplaceAdd = () => {
     video_urls: [] as string[],
     isAffiliate: false,
     affiliateUrl: "",
+    isAdultContent: false,
     hasVariants: false,
     variants: [] as any[],
     variantOptions: {} as Record<string, string[]>
@@ -382,6 +383,7 @@ const MarketplaceAdd = () => {
         video_urls: formData.video_urls,
         is_affiliate: formData.isAffiliate,
         affiliate_url: formData.isAffiliate ? formData.affiliateUrl : null,
+        is_adult_content: formData.isAdultContent,
         has_variants: formData.hasVariants,
         variants: formData.variants,
         variant_options: formData.variantOptions
@@ -707,6 +709,16 @@ const MarketplaceAdd = () => {
                   onCheckedChange={(checked) => setFormData({...formData, isAffiliate: checked})}
                 />
                 <Label htmlFor="isAffiliate" className="text-sm font-medium">This is an affiliate product</Label>
+              </div>
+
+              {/* Adult Content Toggle */}
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="isAdultContent"
+                  checked={formData.isAdultContent}
+                  onCheckedChange={(checked) => setFormData({...formData, isAdultContent: checked})}
+                />
+                <Label htmlFor="isAdultContent" className="text-sm font-medium">This product is for adults (18+) only</Label>
               </div>
 
               {formData.isAffiliate ? (

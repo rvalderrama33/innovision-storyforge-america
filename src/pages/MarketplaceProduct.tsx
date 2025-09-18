@@ -15,6 +15,7 @@ import { ArrowLeft, Star, ShoppingCart, Package, Truck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useCart } from "@/contexts/CartContext";
 import MediaGallery from "@/components/MediaGallery";
+import AgeVerificationDialog from "@/components/AgeVerificationDialog";
 
 interface MarketplaceProduct {
   id: string;
@@ -37,6 +38,7 @@ interface MarketplaceProduct {
   is_affiliate: boolean;
   affiliate_url: string;
   affiliate_price?: string;
+  is_adult_content: boolean;
   created_at: string;
 }
 
@@ -67,6 +69,9 @@ const MarketplaceProduct = () => {
   const [showReviewForm, setShowReviewForm] = useState(false);
   const [newReview, setNewReview] = useState({ rating: 5, title: '', content: '' });
   const [vendorName, setVendorName] = useState<string | null>(null);
+  const [showAgeVerification, setShowAgeVerification] = useState(false);
+  const [userAgeVerified, setUserAgeVerified] = useState(false);
+  const [accessBlocked, setAccessBlocked] = useState(false);
   const { toast } = useToast();
   const { addToCart } = useCart();
 
@@ -158,6 +163,58 @@ const MarketplaceProduct = () => {
 
     fetchProductAndReviews();
   }, [id]);
+
+  // Check user age verification status and product adult content
+  useEffect(() => {
+    const checkAgeVerification = async () => {
+      if (!product || !product.is_adult_content) {
+        return; // Not an adult product, no verification needed
+      }
+
+      if (!user) {
+        // Non-authenticated users need to verify age for adult content
+        setShowAgeVerification(true);
+        return;
+      }
+
+      // Check if authenticated user has been age verified
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('age_verified')
+          .eq('id', user.id)
+          .single();
+
+        if (error) {
+          console.error('Error fetching user profile:', error);
+          setShowAgeVerification(true);
+          return;
+        }
+
+        if (!profile?.age_verified) {
+          setShowAgeVerification(true);
+        } else {
+          setUserAgeVerified(true);
+        }
+      } catch (error) {
+        console.error('Error checking age verification:', error);
+        setShowAgeVerification(true);
+      }
+    };
+
+    if (product && !loading) {
+      checkAgeVerification();
+    }
+  }, [product, user, loading]);
+
+  const handleAgeVerification = (verified: boolean) => {
+    setShowAgeVerification(false);
+    if (verified) {
+      setUserAgeVerified(true);
+    } else {
+      setAccessBlocked(true);
+    }
+  };
 
   // NOW WE CAN HAVE CONDITIONAL RETURNS
   if (configLoading) {
@@ -320,6 +377,40 @@ const MarketplaceProduct = () => {
               Back to Marketplace
             </Button>
           </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Check if access is blocked for adult content
+  if (accessBlocked) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8 text-center">
+          <h1 className="text-2xl font-bold mb-4">Access Restricted</h1>
+          <p className="text-muted-foreground mb-6">
+            You must be 18 or older to view this product. 
+            This restriction cannot be changed once set.
+          </p>
+          <Link to="/marketplace">
+            <Button>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Marketplace
+            </Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  // Don't show product content until age verification is complete for adult products
+  if (product?.is_adult_content && !userAgeVerified && !showAgeVerification) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8 text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto"></div>
         </div>
       </div>
     );
@@ -609,6 +700,12 @@ const MarketplaceProduct = () => {
           </Card>
         </div>
       </div>
+      
+      {/* Age Verification Dialog */}
+      <AgeVerificationDialog
+        open={showAgeVerification}
+        onVerified={handleAgeVerification}
+      />
     </div>
   );
 };

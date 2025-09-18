@@ -383,6 +383,7 @@ export type Database = {
           has_variants: boolean | null
           id: string
           images: string[] | null
+          is_adult_content: boolean
           is_affiliate: boolean | null
           name: string
           price: number
@@ -412,6 +413,7 @@ export type Database = {
           has_variants?: boolean | null
           id?: string
           images?: string[] | null
+          is_adult_content?: boolean
           is_affiliate?: boolean | null
           name: string
           price: number
@@ -441,6 +443,7 @@ export type Database = {
           has_variants?: boolean | null
           id?: string
           images?: string[] | null
+          is_adult_content?: boolean
           is_affiliate?: boolean | null
           name?: string
           price?: number
@@ -696,6 +699,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age_verified: boolean | null
           created_at: string
           email: string | null
           full_name: string | null
@@ -703,6 +707,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          age_verified?: boolean | null
           created_at?: string
           email?: string | null
           full_name?: string | null
@@ -710,6 +715,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          age_verified?: boolean | null
           created_at?: string
           email?: string | null
           full_name?: string | null

@@ -52,7 +52,7 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
           .eq('featured', true)
           .order('pinned', { ascending: false })
           .order('created_at', { ascending: false })
-          .limit(8); // Reduce from 28 to 8 for better performance
+          .limit(16); // Show 16 featured articles
 
         if (error) {
           console.error('Error fetching featured stories:', error);

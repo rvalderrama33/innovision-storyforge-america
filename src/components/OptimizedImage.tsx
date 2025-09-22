@@ -56,30 +56,31 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
     return () => observer.disconnect();
   }, [lazy, priority, isInView]);
 
-  // Optimize Unsplash URLs
+  // Optimize Unsplash URLs with aggressive compression
   const getOptimizedSrc = (originalSrc: string) => {
     if (originalSrc.includes('unsplash.com')) {
-      // Remove large width parameters and add optimized ones
       const baseUrl = originalSrc.split('?')[0];
       const optimizedParams = new URLSearchParams({
         'auto': 'format,compress',
         'fit': 'crop',
-        'w': width ? width.toString() : '800',
-        'h': height ? height.toString() : '600',
-        'q': '80',
-        'fm': 'webp'
+        'w': width ? Math.min(width, 800).toString() : '400',
+        'h': height ? Math.min(height, 600).toString() : '300',
+        'q': '70', // Lower quality for better compression
+        'fm': 'webp',
+        'cs': 'srgb',
+        'dpr': '1' // Force 1x DPR to avoid huge images
       });
       return `${baseUrl}?${optimizedParams.toString()}`;
     }
     return originalSrc;
   };
 
-  // Generate srcSet for responsive images
+  // Generate smaller srcSet for better performance
   const generateSrcSet = (originalSrc: string) => {
     if (!originalSrc.includes('unsplash.com')) return undefined;
     
     const baseUrl = originalSrc.split('?')[0];
-    const widths = [400, 800, 1200, 1600];
+    const widths = [320, 640, 800]; // Smaller, more realistic widths
     
     return widths.map(w => {
       const params = new URLSearchParams({
@@ -87,8 +88,10 @@ const OptimizedImage: React.FC<OptimizedImageProps> = ({
         'fit': 'crop',
         'w': w.toString(),
         'h': height ? Math.round((height * w) / (width || 800)).toString() : Math.round(w * 0.75).toString(),
-        'q': '80',
-        'fm': 'webp'
+        'q': '70', // Lower quality
+        'fm': 'webp',
+        'cs': 'srgb',
+        'dpr': '1'
       });
       return `${baseUrl}?${params.toString()} ${w}w`;
     }).join(', ');

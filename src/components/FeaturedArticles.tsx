@@ -52,7 +52,7 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
           .eq('featured', true)
           .order('pinned', { ascending: false })
           .order('created_at', { ascending: false })
-          .limit(28);
+          .limit(8); // Reduce from 28 to 8 for better performance
 
         if (error) {
           console.error('Error fetching featured stories:', error);
@@ -111,8 +111,8 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                           className="w-full h-96 group-hover:scale-105 transition-transform duration-700"
                           priority={true}
                           lazy={false}
-                          width={800}
-                          height={384}
+                          width={600}
+                          height={300}
                           sizes="(max-width: 1024px) 100vw, 66vw"
                           objectPosition={featuredStories[0].image_urls?.[0]?.includes('0.6836726064516103.jpg') 
                             ? 'center 15%' 
@@ -149,8 +149,8 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                               alt={story.product_name || "Innovation story"}
                               className="w-full h-32 group-hover:scale-105 transition-transform duration-300"
                               lazy={true}
-                              width={200}
-                              height={128}
+                              width={150}
+                              height={100}
                               sizes="(max-width: 1024px) 33vw, 15vw"
                               objectPosition={story.image_urls?.[0]?.includes('0.6836726064516103.jpg') 
                                 ? 'center 15%' 
@@ -186,8 +186,8 @@ const FeaturedArticles = ({ onContentLoad }: FeaturedArticlesProps) => {
                           alt={story.product_name || "Innovation story"}
                           className="w-full h-full group-hover:scale-105 transition-transform duration-300"
                           lazy={true}
-                          width={400}
-                          height={300}
+                          width={300}
+                          height={225}
                           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 25vw"
                           objectPosition={story.image_urls?.[0]?.includes('0.6836726064516103.jpg') 
                             ? 'center 15%' 

@@ -16,8 +16,8 @@ const Hero = () => {
           className="w-full h-full"
           priority={true}
           lazy={false}
-          width={1920}
-          height={1080}
+          width={800}
+          height={600}
           sizes="100vw"
           objectFit="cover"
         />
@@ -33,8 +33,8 @@ const Hero = () => {
             className="h-24 w-auto max-w-[280px]"
             priority={true}
             lazy={false}
-            width={280}
-            height={96}
+            width={200}
+            height={68}
             objectFit="contain"
           />
         </Link>

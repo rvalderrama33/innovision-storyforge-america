@@ -15,9 +15,8 @@ const Index = () => {
   // Performance optimizations
   useResourceHints();
   useCriticalImagePreload([
-    'https://images.unsplash.com/photo-1522071820081-009f0129c71c',
-    '/lovable-uploads/0b7aab03-b403-4c89-bfbb-d50750598cce.png',
-    'https://americainnovates.us/lovable-uploads/826bf73b-884b-436a-a68b-f1b22cfb5eda.png'
+    'https://images.unsplash.com/photo-1522071820081-009f0129c71c?auto=format,compress&fit=crop&w=800&h=600&q=70&fm=webp&cs=srgb&dpr=1',
+    '/lovable-uploads/0b7aab03-b403-4c89-bfbb-d50750598cce.png'
   ]);
 
   // Structured data for homepage

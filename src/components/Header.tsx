@@ -1,13 +1,14 @@
 
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, LogOut, Settings, X, Home, Store } from "lucide-react";
+import { Menu, LogOut, X, Home, Store } from "lucide-react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import SearchDialog from "@/components/SearchDialog";
 import { BecomeVendorButton } from "@/components/BecomeVendorButton";
 import CartIcon from "@/components/CartIcon";
+import OptimizedImage from "@/components/OptimizedImage";
 
 const LogoComponent = ({ isMobile = false, isMarketplace = false }: { isMobile?: boolean; isMarketplace?: boolean }) => {
   const [imageError, setImageError] = useState(false);
@@ -38,15 +39,18 @@ const LogoComponent = ({ isMobile = false, isMarketplace = false }: { isMobile?:
     : "America Innovates Magazine";
 
   return (
-    <img 
+    <OptimizedImage 
       src={logoSrc} 
       alt={altText} 
       className={isMobile 
-        ? "h-16 w-auto max-w-[280px] object-contain" 
-        : "h-32 w-auto object-contain"
+        ? "h-16 w-auto max-w-[280px]" 
+        : "h-32 w-auto"
       }
-      onError={handleImageError}
-      style={{ display: 'block' }}
+      priority={true}
+      lazy={false}
+      width={isMobile ? 280 : 400}
+      height={isMobile ? 64 : 128}
+      objectFit="contain"
     />
   );
 };

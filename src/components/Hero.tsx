@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
+import OptimizedImage from "@/components/OptimizedImage";
 
 const Hero = () => {
 
@@ -9,10 +10,16 @@ const Hero = () => {
     <div className="relative overflow-hidden bg-white">
       {/* Background Image */}
       <div className="absolute inset-0 z-0">
-        <img 
-          src="https://images.unsplash.com/photo-1522071820081-009f0129c71c?ixlib=rb-4.0.3&auto=format&fit=crop&w=6000&q=80"
+        <OptimizedImage 
+          src="https://images.unsplash.com/photo-1522071820081-009f0129c71c"
           alt="Group of people smiling together"
-          className="w-full h-full object-cover"
+          className="w-full h-full"
+          priority={true}
+          lazy={false}
+          width={1920}
+          height={1080}
+          sizes="100vw"
+          objectFit="cover"
         />
         <div className="absolute inset-0 bg-black/30"></div>
       </div>
@@ -20,10 +27,15 @@ const Hero = () => {
       {/* Mobile Logo at Top */}
       <div className="relative z-20 md:hidden flex justify-center pt-4 pb-2">
         <Link to="/">
-          <img 
+          <OptimizedImage 
             src="/lovable-uploads/0b7aab03-b403-4c89-bfbb-d50750598cce.png" 
             alt="America Innovates Magazine" 
-            className="h-24 w-auto max-w-[280px] object-contain"
+            className="h-24 w-auto max-w-[280px]"
+            priority={true}
+            lazy={false}
+            width={280}
+            height={96}
+            objectFit="contain"
           />
         </Link>
       </div>
